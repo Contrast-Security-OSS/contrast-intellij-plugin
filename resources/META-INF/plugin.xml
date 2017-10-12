@@ -26,6 +26,8 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <toolWindow id="Vulnerabilities" secondary="false" icon="/contrastToolWindow/ContrastIcon.png" anchor="bottom"
+                factoryClass="com.contrastsecurity.ContrastToolWindowFactory"/>
   </extensions>
 
   <actions>
