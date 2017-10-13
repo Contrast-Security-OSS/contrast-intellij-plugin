@@ -1,8 +1,15 @@
 package com.contrastsecurity.ui.settings;
 
+import com.contrastsecurity.config.ContrastPersistentStateComponent;
+import com.contrastsecurity.core.Util;
+import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang.StringUtils;
+
 import javax.swing.*;
 
 public class ContrastSearchableConfigurableGUI {
+
+//    UI Variables
     private JPanel contrastSettingsPanel;
     private JLabel teamServerLabel;
     private JTextField teamServerTextField;
@@ -27,8 +34,34 @@ public class ContrastSearchableConfigurableGUI {
     private JLabel organizationSettingsLabel;
     private JButton restoreDefaultsButton;
     private JSeparator organizationSettingsSeparator;
+//    Other variables
+    private ContrastPersistentStateComponent contrastPersistentStateComponent;
 
     public JPanel getContrastSettingsPanel() {
         return contrastSettingsPanel;
+    }
+
+    public ContrastSearchableConfigurableGUI() {
+        contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
+    }
+
+    private void populateFieldsWithValuesFromContrastPersistentStateComponent() {
+
+        if (StringUtils.isNotBlank(contrastPersistentStateComponent.getTeamServerUrl())) {
+
+        }
+        if (StringUtils.isNotBlank(contrastPersistentStateComponent.getUsername())) {
+
+        }
+        if (StringUtils.isNotBlank(contrastPersistentStateComponent.getServiceKey())) {
+
+        }
+        if (contrastPersistentStateComponent.getOrganizations() != null && !contrastPersistentStateComponent.getOrganizations().isEmpty()){
+
+        }
+        if (StringUtils.isNotBlank(contrastPersistentStateComponent.getSelectedOrganizationUuid())){
+
+        }
+
     }
 }

@@ -3,27 +3,36 @@ package com.contrastsecurity.core.internal.preferences;
 public class OrganizationConfig {
 	
 	private String apiKey;
-	private String organizationUUID;
-	
-	public OrganizationConfig(final String apiKey, final String serviceKey) {
-		this.apiKey = apiKey;
-		this.organizationUUID = serviceKey;
-	}
+	private String uuid;
+	private String name;
 
-	public String getApiKey() {
-		return apiKey;
-	}
+    public OrganizationConfig(String apiKey, String uuid, String name) {
+        this.apiKey = apiKey;
+        this.uuid = uuid;
+        this.name = name;
+    }
 
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
+    public String getApiKey() {
+        return apiKey;
+    }
 
-	public String getOrganizationUUIDKey() {
-		return organizationUUID;
-	}
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
 
-	public void setOrganizationUUIDKey(String organizationUUIDKey) {
-		this.organizationUUID = organizationUUIDKey;
-	}
+    public String getUuid() {
+        return uuid;
+    }
 
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

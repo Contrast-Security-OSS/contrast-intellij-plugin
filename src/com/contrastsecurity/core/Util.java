@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.contrastsecurity.core;
 
+import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.Organization;
@@ -90,4 +91,24 @@ public class Util {
 		return buffer.toString();
 	}
 
+	public String getStringFromOrganizationConfig(OrganizationConfig organizationConfig, String delimiter){
+        String organization = organizationConfig.getApiKey() + delimiter
+                + organizationConfig.getUuid() + delimiter
+                + organizationConfig.getName();
+	    return organization;
+    }
+    public OrganizationConfig getOrganizationConfigFromString(String organization, String delimiter) {
+        OrganizationConfig organizationConfig;
+
+	    if (StringUtils.isNotBlank(organization)) {
+            String[] org = StringUtils.split(organization, delimiter);
+            if (org.length != 3){
+                organizationConfig = null;
+            }
+            organizationConfig = new OrganizationConfig(org[0], org[1], org[2]);
+        } else {
+            organizationConfig = null;
+        }
+        return organizationConfig;
+    }
 }
