@@ -1,5 +1,6 @@
 package com.contrastsecurity.ui.settings;
 
+import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import org.jetbrains.annotations.Nls;
@@ -11,6 +12,9 @@ import javax.swing.*;
 public class ContrastSearchableConfigurable implements SearchableConfigurable {
 
     ContrastSearchableConfigurableGUI contrastSearchableConfigurableGUI;
+
+    public ContrastSearchableConfigurable() {
+    }
 
     @NotNull
     @Override
@@ -33,16 +37,21 @@ public class ContrastSearchableConfigurable implements SearchableConfigurable {
 
     @Override
     public boolean isModified() {
-        return false;
+        return contrastSearchableConfigurableGUI.isModified();
     }
 
     @Override
     public void apply() throws ConfigurationException {
-
+        contrastSearchableConfigurableGUI.apply();
     }
 
     @Override
     public void disposeUIResources() {
         contrastSearchableConfigurableGUI = null;
+    }
+
+    @Override
+    public void reset() {
+        contrastSearchableConfigurableGUI.reset();
     }
 }

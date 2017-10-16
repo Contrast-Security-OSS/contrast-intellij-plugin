@@ -30,7 +30,7 @@
                 factoryClass="com.contrastsecurity.ContrastToolWindowFactory"/>
     <applicationConfigurable groupId="tools" displayName="Contrast" id="preferences.ContrastSearchableConfigurable" instance="com.contrastsecurity.ui.settings.ContrastSearchableConfigurable" />
 
-      <projectService serviceInterface="com.contrastsecurity.config.ContrastPersistentStateComponent" serviceImplementation="com.contrastsecurity.config.ContrastPersistentStateComponent"/>
+    <applicationService serviceInterface="com.contrastsecurity.config.ContrastPersistentStateComponent" serviceImplementation="com.contrastsecurity.config.ContrastPersistentStateComponent"/>
   </extensions>
 
   <actions>

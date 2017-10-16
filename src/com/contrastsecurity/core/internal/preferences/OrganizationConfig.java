@@ -4,12 +4,10 @@ public class OrganizationConfig {
 	
 	private String apiKey;
 	private String uuid;
-	private String name;
 
-    public OrganizationConfig(String apiKey, String uuid, String name) {
+    public OrganizationConfig(String apiKey, String uuid) {
         this.apiKey = apiKey;
         this.uuid = uuid;
-        this.name = name;
     }
 
     public String getApiKey() {
@@ -26,13 +24,5 @@ public class OrganizationConfig {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

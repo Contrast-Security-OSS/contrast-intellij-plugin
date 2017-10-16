@@ -31,6 +31,7 @@ public interface Constants {
 	static final String UNLICENSED = "{{#unlicensed}}";
 	
 	static final String ORGANIZATION_LIST = "organizationList";
+	static final String DELIMITER = ";";
 	
 //	// #0DA1A9
 //	static final Color LINK_COLOR = new Color(Display.getDefault(), 13, 161, 169);

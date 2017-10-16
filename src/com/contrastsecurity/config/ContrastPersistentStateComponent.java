@@ -1,6 +1,10 @@
 package com.contrastsecurity.config;
 
-import com.intellij.openapi.components.*;
+import com.contrastsecurity.core.Constants;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,15 +13,15 @@ import java.util.Map;
 @State(
         name="ContrastPersistentStateComponent",
         storages = {
-                @Storage(StoragePathMacros.WORKSPACE_FILE)}
+                @Storage("$APP_CONFIG$/contrast.xml")}
 )
 public class ContrastPersistentStateComponent implements PersistentStateComponent<ContrastPersistentStateComponent> {
 
-    public String teamServerUrl;
-    public String username;
-    public String serviceKey;
-    public String selectedOrganizationUuid;
-//    Key = organization UUID, Value = Organization (API key, UUID, organization name) represented as a String
+    public String teamServerUrl = Constants.TEAM_SERVER_URL_VALUE;
+    public String username = "";
+    public String serviceKey = "";
+    public String selectedOrganizationName = "";
+//    Key = organization name, Value = Organization (API key, UUID) represented as a String
     public Map<String, String> organizations;
 
     @Nullable
@@ -29,11 +33,6 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     @Override
     public void loadState(ContrastPersistentStateComponent contrastPersistentStateComponent) {
         XmlSerializerUtil.copyBean(contrastPersistentStateComponent, this);
-    }
-
-    @Nullable
-    public static ContrastPersistentStateComponent getInstance() {
-        return ServiceManager.getService(ContrastPersistentStateComponent.class);
     }
 
     public String getTeamServerUrl() {
@@ -60,19 +59,24 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
         this.serviceKey = serviceKey;
     }
 
-    public String getSelectedOrganizationUuid() {
-        return selectedOrganizationUuid;
-    }
-
-    public void setSelectedOrganizationUuid(String selectedOrganizationUuid) {
-        this.selectedOrganizationUuid = selectedOrganizationUuid;
-    }
-
     public Map<String, String> getOrganizations() {
         return organizations;
     }
 
     public void setOrganizations(Map<String, String> organizations) {
         this.organizations = organizations;
+    }
+
+    public String getSelectedOrganizationName() {
+        return selectedOrganizationName;
+    }
+
+    public void setSelectedOrganizationName(String selectedOrganizationName) {
+        this.selectedOrganizationName = selectedOrganizationName;
+    }
+
+    @Nullable
+    public static ContrastPersistentStateComponent getInstance() {
+        return ServiceManager.getService(ContrastPersistentStateComponent.class);
     }
 }

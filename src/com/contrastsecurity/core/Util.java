@@ -92,9 +92,7 @@ public class Util {
 	}
 
 	public String getStringFromOrganizationConfig(OrganizationConfig organizationConfig, String delimiter){
-        String organization = organizationConfig.getApiKey() + delimiter
-                + organizationConfig.getUuid() + delimiter
-                + organizationConfig.getName();
+        String organization = organizationConfig.getApiKey() + delimiter + organizationConfig.getUuid();
 	    return organization;
     }
     public OrganizationConfig getOrganizationConfigFromString(String organization, String delimiter) {
@@ -102,10 +100,11 @@ public class Util {
 
 	    if (StringUtils.isNotBlank(organization)) {
             String[] org = StringUtils.split(organization, delimiter);
-            if (org.length != 3){
+            if (org.length != 2){
                 organizationConfig = null;
+            } else {
+                organizationConfig = new OrganizationConfig(org[0], org[1]);
             }
-            organizationConfig = new OrganizationConfig(org[0], org[1], org[2]);
         } else {
             organizationConfig = null;
         }
