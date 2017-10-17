@@ -3,7 +3,11 @@ package com.contrastsecurity.ui.settings;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
+import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
+import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.models.Organization;
+import com.contrastsecurity.models.Organizations;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
@@ -12,6 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +48,8 @@ public class ContrastSearchableConfigurableGUI {
     private JLabel organizationSettingsLabel;
     private JButton restoreDefaultsButton;
     private JSeparator organizationSettingsSeparator;
-//    Other variables
+    private JLabel testConnectionLabel;
+    //    Other variables
     private final ContrastPersistentStateComponent contrastPersistentStateComponent;
     private Util util;
     private Map<String, String> organizations;
@@ -96,6 +104,43 @@ public class ContrastSearchableConfigurableGUI {
                     }
                     organizationComboBox.removeItem(selectedItem);
                 }
+            }
+        });
+
+        testConnectionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final String url = teamServerTextField.getText();
+                URL u;
+                try {
+                    u = new URL(url);
+                } catch (MalformedURLException e1) {
+                    testConnectionLabel.setText("Connection failed!");
+                    return;
+                }
+                if (!u.getProtocol().startsWith("http")) {
+                    testConnectionLabel.setText("Connection failed!");
+                    return;
+                }
+                ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText(), serviceKeyTextField.getText(),
+                        apiKeyTextField.getText(), teamServerTextField.getText());
+                try {
+                    Organizations organizations = extendedContrastSDK.getProfileDefaultOrganizations();
+                    Organization organization = organizations.getOrganization();
+
+                    if (organization == null || organization.getOrgUuid() == null) {
+                        testConnectionLabel.setText("Connection is correct, but no default organizations found.");
+                    } else {
+                        testConnectionLabel.setText("Connection confirmed!");
+                    }
+                } catch (IOException | UnauthorizedException e1) {
+                    testConnectionLabel.setText("Connection failed! " + e1.getMessage());
+                } catch (Exception e1) {
+                    testConnectionLabel.setText("Connection failed! Check Team Server URL.");
+                }
+                finally {
+                }
+
             }
         });
     }
