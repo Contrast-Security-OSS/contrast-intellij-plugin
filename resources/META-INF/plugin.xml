@@ -27,7 +27,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <toolWindow id="Vulnerabilities" secondary="false" icon="/contrastToolWindow/contrastIcon.png" anchor="bottom"
-                factoryClass="com.contrastsecurity.ContrastToolWindowFactory"/>
+                factoryClass="com.contrastsecurity.ui.ContrastToolWindowFactory"/>
     <applicationConfigurable groupId="tools" displayName="Contrast" id="preferences.ContrastSearchableConfigurable" instance="com.contrastsecurity.ui.settings.ContrastSearchableConfigurable" />
 
     <applicationService serviceInterface="com.contrastsecurity.config.ContrastPersistentStateComponent" serviceImplementation="com.contrastsecurity.config.ContrastPersistentStateComponent"/>
