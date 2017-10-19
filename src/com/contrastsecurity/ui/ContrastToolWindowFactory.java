@@ -17,6 +17,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.sun.jna.platform.unix.X11;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -24,9 +25,7 @@ import javax.swing.table.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
@@ -51,7 +50,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private int currentOffset = 0;
     private static final int PAGE_LIMIT = 20;
     private String traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
-    ContrastTableModel contrastTableModel;
+    private ContrastTableModel contrastTableModel;
     private OrganizationConfig organizationConfig;
 
     public ContrastToolWindowFactory() {
@@ -59,10 +58,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastTableModel = new ContrastTableModel();
         extendedContrastSDK = contrastUtil.getContrastSDK();
         organizationConfig = contrastUtil.getSelectedOrganizationConfig();
-
-//        updateServersComboBox();
-//        setupTable();
-//        populateTable();
 
         serversComboBox.addItemListener(new ItemListener() {
             @Override
@@ -73,6 +68,42 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 }
             }
         });
+
+        applicationsComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == e.SELECTED) {
+                    ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) e.getItem();
+                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getSelectedItem();
+
+                    Long serverId = Constants.ALL_SERVERS;
+                    String appId = Constants.ALL_APPLICATIONS;
+
+                    if (serverComboBoxItem.getServer() != null){
+                        serverId = serverComboBoxItem.getServer().getServerId();
+                    }
+                    if (applicationComboBoxItem.getApplication() != null){
+                        appId = applicationComboBoxItem.getApplication().getId();
+                    }
+
+                    Trace[] traces = new Trace[0];
+                    try {
+                        traces = getTraces(organizationConfig.getUuid(), serverId, appId, currentOffset, PAGE_LIMIT);
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    } catch (UnauthorizedException exception) {
+                        exception.printStackTrace();
+                    }
+                    if (traces!=null){
+                        contrastTableModel.setData(traces);
+                        contrastTableModel.fireTableDataChanged();
+                    }
+                }
+            }
+        });
+
+        updateServersComboBox();
+        setupTable();
     }
 
     @Override
@@ -81,20 +112,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contrastToolWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
-    }
-
-    private void populateTable() {
-        Trace[] traces = new Trace[0];
-
-        try {
-            traces = getTraces(organizationConfig.getUuid(), Constants.ALL_SERVERS, Constants.ALL_APPLICATIONS, currentOffset, PAGE_LIMIT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-        }
-
-        contrastTableModel.setData(traces);
     }
 
     private Trace[] getTraces(String orgUuid, Long serverId, String appId, int offset, int limit)
