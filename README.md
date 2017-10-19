@@ -5,6 +5,7 @@
 * Plugin DevKit plugin must be enabled in IDE. Go to IntelliJ settings => Plugins => search for Plugin DevKit and make sure it is enabled.
 * IntelliJ Platform SDK must be configured for your IDEA project. Right click on project folder in IntelliJ => Open Module Settings => Project => Project SDK.
 If necessary add a new "IntelliJ Platform Plugin SDK". It should point to the installation folder of IntelliJ.
+* Project language level in project settings should be set to 8. Right click on project folder in IntelliJ => Open Module Settings => Project => Project language level.
 More information on setting up development environment: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/setting_up_environment.html
 
 ### Run ###
