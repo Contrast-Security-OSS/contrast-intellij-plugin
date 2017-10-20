@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.contrastsecurity.ui.ContrastToolWindowFactory">
-  <grid id="27dc6" binding="contrastToolWindowContent" layout-manager="GridLayoutManager" row-count="2" column-count="7" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="contrastToolWindowContent" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="14" y="67" width="812" height="429"/>
@@ -8,105 +8,164 @@
     <properties/>
     <border type="none"/>
     <children>
-      <toolbar id="9f13d" binding="toolBar">
+      <splitpane id="887d8">
         <constraints>
-          <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="6" hsize-policy="0" anchor="0" fill="2" indent="0" use-parent-layout="false">
-            <preferred-size width="-1" height="20"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
           </grid>
         </constraints>
         <properties>
-          <floatable value="false"/>
-          <orientation value="1"/>
+          <continuousLayout value="true"/>
+          <dividerLocation value="600"/>
+          <dividerSize value="1"/>
         </properties>
-        <border type="etched">
-          <font/>
-          <color color="-16777216"/>
-        </border>
+        <border type="none"/>
         <children>
-          <component id="21013" class="javax.swing.JButton" binding="settingsButton">
-            <constraints/>
-            <properties>
-              <icon value="contrastToolWindow/settings.png"/>
-              <text value=""/>
-            </properties>
-          </component>
-          <component id="d1ff0" class="javax.swing.JButton" binding="refreshButton">
-            <constraints/>
-            <properties>
-              <icon value="contrastToolWindow/refresh_tab.gif"/>
-              <text value=""/>
-            </properties>
-          </component>
-          <component id="1c77c" class="javax.swing.JButton" binding="saveButton">
-            <constraints/>
-            <properties>
-              <icon value="contrastToolWindow/save.png"/>
-              <text value=""/>
-            </properties>
-          </component>
-        </children>
-      </toolbar>
-      <component id="f9f29" class="javax.swing.JComboBox" binding="serversComboBox">
-        <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="916c" class="javax.swing.JComboBox" binding="applicationsComboBox">
-        <constraints>
-          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="972e6" class="javax.swing.JComboBox" binding="pagesComboBox">
-        <constraints>
-          <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <maximum-size width="100" height="-1"/>
+          <scrollpane id="e67b0" binding="scrollPane">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties/>
+            <border type="none">
+              <font/>
+            </border>
+            <children>
+              <component id="69728" class="javax.swing.JTable" binding="vulnerabilitiesTable">
+                <constraints/>
+                <properties>
+                  <autoCreateRowSorter value="true"/>
+                </properties>
+              </component>
+            </children>
+          </scrollpane>
+          <grid id="231d5" layout-manager="GridLayoutManager" row-count="6" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="9be8e" class="javax.swing.JLabel" binding="serversLabel">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Server"/>
+                </properties>
+              </component>
+              <component id="f9f29" class="javax.swing.JComboBox" binding="serversComboBox">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="400" height="-1"/>
+                    <maximum-size width="400" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="10c6c" class="javax.swing.JLabel" binding="applicationsLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Application"/>
+                </properties>
+              </component>
+              <component id="916c" class="javax.swing.JComboBox" binding="applicationsComboBox">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="400" height="-1"/>
+                    <maximum-size width="400" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="972e6" class="javax.swing.JComboBox" binding="pagesComboBox">
+                <constraints>
+                  <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <maximum-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="db051" class="javax.swing.JButton" binding="getTracesButton">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Get Vulnerabilities"/>
+                </properties>
+              </component>
+              <component id="79b63" class="javax.swing.JLabel" binding="pagesLabel">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Page"/>
+                </properties>
+              </component>
+              <vspacer id="c9ebc">
+                <constraints>
+                  <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <toolbar id="77ab" binding="toolBar">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="-1" height="20"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <borderPainted value="true"/>
+                  <enabled value="true"/>
+                  <floatable value="false"/>
+                  <rollover value="false"/>
+                </properties>
+                <clientProperties>
+                  <JToolBar.isRollover class="java.lang.Boolean" value="false"/>
+                  <html.disable class="java.lang.Boolean" value="false"/>
+                </clientProperties>
+                <border type="none"/>
+                <children>
+                  <component id="49959" class="javax.swing.JToolBar$Separator">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                  <component id="dc2ec" class="javax.swing.JLabel" binding="settingsLabel">
+                    <constraints/>
+                    <properties>
+                      <icon value="contrastToolWindow/settings.png"/>
+                      <text value=""/>
+                    </properties>
+                  </component>
+                  <component id="5563e" class="javax.swing.JToolBar$Separator">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                  <component id="2927d" class="javax.swing.JLabel" binding="refreshLabel">
+                    <constraints/>
+                    <properties>
+                      <icon value="contrastToolWindow/refresh_tab.gif"/>
+                      <text value=""/>
+                    </properties>
+                  </component>
+                  <component id="8c67" class="javax.swing.JToolBar$Separator">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                  <component id="4210c" class="javax.swing.JLabel" binding="saveLabel">
+                    <constraints/>
+                    <properties>
+                      <icon value="contrastToolWindow/save.png"/>
+                      <text value=""/>
+                    </properties>
+                  </component>
+                </children>
+              </toolbar>
+            </children>
           </grid>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="9be8e" class="javax.swing.JLabel" binding="serversLabel">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Server"/>
-        </properties>
-      </component>
-      <component id="10c6c" class="javax.swing.JLabel" binding="applicationsLabel">
-        <constraints>
-          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Application"/>
-        </properties>
-      </component>
-      <component id="79b63" class="javax.swing.JLabel" binding="pagesLabel">
-        <constraints>
-          <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Page"/>
-        </properties>
-      </component>
-      <scrollpane id="e67b0" binding="scrollPane">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="6" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="etched">
-          <font/>
-        </border>
-        <children>
-          <component id="69728" class="javax.swing.JTable" binding="vulnerabilitiesTable">
-            <constraints/>
-            <properties>
-              <autoCreateRowSorter value="true"/>
-            </properties>
-          </component>
         </children>
-      </scrollpane>
+      </splitpane>
     </children>
   </grid>
 </form>

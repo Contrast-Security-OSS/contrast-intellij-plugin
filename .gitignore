@@ -1,3 +1,5 @@
 lib/
 out/
-.idea/
+*.iws
+.idea/workspace.xml
+

@@ -22,18 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.table.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.*;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private JPanel contrastToolWindowContent;
-    private JButton settingsButton;
-    private JButton refreshButton;
-    private JButton saveButton;
-    private JToolBar toolBar;
     private JComboBox serversComboBox;
     private JComboBox applicationsComboBox;
     private JComboBox pagesComboBox;
@@ -42,6 +37,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel pagesLabel;
     private JTable vulnerabilitiesTable;
     private JScrollPane scrollPane;
+    private JButton getTracesButton;
+    private JToolBar toolBar;
+    private JLabel settingsLabel;
+    private JLabel refreshLabel;
+    private JLabel saveLabel;
     private ToolWindow contrastToolWindow;
 
     // Non-UI variables
@@ -52,6 +52,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private String traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
     private ContrastTableModel contrastTableModel;
     private OrganizationConfig organizationConfig;
+    private boolean updatePagesComboBox = false;
 
     public ContrastToolWindowFactory() {
         contrastUtil = new ContrastUtil();
@@ -73,37 +74,94 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == e.SELECTED) {
-                    ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) e.getItem();
-                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getSelectedItem();
-
-                    Long serverId = Constants.ALL_SERVERS;
-                    String appId = Constants.ALL_APPLICATIONS;
-
-                    if (serverComboBoxItem.getServer() != null){
-                        serverId = serverComboBoxItem.getServer().getServerId();
-                    }
-                    if (applicationComboBoxItem.getApplication() != null){
-                        appId = applicationComboBoxItem.getApplication().getId();
-                    }
-
-                    Trace[] traces = new Trace[0];
-                    try {
-                        traces = getTraces(organizationConfig.getUuid(), serverId, appId, currentOffset, PAGE_LIMIT);
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
-                    } catch (UnauthorizedException exception) {
-                        exception.printStackTrace();
-                    }
-                    if (traces!=null){
-                        contrastTableModel.setData(traces);
-                        contrastTableModel.fireTableDataChanged();
-                    }
+                    contrastTableModel.setData(new Trace[0]);
+                    contrastTableModel.fireTableDataChanged();
+                    updatePagesComboBox(PAGE_LIMIT, 0);
+                    updatePagesComboBox = true;
                 }
+            }
+        });
+
+        pagesComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == e.SELECTED) {
+                    String p = (String) e.getItem();
+                    int page = Integer.parseInt(p);
+                    currentOffset = PAGE_LIMIT * (page - 1);
+                }
+            }
+        });
+
+        getTracesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                refreshTraces();
+                updatePagesComboBox = false;
+            }
+        });
+
+        settingsLabel.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("settings label clicked");
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
             }
         });
 
         updateServersComboBox();
         setupTable();
+    }
+
+    private void refreshTraces() {
+        ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
+        ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getSelectedItem();
+
+        Long serverId = Constants.ALL_SERVERS;
+        String appId = Constants.ALL_APPLICATIONS;
+
+        if (serverComboBoxItem.getServer() != null) {
+            serverId = serverComboBoxItem.getServer().getServerId();
+        }
+        if (applicationComboBoxItem.getApplication() != null) {
+            appId = applicationComboBoxItem.getApplication().getId();
+        }
+
+        Trace[] traces = new Trace[0];
+        try {
+            Traces tracesObject = getTraces(organizationConfig.getUuid(), serverId, appId, currentOffset, PAGE_LIMIT);
+            if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
+                traces = tracesObject.getTraces().toArray(new Trace[0]);
+            }
+            if (updatePagesComboBox) {
+                updatePagesComboBox(PAGE_LIMIT, tracesObject.getCount());
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        } catch (UnauthorizedException exception) {
+            exception.printStackTrace();
+        }
+        contrastTableModel.setData(traces);
+        contrastTableModel.fireTableDataChanged();
     }
 
     @Override
@@ -114,13 +172,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
     }
 
-    private Trace[] getTraces(String orgUuid, Long serverId, String appId, int offset, int limit)
+    private Traces getTraces(String orgUuid, Long serverId, String appId, int offset, int limit)
             throws IOException, UnauthorizedException {
 
-        Trace[] traceArray = new Trace[0];
+        System.out.println("getTraces()");
+        Traces traces = null;
 
         if (extendedContrastSDK != null) {
-            Traces traces = null;
             if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
                 TraceFilterForm form = Util.getTraceFilterForm(offset, limit, traceSort);
                 traces = extendedContrastSDK.getTracesInOrg(orgUuid, form);
@@ -134,13 +192,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit, traceSort);
                 traces = extendedContrastSDK.getTraces(orgUuid, appId, form);
             }
-
-            if (traces != null && traces.getTraces() != null && !traces.getTraces().isEmpty()) {
-                traceArray = traces.getTraces().toArray(new Trace[0]);
-            }
         }
 
-        return traceArray;
+        return traces;
     }
 
     private void setupTable() {
@@ -199,5 +253,28 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             ApplicationComboBoxItem allApplications = new ApplicationComboBoxItem("All Applications(" + count + ")");
             applicationsComboBox.addItem(allApplications);
         }
+    }
+
+    public void updatePagesComboBox(final int pageLimit, final int totalElements) {
+        pagesComboBox.removeAllItems();
+
+        int numOfPages = 1;
+        if (totalElements % pageLimit > 0) {
+            numOfPages = totalElements / pageLimit + 1;
+        } else {
+            if (totalElements != 0) {
+                numOfPages = totalElements / pageLimit;
+            }
+        }
+
+        for (int i = 1; i <= numOfPages; i++) {
+            pagesComboBox.addItem(String.valueOf(i));
+        }
+        if (numOfPages == 1) {
+            pagesComboBox.setEnabled(false);
+        } else {
+            pagesComboBox.setEnabled(true);
+        }
+        pagesComboBox.setSelectedItem("1");
     }
 }
