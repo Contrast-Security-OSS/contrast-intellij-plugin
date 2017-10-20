@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e4d6b17a-85a1-49fb-bcfc-d5b973f6908b" name="Default" comment="" />
+    <list default="true" id="e4d6b17a-85a1-49fb-bcfc-d5b973f6908b" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindowFactory.java" afterPath="$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindowFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java" afterPath="$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -12,44 +16,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ContrastToolWindowFactory.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindowFactory.java">
+      <file leaf-file-name="ContrastSearchableConfigurableGUI.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="75" column="5" lean-forward="true" selection-start-line="75" selection-start-column="5" selection-end-line="75" selection-end-column="5" />
-              <folding>
-                <marker date="1508449222041" expanded="true" signature="3761:3769" ph="{...}" />
-                <marker date="1508449222041" expanded="true" signature="3923:5386" ph="{...}" />
-                <marker date="1508449222041" expanded="true" signature="5418:5653" ph="{...}" />
-                <marker date="1508449222041" expanded="true" signature="5696:6656" ph="{...}" />
-                <marker date="1508449222041" expanded="true" signature="6716:7760" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ContrastTableModel.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastTableModel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
-              <caret line="34" column="28" lean-forward="true" selection-start-line="34" selection-start-column="28" selection-end-line="34" selection-end-column="28" />
-              <folding>
-                <element signature="e#2775#2776#0" expanded="true" />
-                <element signature="e#2825#2826#0" expanded="true" />
-                <marker date="1508449222037" expanded="false" signature="2867:2878" ph=" { " />
-                <marker date="1508449222037" expanded="false" signature="2902:2908" ph=" }" />
-                <marker date="1508449222037" expanded="false" signature="2947:2958" ph=" { " />
-                <marker date="1508449222037" expanded="false" signature="2975:2981" ph=" }" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ApplicationComboBoxItem.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/config/ApplicationComboBoxItem.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="24" column="1" lean-forward="true" selection-start-line="24" selection-start-column="1" selection-end-line="24" selection-end-column="1" />
+            <state relative-caret-position="447">
+              <caret line="237" column="5" lean-forward="true" selection-start-line="237" selection-start-column="5" selection-end-line="237" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -57,33 +28,6 @@
       </file>
       <file leaf-file-name="ContrastSearchableConfigurableGUI.form" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.form">
-          <provider selected="true" editor-type-id="ui-designer">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ContrastSearchableConfigurableGUI.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="338">
-              <caret line="74" column="11" lean-forward="true" selection-start-line="74" selection-start-column="11" selection-end-line="74" selection-end-column="11" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ServerComboBoxItem.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/config/ServerComboBoxItem.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="28" column="1" lean-forward="false" selection-start-line="28" selection-start-column="1" selection-end-line="28" selection-end-column="1" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ContrastToolWindow.form" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindow.form">
           <provider selected="true" editor-type-id="ui-designer">
             <state />
           </provider>
@@ -115,6 +59,11 @@
       <find>organizationcombo</find>
       <find>organizationcon</find>
       <find>getTraces</find>
+      <find>refreshTraces</find>
+      <find>addbu</find>
+      <find>addbut</find>
+      <find>popula</find>
+      <find>populate</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -164,12 +113,12 @@
         <option value="$PROJECT_DIR$/src/com/contrastsecurity/config/ContrastUtil.java" />
         <option value="$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastTableModel.java" />
         <option value="$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindow.form" />
-        <option value="$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java" />
         <option value="$PROJECT_DIR$/src/com/contrastsecurity/config/ServerUIAdapter.java" />
         <option value="$PROJECT_DIR$/src/com/contrastsecurity/config/ApplicationComboBoxItem.java" />
         <option value="$PROJECT_DIR$/src/com/contrastsecurity/config/ServerComboBoxItem.java" />
-        <option value="$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindowFactory.java" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindowFactory.java" />
+        <option value="$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java" />
       </list>
     </option>
   </component>
@@ -263,16 +212,18 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
-      <pane id="Scratches" />
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="contrast-intellij-plugin" type="b2602c69:ProjectViewProjectNode" />
               <item name="contrast-intellij-plugin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="contrast-intellij-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="contrast-intellij-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name=".idea" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="contrast-intellij-plugin" type="b2602c69:ProjectViewProjectNode" />
@@ -307,10 +258,30 @@
               <item name="ui" type="462c0819:PsiDirectoryNode" />
               <item name="settings" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="contrast-intellij-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="contrast-intellij-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="contrastsecurity" type="462c0819:PsiDirectoryNode" />
+              <item name="ui" type="462c0819:PsiDirectoryNode" />
+              <item name="settings" type="462c0819:PsiDirectoryNode" />
+              <item name="ContrastSearchableConfigurableGUI" type="e9f4de52:FormNode" />
+            </path>
+            <path>
+              <item name="contrast-intellij-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="contrast-intellij-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="contrastsecurity" type="462c0819:PsiDirectoryNode" />
+              <item name="ui" type="462c0819:PsiDirectoryNode" />
+              <item name="ContrastToolWindowFactory" type="e9f4de52:FormNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="AndroidView" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -457,6 +428,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1912" y="-8" width="1936" height="1096" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32987553" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -466,12 +438,12 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27178425" sideWeight="0.5021322" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31846473" sideWeight="0.4978678" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31846473" sideWeight="0.4978678" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32987553" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.35580912" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.746888" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2260128" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2531983" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -792,13 +764,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/config/ContrastPersistentStateComponent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="454">
-          <caret line="51" column="5" lean-forward="true" selection-start-line="51" selection-start-column="5" selection-end-line="51" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/core/Util.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="528">
@@ -863,43 +828,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindow.form">
-      <provider selected="true" editor-type-id="ui-designer">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/config/ServerComboBoxItem.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="28" column="1" lean-forward="false" selection-start-line="28" selection-start-column="1" selection-end-line="28" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="74" column="11" lean-forward="true" selection-start-line="74" selection-start-column="11" selection-end-line="74" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.form">
-      <provider selected="true" editor-type-id="ui-designer">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindowFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="75" column="5" lean-forward="true" selection-start-line="75" selection-start-column="5" selection-end-line="75" selection-end-column="5" />
-          <folding>
-            <marker date="1508449222041" expanded="true" signature="3761:3769" ph="{...}" />
-            <marker date="1508449222041" expanded="true" signature="3923:5386" ph="{...}" />
-            <marker date="1508449222041" expanded="true" signature="5418:5653" ph="{...}" />
-            <marker date="1508449222041" expanded="true" signature="5696:6656" ph="{...}" />
-            <marker date="1508449222041" expanded="true" signature="6716:7760" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -926,14 +858,40 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
           <caret line="34" column="28" lean-forward="true" selection-start-line="34" selection-start-column="28" selection-end-line="34" selection-end-column="28" />
-          <folding>
-            <element signature="e#2775#2776#0" expanded="true" />
-            <element signature="e#2825#2826#0" expanded="true" />
-            <marker date="1508449222037" expanded="false" signature="2867:2878" ph=" { " />
-            <marker date="1508449222037" expanded="false" signature="2902:2908" ph=" }" />
-            <marker date="1508449222037" expanded="false" signature="2947:2958" ph=" { " />
-            <marker date="1508449222037" expanded="false" signature="2975:2981" ph=" }" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindow.form">
+      <provider selected="true" editor-type-id="ui-designer">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.form">
+      <provider selected="true" editor-type-id="ui-designer">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/config/ContrastPersistentStateComponent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="23" column="71" lean-forward="false" selection-start-line="23" selection-start-column="71" selection-end-line="23" selection-end-column="71" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/ContrastToolWindowFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="244">
+          <caret line="86" column="38" lean-forward="true" selection-start-line="86" selection-start-column="38" selection-end-line="86" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/contrastsecurity/ui/settings/ContrastSearchableConfigurableGUI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="447">
+          <caret line="237" column="5" lean-forward="true" selection-start-line="237" selection-start-column="5" selection-end-line="237" selection-end-column="5" />
+          <folding />
         </state>
       </provider>
     </entry>

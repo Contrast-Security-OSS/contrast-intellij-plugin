@@ -55,24 +55,24 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private OrganizationConfig organizationConfig;
 
     public ContrastToolWindowFactory() {
-        contrastUtil = new ContrastUtil();
-        contrastTableModel = new ContrastTableModel();
-        extendedContrastSDK = contrastUtil.getContrastSDK();
-        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
+//        contrastUtil = new ContrastUtil();
+//        contrastTableModel = new ContrastTableModel();
+//        extendedContrastSDK = contrastUtil.getContrastSDK();
+//        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
 
 //        updateServersComboBox();
 //        setupTable();
 //        populateTable();
 
-        serversComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
-                    updateApplicationsComboBox(serverComboBoxItem.getServer());
-                }
-            }
-        });
+//        serversComboBox.addItemListener(new ItemListener() {
+//            @Override
+//            public void itemStateChanged(ItemEvent e) {
+//                if (e.getStateChange() == e.SELECTED) {
+//                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
+//                    updateApplicationsComboBox(serverComboBoxItem.getServer());
+//                }
+//            }
+//        });
     }
 
     @Override

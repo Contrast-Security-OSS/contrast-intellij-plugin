@@ -82,6 +82,10 @@ public class ContrastSearchableConfigurableGUI {
 
                 Map<String, String> retrievedOrgs = contrastDialog.getOrganization();
                 if (retrievedOrgs!=null) {
+
+                    if (organizations == null) {
+                        organizations = new HashMap<>();
+                    }
                     for (String orgName : retrievedOrgs.keySet()) {
                         organizations.putIfAbsent(orgName, retrievedOrgs.get(orgName));
                     }
@@ -90,6 +94,7 @@ public class ContrastSearchableConfigurableGUI {
                     for (String organizationName : organizations.keySet() ) {
                         organizationComboBox.addItem(organizationName);
                     }
+
                 }
             }
         });
@@ -156,6 +161,14 @@ public class ContrastSearchableConfigurableGUI {
 
         Map<String, String> orgs = contrastPersistentStateComponent.getOrganizations();
 
+        if (orgs == null){
+            organizations = null;
+            organizationComboBox.removeAllItems();
+        } else if (orgs.isEmpty()) {
+            organizations = new HashMap<>();
+            organizationComboBox.removeAllItems();
+        }
+
         if (orgs != null && !orgs.isEmpty()){
 //            Create a copy of organizations map from ContrastPersistentStateComponent class
 //            It will be compared with the original in isModified() method
@@ -201,9 +214,12 @@ public class ContrastSearchableConfigurableGUI {
         if (organizationComboBox.getSelectedItem() != null) {
             modified |= !organizationComboBox.getSelectedItem().toString().equals(contrastPersistentStateComponent.getSelectedOrganizationName());
         }
-        if (organizations != null) {
+        if (organizations != null && contrastPersistentStateComponent.getOrganizations() != null) {
             modified |= !organizations.equals(contrastPersistentStateComponent.getOrganizations());
+            modified |= (organizations.isEmpty() && !contrastPersistentStateComponent.getOrganizations().isEmpty()) || (!organizations.isEmpty() && contrastPersistentStateComponent.getOrganizations().isEmpty());
         }
+        modified |= (organizations == null && contrastPersistentStateComponent.getOrganizations() != null) || (organizations != null && contrastPersistentStateComponent.getOrganizations() == null);
+
         return modified;
     }
 
