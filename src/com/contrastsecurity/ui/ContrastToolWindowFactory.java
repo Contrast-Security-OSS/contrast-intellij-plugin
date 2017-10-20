@@ -104,7 +104,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         settingsLabel.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("settings label clicked");
+
             }
 
             @Override
@@ -175,7 +175,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private Traces getTraces(String orgUuid, Long serverId, String appId, int offset, int limit)
             throws IOException, UnauthorizedException {
 
-        System.out.println("getTraces()");
         Traces traces = null;
 
         if (extendedContrastSDK != null) {

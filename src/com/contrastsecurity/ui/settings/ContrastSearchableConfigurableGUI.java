@@ -82,6 +82,9 @@ public class ContrastSearchableConfigurableGUI {
 
                 Map<String, String> retrievedOrgs = contrastDialog.getOrganization();
                 if (retrievedOrgs!=null) {
+                    if (organizations == null){
+                        organizations = new HashMap<>();
+                    }
                     for (String orgName : retrievedOrgs.keySet()) {
                         organizations.putIfAbsent(orgName, retrievedOrgs.get(orgName));
                     }
