@@ -39,7 +39,7 @@ public class ContrastUtil {
         String apiKey = organizationConfig.getApiKey();
 
         ExtendedContrastSDK sdk = new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
-        sdk.setReadTimeout(5000);
+//        sdk.setReadTimeout(5000);
 
         return sdk;
     }
