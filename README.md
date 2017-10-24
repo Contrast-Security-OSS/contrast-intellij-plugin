@@ -7,13 +7,31 @@
 If necessary add a new "IntelliJ Platform Plugin SDK". It should point to the installation folder of IntelliJ.
 * Project language level in project settings should be set to 8. Right click on project folder in IntelliJ => Open Module Settings => Project => Project language level.
 More information on setting up development environment: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/setting_up_environment.html
+* Gradle must be installed and added to "Path" system environment variable: https://gradle.org/install/
 
-### Run ###
-* Build and run the project. If necessary create a default Plugin run configuration.
-More information on running the plugin: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/running_and_debugging_a_plugin.html
+### Build from the command line ###
+* Clone the project.
+* Run <code>gradle buildPlugin</code> in project root directory.
+* Plugin zip archive should be generated to project root folder/build/distributions.
+* To install the generated zip archive of the plugin go to File => Settings => Plugins => Install Plugin from disk.
 
-### Deploying the plugin ###
-* http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/deploying_plugin.html
+### Build from IDE ###
+* Clone the project.
+* Open the project with IntelliJ IDEA.
+* In the "Event Log" notification, which should appear in the bottom right corner, click "Import Gradle project".
+* Fill in the import dialog.
+* Open Gradle tool window and run "buildPlugin" task, which is in the "intellij" task folder.
+* Plugin zip archive should be generated to project root folder/build/distributions.
+* To install the generated zip archive of the plugin go to File => Settings => Plugins => Install Plugin from disk.
+
+### Run from the command line ###
+* Run ``` gradle runIdea ``` from the command line within the project root folder.
+* A separate instance of IntelliJ IDEA should be launched with the plugin installed.
+
+### Run from the IDE ### 
+* Build the project
+* Open Gradle tool window and run "runIdea" task, which is inside the "intellij" task folder.
+* A separate instance of IntelliJ IDEA should be launched with the plugin installed.
 
 ### Publishing the plugin ###
-* http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/publishing_plugin.html
+* http://www.jetbrains.org/intellij/sdk/docs/tutorials/build_system/deployment.html
