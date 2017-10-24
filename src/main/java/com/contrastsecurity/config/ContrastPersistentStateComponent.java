@@ -35,7 +35,7 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     public String username = "";
     public String serviceKey = "";
     public String selectedOrganizationName = "";
-//    Key = organization name, Value = Organization (API key, UUID) represented as a String
+//    Key = organization name, Value = Organization (API key;UUID) represented as a String
     public Map<String, String> organizations;
 
     @Nullable
