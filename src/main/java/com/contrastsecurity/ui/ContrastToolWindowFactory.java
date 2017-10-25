@@ -1,3 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2017 Contrast Security.
+ * All rights reserved.
+ *
+ * This program and the accompanying materials are made available under
+ * the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 3 of the License.
+ *
+ * The terms of the GNU GPL version 3 which accompanies this distribution
+ * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * Contributors:
+ *     Contrast Security - initial API and implementation
+ *******************************************************************************/
 package com.contrastsecurity.ui;
 
 import com.contrastsecurity.config.ApplicationComboBoxItem;
@@ -55,10 +69,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private boolean updatePagesComboBox = false;
 
     public ContrastToolWindowFactory() {
-        contrastUtil = new ContrastUtil();
-        contrastTableModel = new ContrastTableModel();
-        extendedContrastSDK = contrastUtil.getContrastSDK();
-        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
+//        contrastUtil = new ContrastUtil();
+//        contrastTableModel = new ContrastTableModel();
+//        extendedContrastSDK = contrastUtil.getContrastSDK();
+//        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
 
         serversComboBox.addItemListener(new ItemListener() {
             @Override
@@ -162,6 +176,21 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
         contrastTableModel.setData(traces);
         contrastTableModel.fireTableDataChanged();
+
+//        updateServersComboBox();
+//        setupTable();
+//        populateTable();
+
+//        serversComboBox.addItemListener(new ItemListener() {
+//            @Override
+//            public void itemStateChanged(ItemEvent e) {
+//                if (e.getStateChange() == e.SELECTED) {
+//                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
+//                    updateApplicationsComboBox(serverComboBoxItem.getServer());
+//                }
+//            }
+//        });
+
     }
 
     @Override

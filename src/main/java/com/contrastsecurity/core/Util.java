@@ -91,11 +91,11 @@ public class Util {
 		return buffer.toString();
 	}
 
-	public String getStringFromOrganizationConfig(OrganizationConfig organizationConfig, String delimiter){
+	public static String getStringFromOrganizationConfig(OrganizationConfig organizationConfig, String delimiter){
         String organization = organizationConfig.getApiKey() + delimiter + organizationConfig.getUuid();
 	    return organization;
     }
-    public OrganizationConfig getOrganizationConfigFromString(String organization, String delimiter) {
+    public static OrganizationConfig getOrganizationConfigFromString(String organization, String delimiter) {
         OrganizationConfig organizationConfig;
 
 	    if (StringUtils.isNotBlank(organization)) {
