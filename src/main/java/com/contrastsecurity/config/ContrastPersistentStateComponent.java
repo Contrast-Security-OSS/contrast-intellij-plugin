@@ -79,7 +79,7 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     }
 
     public void setOrganizations(Map<String, String> organizations) {
-        this.organizations = organizations;
+        this.organizations = new HashMap<>(organizations);
     }
 
     public String getSelectedOrganizationName() {

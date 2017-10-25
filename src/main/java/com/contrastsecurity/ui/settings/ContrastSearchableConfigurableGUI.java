@@ -105,7 +105,6 @@ public class ContrastSearchableConfigurableGUI {
                     for (String organizationName : organizations.keySet() ) {
                         organizationComboBox.addItem(organizationName);
                     }
-
                 }
             }
         });
