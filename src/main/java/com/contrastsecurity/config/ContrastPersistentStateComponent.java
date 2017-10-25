@@ -22,6 +22,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @State(
@@ -36,7 +37,7 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     public String serviceKey = "";
     public String selectedOrganizationName = "";
 //    Key = organization name, Value = Organization (API key;UUID) represented as a String
-    public Map<String, String> organizations;
+    public Map<String, String> organizations = new HashMap<>();
 
     @Nullable
     @Override

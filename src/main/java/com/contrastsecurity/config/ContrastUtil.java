@@ -31,8 +31,6 @@ public class ContrastUtil {
     private String username;
     private Map<String, String> organizations;
 
-    private Util util = new Util();
-
     public ContrastUtil() {
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
 
@@ -49,7 +47,7 @@ public class ContrastUtil {
             return null;
         }
 
-        OrganizationConfig organizationConfig = util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
+        OrganizationConfig organizationConfig = Util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
         String apiKey = organizationConfig.getApiKey();
 
         ExtendedContrastSDK sdk = new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
@@ -62,7 +60,7 @@ public class ContrastUtil {
         if (StringUtils.isBlank(selectedOrganizationName) || organizations.get(selectedOrganizationName) == null){
             return null;
         }
-        OrganizationConfig organizationConfig = util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
+        OrganizationConfig organizationConfig = Util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
         return organizationConfig;
     }
 

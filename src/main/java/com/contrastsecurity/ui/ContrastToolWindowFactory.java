@@ -26,6 +26,7 @@ import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.contrastsecurity.ui.settings.ContrastSearchableConfigurableGUI;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -35,6 +36,7 @@ import com.sun.jna.platform.unix.X11;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.table.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -64,15 +66,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private int currentOffset = 0;
     private static final int PAGE_LIMIT = 20;
     private String traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
-    private ContrastTableModel contrastTableModel;
+    private ContrastTableModel contrastTableModel = new ContrastTableModel();
     private OrganizationConfig organizationConfig;
     private boolean updatePagesComboBox = false;
 
     public ContrastToolWindowFactory() {
-        contrastUtil = new ContrastUtil();
-        contrastTableModel = new ContrastTableModel();
-        extendedContrastSDK = contrastUtil.getContrastSDK();
-        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
+        refresh();
 
         serversComboBox.addItemListener(new ItemListener() {
             @Override
@@ -118,7 +117,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         settingsLabel.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-
+                ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
             }
 
             @Override
@@ -142,6 +141,18 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
+//        new Timer(3000, new ActionListener() { // Create 2 Second Timer
+//            @Override
+//            public void actionPerformed(ActionEvent event) {
+//            }
+//        }).start();
+
+    }
+
+    private void refresh() {
+        contrastUtil = new ContrastUtil();
+        extendedContrastSDK = contrastUtil.getContrastSDK();
+        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
         updateServersComboBox();
         setupTable();
     }

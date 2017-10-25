@@ -17,23 +17,24 @@
         <properties>
           <continuousLayout value="true"/>
           <dividerLocation value="600"/>
-          <dividerSize value="1"/>
+          <dividerSize value="4"/>
+          <resizeWeight value="0.0"/>
         </properties>
-        <border type="none"/>
+        <border type="empty"/>
         <children>
           <scrollpane id="e67b0" binding="scrollPane">
             <constraints>
               <splitpane position="right"/>
             </constraints>
             <properties/>
-            <border type="none">
+            <border type="empty">
               <font/>
             </border>
             <children>
               <component id="69728" class="javax.swing.JTable" binding="vulnerabilitiesTable">
                 <constraints/>
                 <properties>
-                  <autoCreateRowSorter value="true"/>
+                  <autoCreateRowSorter value="false"/>
                 </properties>
               </component>
             </children>
@@ -44,7 +45,7 @@
               <splitpane position="left"/>
             </constraints>
             <properties/>
-            <border type="none"/>
+            <border type="empty"/>
             <children>
               <component id="9be8e" class="javax.swing.JLabel" binding="serversLabel">
                 <constraints>
