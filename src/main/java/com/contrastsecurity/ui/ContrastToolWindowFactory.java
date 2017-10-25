@@ -69,10 +69,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private boolean updatePagesComboBox = false;
 
     public ContrastToolWindowFactory() {
-//        contrastUtil = new ContrastUtil();
-//        contrastTableModel = new ContrastTableModel();
-//        extendedContrastSDK = contrastUtil.getContrastSDK();
-//        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
+        contrastUtil = new ContrastUtil();
+        contrastTableModel = new ContrastTableModel();
+        extendedContrastSDK = contrastUtil.getContrastSDK();
+        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
 
         serversComboBox.addItemListener(new ItemListener() {
             @Override
