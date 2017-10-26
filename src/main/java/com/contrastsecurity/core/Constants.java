@@ -73,5 +73,20 @@ public interface Constants {
 	static final String SORT_BY_SEVERITY = "severity";
 	static final String SORT_DESCENDING = "-";
 	static final String SORT_BY_TITLE = "title";
-	
+	static final String SEVERITY_LEVEL_NOTE = "Note";
+	static final String SEVERITY_LEVEL_LOW = "Low";
+	static final String SEVERITY_LEVEL_MEDIUM = "Medium";
+    static final String SEVERITY_LEVEL_HIGH = "High";
+    static final String SEVERITY_LEVEL_CRITICAL = "Critical";
+
+	static final String VULNERABILITY_STATUS_AUTO_REMEDIATED = "Auto-Remediated";
+    static final String VULNERABILITY_STATUS_CONFIRMED = "Confirmed";
+    static final String VULNERABILITY_STATUS_SUSPICIOUS = "Suspicious";
+    static final String VULNERABILITY_STATUS_NOT_A_PROBLEM = "Not+a+Problem";
+    static final String VULNERABILITY_STATUS_REMEDIATED = "Remediated";
+    static final String VULNERABILITY_STATUS_REPORTED = "Reported";
+    static final String VULNERABILITY_STATUS_FIXED = "Fixed";
+    static final String VULNERABILITY_STATUS_BEING_TRACKED = "Being+Tracked";
+    static final String VULNERABILITY_STATUS_UNTRACKED = "Untracked";
+
 }

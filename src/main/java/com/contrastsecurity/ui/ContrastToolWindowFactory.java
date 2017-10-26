@@ -22,25 +22,29 @@ import com.contrastsecurity.core.Util;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
-import com.contrastsecurity.ui.settings.ContrastSearchableConfigurableGUI;
+import com.github.lgooddatepicker.components.DateTimePicker;
+import com.github.lgooddatepicker.optionalusertools.DateTimeChangeListener;
+import com.github.lgooddatepicker.zinternaltools.DateTimeChangeEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.sun.jna.platform.unix.X11;
+import org.jdesktop.swingx.JXDatePicker;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.Timer;
-import javax.swing.table.*;
+import javax.swing.table.TableColumn;
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
@@ -58,7 +62,29 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel settingsLabel;
     private JLabel refreshLabel;
     private JLabel saveLabel;
+    private JLabel severityLabel;
+    private JCheckBox severityLevelNoteCheckBox;
+    private JCheckBox severityLevelMediumCheckBox;
+    private JCheckBox severityLevelLowCheckBox;
+    private JCheckBox severityLevelHighCheckBox;
+    private JCheckBox severityLevelCriticalCheckBox;
+    private JLabel statusLabel;
+    private JCheckBox statusAutoRemediatedCheckBox;
+    private JCheckBox statusConfirmedCheckBox;
+    private JCheckBox statusSuspiciousCheckBox;
+    private JCheckBox statusNotAProblemCheckBox;
+    private JCheckBox statusRemediatedCheckBox;
+    private JCheckBox statusReportedCheckBox;
+    private JCheckBox statusFixedCheckBox;
+    private JCheckBox statusBeingTrackedCheckBox;
+    private JCheckBox statusUntrackedCheckBox;
+    private JXDatePicker JXDatePicker1;
     private ToolWindow contrastToolWindow;
+    private JLabel lastDetectedLabel;
+    private JLabel lastDetectedFromLabel;
+    private JLabel lastDetectedToLabel;
+    private DateTimePicker lastDetectedFromDateTimePicker;
+    private DateTimePicker lastDetectedToDateTimePicker;
 
     // Non-UI variables
     private ContrastUtil contrastUtil;
@@ -71,40 +97,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private boolean updatePagesComboBox = false;
 
     public ContrastToolWindowFactory() {
-        refresh();
 
-        serversComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
-                    updateApplicationsComboBox(serverComboBoxItem.getServer());
-                }
-            }
-        });
-
-        applicationsComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    contrastTableModel.setData(new Trace[0]);
-                    contrastTableModel.fireTableDataChanged();
-                    updatePagesComboBox(PAGE_LIMIT, 0);
-                    updatePagesComboBox = true;
-                }
-            }
-        });
-
-        pagesComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    String p = (String) e.getItem();
-                    int page = Integer.parseInt(p);
-                    currentOffset = PAGE_LIMIT * (page - 1);
-                }
-            }
-        });
+        setupCheckBoxes();
+        setupComboBoxes();
 
         getTracesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -119,26 +114,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             public void mouseClicked(MouseEvent e) {
                 ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
             }
-
             @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
+            public void mousePressed(MouseEvent e) {}
             @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
+            public void mouseReleased(MouseEvent e) {}
             @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
+            public void mouseEntered(MouseEvent e) {}
             @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
+            public void mouseExited(MouseEvent e) {}
         });
 
 //        new Timer(3000, new ActionListener() { // Create 2 Second Timer
@@ -146,6 +129,17 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 //            public void actionPerformed(ActionEvent event) {
 //            }
 //        }).start();
+
+        lastDetectedFromDateTimePicker.addDateTimeChangeListener(new DateTimeChangeListener() {
+            @Override
+            public void dateOrTimeChanged(DateTimeChangeEvent event) {
+                if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null){
+                    System.out.println(lastDetectedFromDateTimePicker.getDateTimePermissive());
+                }
+            }
+        });
+
+        refresh();
 
     }
 
@@ -155,6 +149,151 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         organizationConfig = contrastUtil.getSelectedOrganizationConfig();
         updateServersComboBox();
         setupTable();
+    }
+
+    private void cleanTableAndPagesComboBox(){
+        contrastTableModel.setData(new Trace[0]);
+        contrastTableModel.fireTableDataChanged();
+        updatePagesComboBox(PAGE_LIMIT, 0);
+        updatePagesComboBox = true;
+    }
+
+    private void setupCheckBoxes(){
+        severityLevelNoteCheckBox.setSelected(true);
+        severityLevelLowCheckBox.setSelected(true);
+        severityLevelMediumCheckBox.setSelected(true);
+        severityLevelHighCheckBox.setSelected(true);
+        severityLevelCriticalCheckBox.setSelected(true);
+
+        statusAutoRemediatedCheckBox.setSelected(true);
+        statusConfirmedCheckBox.setSelected(true);
+        statusSuspiciousCheckBox.setSelected(true);
+        statusNotAProblemCheckBox.setSelected(true);
+        statusRemediatedCheckBox.setSelected(true);
+        statusReportedCheckBox.setSelected(true);
+        statusFixedCheckBox.setSelected(true);
+        statusBeingTrackedCheckBox.setSelected(true);
+        statusUntrackedCheckBox.setSelected(true);
+
+        severityLevelNoteCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        severityLevelLowCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        severityLevelMediumCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        severityLevelHighCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        severityLevelCriticalCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+//
+//
+//
+        statusAutoRemediatedCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusConfirmedCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusSuspiciousCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusNotAProblemCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusRemediatedCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusReportedCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusFixedCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusBeingTrackedCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+        statusUntrackedCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        });
+    }
+
+    private void setupComboBoxes() {
+        serversComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == e.SELECTED) {
+                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
+                    updateApplicationsComboBox(serverComboBoxItem.getServer());
+                }
+            }
+        });
+
+        applicationsComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == e.SELECTED) {
+                    cleanTableAndPagesComboBox();
+                }
+            }
+        });
+
+        pagesComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == e.SELECTED) {
+                    String p = (String) e.getItem();
+                    int page = Integer.parseInt(p);
+                    currentOffset = PAGE_LIMIT * (page - 1);
+                }
+            }
+        });
     }
 
     private void refreshTraces() {
@@ -217,18 +356,29 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         Traces traces = null;
 
+        EnumSet<RuleSeverity> severities = getSelectedSeverities();
+        List<String> statuses = getSelectedStatuses();
+
         if (extendedContrastSDK != null) {
             if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
                 TraceFilterForm form = Util.getTraceFilterForm(offset, limit, traceSort);
+                form.setSeverities(severities);
+                form.setStatus(statuses);
                 traces = extendedContrastSDK.getTracesInOrg(orgUuid, form);
             } else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
                 TraceFilterForm form = Util.getTraceFilterForm(offset, limit, traceSort);
+                form.setSeverities(severities);
+                form.setStatus(statuses);
                 traces = extendedContrastSDK.getTraces(orgUuid, appId, form);
             } else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
                 TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit, traceSort);
+                form.setSeverities(severities);
+                form.setStatus(statuses);
                 traces = extendedContrastSDK.getTracesInOrg(orgUuid, form);
             } else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
                 TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit, traceSort);
+                form.setSeverities(severities);
+                form.setStatus(statuses);
                 traces = extendedContrastSDK.getTraces(orgUuid, appId, form);
             }
         }
@@ -316,4 +466,57 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
         pagesComboBox.setSelectedItem("1");
     }
+
+    private EnumSet<RuleSeverity> getSelectedSeverities() {
+        EnumSet<RuleSeverity> severities = EnumSet.noneOf(RuleSeverity.class);
+        if (severityLevelNoteCheckBox.isSelected()){
+            severities.add(RuleSeverity.NOTE);
+        }
+        if (severityLevelLowCheckBox.isSelected()){
+            severities.add(RuleSeverity.LOW);
+        }
+        if (severityLevelMediumCheckBox.isSelected()){
+            severities.add(RuleSeverity.MEDIUM);
+        }
+        if (severityLevelHighCheckBox.isSelected()){
+            severities.add(RuleSeverity.HIGH);
+        }
+        if (severityLevelCriticalCheckBox.isSelected()){
+            severities.add(RuleSeverity.CRITICAL);
+        }
+        return severities;
+    }
+
+    private List<String> getSelectedStatuses(){
+        List<String> statuses = new ArrayList<>();
+        if (statusAutoRemediatedCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_AUTO_REMEDIATED);
+        }
+        if (statusConfirmedCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_CONFIRMED);
+        }
+        if (statusSuspiciousCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_SUSPICIOUS);
+        }
+        if (statusNotAProblemCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM);
+        }
+        if (statusRemediatedCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_REMEDIATED);
+        }
+        if (statusReportedCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_REPORTED);
+        }
+        if (statusFixedCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_FIXED);
+        }
+        if (statusBeingTrackedCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_BEING_TRACKED);
+        }
+        if (statusUntrackedCheckBox.isSelected()){
+            statuses.add(Constants.VULNERABILITY_STATUS_UNTRACKED);
+        }
+        return statuses;
+    }
+
 }

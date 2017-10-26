@@ -16,7 +16,7 @@
         </constraints>
         <properties>
           <continuousLayout value="true"/>
-          <dividerLocation value="600"/>
+          <dividerLocation value="598"/>
           <dividerSize value="4"/>
           <resizeWeight value="0.0"/>
         </properties>
@@ -39,7 +39,7 @@
               </component>
             </children>
           </scrollpane>
-          <grid id="231d5" layout-manager="GridLayoutManager" row-count="6" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="231d5" layout-manager="GridLayoutManager" row-count="13" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <splitpane position="left"/>
@@ -57,7 +57,7 @@
               </component>
               <component id="f9f29" class="javax.swing.JComboBox" binding="serversComboBox">
                 <constraints>
-                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="1" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="400" height="-1"/>
                     <maximum-size width="400" height="-1"/>
                   </grid>
@@ -74,7 +74,7 @@
               </component>
               <component id="916c" class="javax.swing.JComboBox" binding="applicationsComboBox">
                 <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="2" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="400" height="-1"/>
                     <maximum-size width="400" height="-1"/>
                   </grid>
@@ -83,7 +83,7 @@
               </component>
               <component id="972e6" class="javax.swing.JComboBox" binding="pagesComboBox">
                 <constraints>
-                  <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="10" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <maximum-size width="100" height="-1"/>
                   </grid>
                 </constraints>
@@ -91,7 +91,7 @@
               </component>
               <component id="db051" class="javax.swing.JButton" binding="getTracesButton">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="11" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Get Vulnerabilities"/>
@@ -99,7 +99,7 @@
               </component>
               <component id="79b63" class="javax.swing.JLabel" binding="pagesLabel">
                 <constraints>
-                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Page"/>
@@ -107,12 +107,12 @@
               </component>
               <vspacer id="c9ebc">
                 <constraints>
-                  <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="12" column="1" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <toolbar id="77ab" binding="toolBar">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="-1" height="20"/>
                   </grid>
                 </constraints>
@@ -163,6 +163,170 @@
                   </component>
                 </children>
               </toolbar>
+              <component id="7e065" class="javax.swing.JLabel" binding="severityLabel">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Severity"/>
+                </properties>
+              </component>
+              <component id="fdd74" class="javax.swing.JCheckBox" binding="severityLevelNoteCheckBox">
+                <constraints>
+                  <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Note"/>
+                </properties>
+              </component>
+              <component id="eeec4" class="javax.swing.JCheckBox" binding="severityLevelMediumCheckBox">
+                <constraints>
+                  <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Medium"/>
+                </properties>
+              </component>
+              <component id="d492c" class="javax.swing.JCheckBox" binding="severityLevelLowCheckBox">
+                <constraints>
+                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Low"/>
+                </properties>
+              </component>
+              <component id="774e" class="javax.swing.JCheckBox" binding="severityLevelHighCheckBox">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="High"/>
+                </properties>
+              </component>
+              <component id="cf9f8" class="javax.swing.JCheckBox" binding="severityLevelCriticalCheckBox">
+                <constraints>
+                  <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Critical"/>
+                </properties>
+              </component>
+              <component id="e1228" class="javax.swing.JLabel" binding="statusLabel">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Status"/>
+                </properties>
+              </component>
+              <component id="dda79" class="javax.swing.JCheckBox" binding="statusAutoRemediatedCheckBox">
+                <constraints>
+                  <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Auto-Remediated"/>
+                </properties>
+              </component>
+              <component id="e3e82" class="javax.swing.JCheckBox" binding="statusConfirmedCheckBox">
+                <constraints>
+                  <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Confirmed"/>
+                </properties>
+              </component>
+              <component id="88de2" class="javax.swing.JCheckBox" binding="statusSuspiciousCheckBox">
+                <constraints>
+                  <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Suspicious"/>
+                </properties>
+              </component>
+              <component id="9ebb2" class="javax.swing.JCheckBox" binding="statusNotAProblemCheckBox">
+                <constraints>
+                  <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Not a Problem"/>
+                </properties>
+              </component>
+              <component id="aba51" class="javax.swing.JCheckBox" binding="statusRemediatedCheckBox">
+                <constraints>
+                  <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Remediated"/>
+                </properties>
+              </component>
+              <component id="cebd" class="javax.swing.JCheckBox" binding="statusReportedCheckBox">
+                <constraints>
+                  <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Reported"/>
+                </properties>
+              </component>
+              <component id="e347f" class="javax.swing.JCheckBox" binding="statusFixedCheckBox">
+                <constraints>
+                  <grid row="7" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Fixed"/>
+                </properties>
+              </component>
+              <component id="2a331" class="javax.swing.JCheckBox" binding="statusBeingTrackedCheckBox">
+                <constraints>
+                  <grid row="8" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Being Tracked"/>
+                </properties>
+              </component>
+              <component id="b6547" class="javax.swing.JCheckBox" binding="statusUntrackedCheckBox">
+                <constraints>
+                  <grid row="9" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Untracked"/>
+                </properties>
+              </component>
+              <component id="4fa5" class="javax.swing.JLabel" binding="lastDetectedLabel">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Last Detected"/>
+                </properties>
+              </component>
+              <component id="7f58f" class="com.github.lgooddatepicker.components.DateTimePicker" binding="lastDetectedFromDateTimePicker">
+                <constraints>
+                  <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="4e33" class="com.github.lgooddatepicker.components.DateTimePicker" binding="lastDetectedToDateTimePicker">
+                <constraints>
+                  <grid row="6" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="7f857" class="javax.swing.JLabel" binding="lastDetectedFromLabel">
+                <constraints>
+                  <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="From"/>
+                </properties>
+              </component>
+              <component id="369bb" class="javax.swing.JLabel" binding="lastDetectedToLabel">
+                <constraints>
+                  <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="To"/>
+                </properties>
+              </component>
             </children>
           </grid>
         </children>

@@ -19,9 +19,10 @@ import com.contrastsecurity.models.Trace;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.util.Date;
 
 public class ContrastTableModel extends AbstractTableModel {
-    private String[] columnNames = {"Severity", "Vulnerability", "Actions", "Open in Teamserver"};
+    private String[] columnNames = {"Severity", "Vulnerability", "Actions", "Open in Teamserver", "Last Detected", "Status"};
     private Trace[] data = new Trace[0];
 
     private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/contrastToolWindow/critical.png"));
@@ -51,15 +52,15 @@ public class ContrastTableModel extends AbstractTableModel {
             switch (columnIndex) {
                 case 0:
                     String severity = trace.getSeverity();
-                    if (severity.equals("Note")) {
+                    if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
                         obj = severityIconNote;
-                    } else if (severity.equals("Low")) {
+                    } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
                         obj = severityIconLow;
-                    } else if (severity.equals("Medium")) {
+                    } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
                         obj = severityIconMedium;
-                    } else if (severity.equals("High")) {
+                    } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
                         obj = severityIconHigh;
-                    } else if (severity.equals("Critical")) {
+                    } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
                         obj = severityIconCritical;
                     } else {
                         obj = "";
@@ -78,6 +79,12 @@ public class ContrastTableModel extends AbstractTableModel {
                     break;
                 case 3:
                     obj = externalLinkIcon;
+                    break;
+                case 4:
+                    obj = new Date(trace.getLastTimeSeen());
+                    break;
+                case 5:
+                    obj = trace.getStatus();
                     break;
                 default:
                     obj = null;
