@@ -31,7 +31,7 @@ public class ContrastTableModel extends AbstractTableModel {
     private final ImageIcon severityIconLow = new ImageIcon(getClass().getResource("/contrastToolWindow/low.png"));
     private final ImageIcon severityIconNote = new ImageIcon(getClass().getResource("/contrastToolWindow/note.png"));
     private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/externalLink.png"));
-
+    private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/details.png"));
 
     @Override
     public int getRowCount() {
@@ -75,7 +75,7 @@ public class ContrastTableModel extends AbstractTableModel {
                     obj = title;
                     break;
                 case 2:
-                    obj = "View Details";
+                    obj = detailsIcon;
                     break;
                 case 3:
                     obj = externalLinkIcon;
@@ -109,6 +109,10 @@ public class ContrastTableModel extends AbstractTableModel {
 
     public void setData(Trace[] data) {
         this.data = data;
+    }
+
+    public Trace getTraceAtRow(int row){
+        return data[row];
     }
 
 

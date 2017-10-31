@@ -73,6 +73,10 @@ public interface Constants {
 	static final String SORT_BY_SEVERITY = "severity";
 	static final String SORT_DESCENDING = "-";
 	static final String SORT_BY_TITLE = "title";
+
+    static final String SORT_BY_LAST_TIME_SEEN = "lastTimeSeen";
+    static final String SORT_BY_STATUS = "status";
+
 	static final String SEVERITY_LEVEL_NOTE = "Note";
 	static final String SEVERITY_LEVEL_LOW = "Low";
 	static final String SEVERITY_LEVEL_MEDIUM = "Medium";
@@ -89,4 +93,11 @@ public interface Constants {
     static final String VULNERABILITY_STATUS_BEING_TRACKED = "Being+Tracked";
     static final String VULNERABILITY_STATUS_UNTRACKED = "Untracked";
 
+    static final String LAST_DETECTED_ALL = "All";
+    static final String LAST_DETECTED_HOUR = "Last Hour";
+    static final String LAST_DETECTED_DAY = "Last Day";
+    static final String LAST_DETECTED_WEEK = "Last Week";
+    static final String LAST_DETECTED_MONTH = "Last Month";
+    static final String LAST_DETECTED_YEAR = "Last Year";
+    static final String LAST_DETECTED_CUSTOM = "Custom...";
 }

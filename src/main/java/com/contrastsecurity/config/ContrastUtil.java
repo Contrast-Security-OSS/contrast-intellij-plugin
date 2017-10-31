@@ -32,8 +32,8 @@ public class ContrastUtil {
     private Map<String, String> organizations;
 
     public ContrastUtil() {
-        contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
 
+        contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
         teamServerUrl = contrastPersistentStateComponent.getTeamServerUrl();
         selectedOrganizationName = contrastPersistentStateComponent.getSelectedOrganizationName();
         serviceKey = contrastPersistentStateComponent.getServiceKey();
@@ -62,6 +62,10 @@ public class ContrastUtil {
         }
         OrganizationConfig organizationConfig = Util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
         return organizationConfig;
+    }
+
+    public String getTeamServerUrl() {
+        return teamServerUrl;
     }
 
 }

@@ -31,6 +31,7 @@
     <applicationConfigurable groupId="tools" displayName="Contrast" id="preferences.ContrastSearchableConfigurable" instance="com.contrastsecurity.ui.settings.ContrastSearchableConfigurable" />
 
     <applicationService serviceInterface="com.contrastsecurity.config.ContrastPersistentStateComponent" serviceImplementation="com.contrastsecurity.config.ContrastPersistentStateComponent"/>
+    <applicationService serviceInterface="com.contrastsecurity.config.ContrastFilterPersistentStateComponent" serviceImplementation="com.contrastsecurity.config.ContrastFilterPersistentStateComponent"/>
   </extensions>
 
   <actions>
