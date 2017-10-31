@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!--
+/*******************************************************************************
  * Copyright (c) 2017 Contrast Security.
  * All rights reserved.
  *
@@ -13,12 +11,13 @@
  *
  * Contributors:
  *     Contrast Security - initial API and implementation
--->
+ *******************************************************************************/
+package com.contrastsecurity.core;
 
-<module version="4">
-  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/resources/META-INF/plugin.xml" />
-  <component name="NewModuleRootManager" inherit-compiler-output="true">
-    <exclude-output />
-    <orderEntry type="sourceFolder" forTests="false" />
-  </component>
-</module>
+public class OrganizationNotFoundException extends Exception {
+	
+	public OrganizationNotFoundException(String message) {
+		super(message);
+	}
+
+}
