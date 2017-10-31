@@ -32,7 +32,7 @@ import java.util.List;
 )
 public class ContrastFilterPersistentStateComponent implements PersistentStateComponent<ContrastFilterPersistentStateComponent> {
 
-    public String selectedServerName = "";
+    public Long selectedServerUuid;
     public String selectedApplicationName = "";
     public List<String> severities;
     public String lastDetected = Constants.LAST_DETECTED_ALL;
@@ -56,14 +56,6 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
     @Nullable
     public static ContrastFilterPersistentStateComponent getInstance() {
         return ServiceManager.getService(ContrastFilterPersistentStateComponent.class);
-    }
-
-    public String getSelectedServerName() {
-        return selectedServerName;
-    }
-
-    public void setSelectedServerName(String selectedServerName) {
-        this.selectedServerName = selectedServerName;
     }
 
     public String getSelectedApplicationName() {
@@ -128,5 +120,13 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
 
     public void setSort(String sort) {
         this.sort = sort;
+    }
+
+    public Long getSelectedServerUuid() {
+        return selectedServerUuid;
+    }
+
+    public void setSelectedServerUuid(Long selectedServerUuid) {
+        this.selectedServerUuid = selectedServerUuid;
     }
 }

@@ -749,7 +749,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getSelectedItem();
         if (serverComboBoxItem != null) {
-            contrastFilterPersistentStateComponent.setSelectedServerName(serverComboBoxItem.toString());
+            if (serverComboBoxItem.getServer() != null) {
+                contrastFilterPersistentStateComponent.setSelectedServerUuid(serverComboBoxItem.getServer().getServerId());
+            }
         }
         ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
 
@@ -766,10 +768,18 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
 
         Date fromDate = getDateFromLocalDateTime(lastDetectedFromDateTimePicker.getDateTimePermissive());
-        contrastFilterPersistentStateComponent.setLastDetectedFrom(fromDate.getTime());
+        if (fromDate != null) {
+            contrastFilterPersistentStateComponent.setLastDetectedFrom(fromDate.getTime());
+        } else {
+            contrastFilterPersistentStateComponent.setLastDetectedFrom(null);
+        }
 
         Date toDate = getDateFromLocalDateTime(lastDetectedToDateTimePicker.getDateTimePermissive());
-        contrastFilterPersistentStateComponent.setLastDetectedTo(toDate.getTime());
+        if (toDate != null) {
+            contrastFilterPersistentStateComponent.setLastDetectedTo(toDate.getTime());
+        } else {
+            contrastFilterPersistentStateComponent.setLastDetectedTo(null);
+        }
 
         List<String> selectedStatuses = getSelectedStatuses();
         if (!selectedStatuses.isEmpty()) {
@@ -785,9 +795,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void populateFiltersWithDataFromContrastFilterPersistentStateComponent() {
-        if (!contrastFilterPersistentStateComponent.getSelectedServerName().equals("")) {
-            selectServerByName(contrastFilterPersistentStateComponent.getSelectedServerName());
+        if (contrastFilterPersistentStateComponent.getSelectedServerUuid() != null) {
+            selectServerByUuid(contrastFilterPersistentStateComponent.getSelectedServerUuid());
+        } else {
+            selectAllServers();
         }
+
         if (!contrastFilterPersistentStateComponent.getSelectedApplicationName().equals("")) {
             selectApplicationByName(contrastFilterPersistentStateComponent.getSelectedApplicationName());
         }
@@ -799,6 +812,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             LocalDateTime localDateTimeFrom = getLocalDateTimeFromMillis(contrastFilterPersistentStateComponent.getLastDetectedFrom());
             lastDetectedFromDateTimePicker.setDateTimePermissive(localDateTimeFrom);
         }
+
         if (contrastFilterPersistentStateComponent.getLastDetectedTo() != null) {
             LocalDateTime localDateTimeTo = getLocalDateTimeFromMillis(contrastFilterPersistentStateComponent.getLastDetectedTo());
             lastDetectedToDateTimePicker.setDateTimePermissive(localDateTimeTo);
@@ -843,12 +857,25 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return severities;
     }
 
-    private void selectServerByName(String serverName) {
+    private void selectServerByUuid(Long serverUuid) {
         int itemCount = serversComboBox.getItemCount();
         if (itemCount > 0) {
             for (int i = 0; i < itemCount; i++) {
                 ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getItemAt(i);
-                if (serverComboBoxItem.toString().equals(serverName)) {
+                if (serverComboBoxItem.getServer() != null && serverComboBoxItem.getServer().getServerId() == serverUuid) {
+                    serversComboBox.setSelectedItem(serverComboBoxItem);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void selectAllServers() {
+        int itemCount = serversComboBox.getItemCount();
+        if (itemCount > 0) {
+            for (int i = 0; i < itemCount; i++) {
+                ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getItemAt(i);
+                if (serverComboBoxItem.toString().startsWith("All Servers(")) {
                     serversComboBox.setSelectedItem(serverComboBoxItem);
                     break;
                 }
