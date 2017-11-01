@@ -135,11 +135,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
-//        new Timer(3000, new ActionListener() { // Create 2 Second Timer
-//            @Override
-//            public void actionPerformed(ActionEvent event) {
-//            }
-//        }).start();
+        refreshLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                refresh();
+            }
+        });
 
         lastDetectedFromDateTimePicker.addDateTimeChangeListener(new DateTimeChangeListener() {
             @Override
@@ -191,7 +192,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void refresh() {
+    public void refresh() {
         contrastUtil = new ContrastUtil();
         extendedContrastSDK = contrastUtil.getContrastSDK();
         organizationConfig = contrastUtil.getSelectedOrganizationConfig();
@@ -399,50 +400,41 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void refreshTraces() {
-        ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
-        ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getSelectedItem();
 
-        Long serverId = Constants.ALL_SERVERS;
-        String appId = Constants.ALL_APPLICATIONS;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
+                ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getSelectedItem();
 
-        if (serverComboBoxItem.getServer() != null) {
-            serverId = serverComboBoxItem.getServer().getServerId();
-        }
-        if (applicationComboBoxItem.getApplication() != null) {
-            appId = applicationComboBoxItem.getApplication().getId();
-        }
+                Long serverId = Constants.ALL_SERVERS;
+                String appId = Constants.ALL_APPLICATIONS;
 
-        Trace[] traces = new Trace[0];
-        try {
-            Traces tracesObject = getTraces(organizationConfig.getUuid(), serverId, appId, currentOffset, PAGE_LIMIT);
-            if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
-                traces = tracesObject.getTraces().toArray(new Trace[0]);
+                if (serverComboBoxItem.getServer() != null) {
+                    serverId = serverComboBoxItem.getServer().getServerId();
+                }
+                if (applicationComboBoxItem.getApplication() != null) {
+                    appId = applicationComboBoxItem.getApplication().getId();
+                }
+
+                Trace[] traces = new Trace[0];
+                try {
+                    Traces tracesObject = getTraces(organizationConfig.getUuid(), serverId, appId, currentOffset, PAGE_LIMIT);
+                    if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
+                        traces = tracesObject.getTraces().toArray(new Trace[0]);
+                    }
+                    if (updatePagesComboBox) {
+                        updatePagesComboBox(PAGE_LIMIT, tracesObject.getCount());
+                    }
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                } catch (UnauthorizedException exception) {
+                    exception.printStackTrace();
+                }
+                contrastTableModel.setData(traces);
+                contrastTableModel.fireTableDataChanged();
             }
-            if (updatePagesComboBox) {
-                updatePagesComboBox(PAGE_LIMIT, tracesObject.getCount());
-            }
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        } catch (UnauthorizedException exception) {
-            exception.printStackTrace();
-        }
-        contrastTableModel.setData(traces);
-        contrastTableModel.fireTableDataChanged();
-
-//        updateServersComboBox();
-//        setupTable();
-//        populateTable();
-
-//        serversComboBox.addItemListener(new ItemListener() {
-//            @Override
-//            public void itemStateChanged(ItemEvent e) {
-//                if (e.getStateChange() == e.SELECTED) {
-//                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
-//                    updateApplicationsComboBox(serverComboBoxItem.getServer());
-//                }
-//            }
-//        });
-
+        }).start();
     }
 
     @Override
@@ -508,8 +500,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-                if (contrastTableModel != null && contrastTableModel.getRowCount() > 1) {
 
+                if (contrastTableModel != null && contrastTableModel.getRowCount() > 1) {
                     int col = vulnerabilitiesTable.columnAtPoint(e.getPoint());
                     String name = vulnerabilitiesTable.getColumnName(col);
 
@@ -580,6 +572,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void updateServersComboBox() {
+
         serversComboBox.removeAllItems();
         int count = 0;
         Servers servers = null;
@@ -751,6 +744,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (serverComboBoxItem != null) {
             if (serverComboBoxItem.getServer() != null) {
                 contrastFilterPersistentStateComponent.setSelectedServerUuid(serverComboBoxItem.getServer().getServerId());
+            } else {
+                contrastFilterPersistentStateComponent.setSelectedServerUuid(null);
             }
         }
         ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();

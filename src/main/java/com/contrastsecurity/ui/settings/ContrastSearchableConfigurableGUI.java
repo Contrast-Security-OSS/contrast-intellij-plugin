@@ -25,7 +25,6 @@ import com.contrastsecurity.models.Organizations;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -38,7 +37,7 @@ import java.util.Map;
 
 public class ContrastSearchableConfigurableGUI {
 
-//    UI Variables
+    //    UI Variables
     private JPanel contrastSettingsPanel;
     private JLabel teamServerLabel;
     private JTextField teamServerTextField;
@@ -95,14 +94,14 @@ public class ContrastSearchableConfigurableGUI {
                 contrastDialog.setVisible(true);
 
                 Map<String, String> retrievedOrgs = contrastDialog.getOrganization();
-                if (retrievedOrgs!=null) {
+                if (retrievedOrgs != null) {
 
                     for (String orgName : retrievedOrgs.keySet()) {
                         organizations.putIfAbsent(orgName, retrievedOrgs.get(orgName));
                     }
                     organizationComboBox.removeAllItems();
                     // populate organizationComboBox
-                    for (String organizationName : organizations.keySet() ) {
+                    for (String organizationName : organizations.keySet()) {
                         organizationComboBox.addItem(organizationName);
                     }
                 }
@@ -112,7 +111,7 @@ public class ContrastSearchableConfigurableGUI {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (organizationComboBox.getSelectedItem()!= null){
+                if (organizationComboBox.getSelectedItem() != null) {
                     String selectedItem = organizationComboBox.getSelectedItem().toString();
                     if (organizations.get(selectedItem) != null) {
                         organizations.remove(selectedItem);
@@ -125,37 +124,41 @@ public class ContrastSearchableConfigurableGUI {
         testConnectionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final String url = teamServerTextField.getText();
-                URL u;
-                try {
-                    u = new URL(url);
-                } catch (MalformedURLException e1) {
-                    testConnectionLabel.setText("Connection failed!");
-                    return;
-                }
-                if (!u.getProtocol().startsWith("http")) {
-                    testConnectionLabel.setText("Connection failed!");
-                    return;
-                }
-                ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText(), serviceKeyTextField.getText(),
-                        apiKeyTextField.getText(), teamServerTextField.getText());
-                try {
-                    Organizations organizations = extendedContrastSDK.getProfileDefaultOrganizations();
-                    Organization organization = organizations.getOrganization();
 
-                    if (organization == null || organization.getOrgUuid() == null) {
-                        testConnectionLabel.setText("Connection is correct, but no default organizations found.");
-                    } else {
-                        testConnectionLabel.setText("Connection confirmed!");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final String url = teamServerTextField.getText();
+                        URL u;
+                        try {
+                            u = new URL(url);
+                        } catch (MalformedURLException e1) {
+                            testConnectionLabel.setText("Connection failed!");
+                            return;
+                        }
+                        if (!u.getProtocol().startsWith("http")) {
+                            testConnectionLabel.setText("Connection failed!");
+                            return;
+                        }
+                        ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText(), serviceKeyTextField.getText(),
+                                apiKeyTextField.getText(), teamServerTextField.getText());
+                        try {
+                            Organizations organizations = extendedContrastSDK.getProfileDefaultOrganizations();
+                            Organization organization = organizations.getOrganization();
+
+                            if (organization == null || organization.getOrgUuid() == null) {
+                                testConnectionLabel.setText("Connection is correct, but no default organizations found.");
+                            } else {
+                                testConnectionLabel.setText("Connection confirmed!");
+                            }
+                        } catch (IOException | UnauthorizedException e1) {
+                            testConnectionLabel.setText("Connection failed! " + e1.getMessage());
+                        } catch (Exception e1) {
+                            testConnectionLabel.setText("Connection failed! Check Team Server URL.");
+                        } finally {
+                        }
                     }
-                } catch (IOException | UnauthorizedException e1) {
-                    testConnectionLabel.setText("Connection failed! " + e1.getMessage());
-                } catch (Exception e1) {
-                    testConnectionLabel.setText("Connection failed! Check Team Server URL.");
-                }
-                finally {
-                }
-
+                }).start();
             }
         });
     }
@@ -174,7 +177,7 @@ public class ContrastSearchableConfigurableGUI {
         if (orgs.isEmpty()) {
             organizations = new HashMap<>();
             organizationComboBox.removeAllItems();
-        } else if (!orgs.isEmpty()){
+        } else if (!orgs.isEmpty()) {
 //            Create a copy of organizations map from ContrastPersistentStateComponent class
 //            It will be compared with the original in isModified() method
             organizations = new HashMap<>();
@@ -182,13 +185,13 @@ public class ContrastSearchableConfigurableGUI {
 
             organizationComboBox.removeAllItems();
             // populate organizationComboBox
-            for (String organizationName : organizations.keySet() ) {
+            for (String organizationName : organizations.keySet()) {
                 organizationComboBox.addItem(organizationName);
             }
 
             String selectedOrganization = organizations.get(contrastPersistentStateComponent.getSelectedOrganizationName());
             if (StringUtils.isNotBlank(contrastPersistentStateComponent.getSelectedOrganizationName())
-                    && selectedOrganization != null){
+                    && selectedOrganization != null) {
                 // if selectedOrganization is not null, set it as selected in organizationComboBox
                 organizationComboBox.setSelectedItem(contrastPersistentStateComponent.getSelectedOrganizationName());
                 // populate apiKeyTextField and uuidTextField
@@ -197,8 +200,8 @@ public class ContrastSearchableConfigurableGUI {
         }
     }
 
-    private void setApiKeyAndUuidForSelectedOrganization(){
-        if (organizationComboBox.getSelectedItem()!= null) {
+    private void setApiKeyAndUuidForSelectedOrganization() {
+        if (organizationComboBox.getSelectedItem() != null) {
             String selectedOrganization = organizations.get(organizationComboBox.getSelectedItem().toString());
             if (selectedOrganization != null) {
                 OrganizationConfig organizationConfig = util.getOrganizationConfigFromString(selectedOrganization, Constants.DELIMITER);

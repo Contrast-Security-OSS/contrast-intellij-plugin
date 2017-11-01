@@ -95,21 +95,27 @@ public class ContrastDialog extends JDialog {
         retrieveOrganizationsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                extendedContrastSDK = new ExtendedContrastSDK(username, serviceKey, apiKeyTextField.getText(), teamserverUrl);
 
-                try {
-                    organizations = extendedContrastSDK.getProfileOrganizations();
-                    organizationNameComboBox.removeAllItems();
-                    for (Organization organization : organizations.getOrganizations()){
-                        organizationNameComboBox.addItem(organization.getName());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        extendedContrastSDK = new ExtendedContrastSDK(username, serviceKey, apiKeyTextField.getText(), teamserverUrl);
+
+                        try {
+                            organizations = extendedContrastSDK.getProfileOrganizations();
+                            organizationNameComboBox.removeAllItems();
+                            for (Organization organization : organizations.getOrganizations()){
+                                organizationNameComboBox.addItem(organization.getName());
+                            }
+                            buttonOK.setEnabled(true);
+
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        } catch (UnauthorizedException e1) {
+                            e1.printStackTrace();
+                        }
                     }
-                    buttonOK.setEnabled(true);
-
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                } catch (UnauthorizedException e1) {
-                    e1.printStackTrace();
-                }
+                }).start();
             }
         });
 

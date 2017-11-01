@@ -22,7 +22,7 @@ import javax.swing.table.AbstractTableModel;
 import java.util.Date;
 
 public class ContrastTableModel extends AbstractTableModel {
-    private String[] columnNames = {"Severity", "Vulnerability", "Actions", "Open in Teamserver", "Last Detected", "Status"};
+    private String[] columnNames = {"Severity", "Vulnerability", "View Details", "Open in Teamserver", "Last Detected", "Status"};
     private Trace[] data = new Trace[0];
 
     private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/contrastToolWindow/critical.png"));
