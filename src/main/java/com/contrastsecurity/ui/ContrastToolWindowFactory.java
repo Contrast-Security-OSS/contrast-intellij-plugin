@@ -95,6 +95,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private DateTimePicker lastDetectedFromDateTimePicker;
     private DateTimePicker lastDetectedToDateTimePicker;
     private JComboBox lastDetectedComboBox;
+    private JPanel cardPanel;
+    private JPanel noVulnerabilitiesPanel;
+    private JSplitPane mainCard;
+    private JLabel noVulnerabilitiesLabel;
 
     // Non-UI variables
     private ContrastUtil contrastUtil;
@@ -580,7 +584,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             ServerFilterForm serverFilterForm = new ServerFilterForm();
             serverFilterForm.setExpand(EnumSet.of(ServerFilterForm.ServerExpandValue.APPLICATIONS));
             servers = extendedContrastSDK.getServers(organizationConfig.getUuid(), serverFilterForm);
+            if (!mainCard.isVisible()) {
+                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                cardLayout.show(cardPanel, "mainCard");
+            }
+
         } catch (Exception e) {
+            if (!noVulnerabilitiesPanel.isVisible()) {
+                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+            }
             e.printStackTrace();
         }
         if (servers != null && servers.getServers() != null && !servers.getServers().isEmpty()) {
