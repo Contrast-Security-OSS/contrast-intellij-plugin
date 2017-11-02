@@ -107,8 +107,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private OrganizationConfig organizationConfig;
     private boolean updatePagesComboBox = false;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
+    private ActionListener checkBoxActionListener;
 
     public ContrastToolWindowFactory() {
+
+        checkBoxActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanTableAndPagesComboBox();
+            }
+        };
 
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
         setupCheckBoxes();
@@ -234,91 +242,21 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         }
 
-        severityLevelNoteCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        severityLevelLowCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        severityLevelMediumCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        severityLevelHighCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        severityLevelCriticalCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
+        severityLevelNoteCheckBox.addActionListener(checkBoxActionListener);
+        severityLevelLowCheckBox.addActionListener(checkBoxActionListener);
+        severityLevelMediumCheckBox.addActionListener(checkBoxActionListener);
+        severityLevelHighCheckBox.addActionListener(checkBoxActionListener);
+        severityLevelCriticalCheckBox.addActionListener(checkBoxActionListener);
 
-        statusAutoRemediatedCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusConfirmedCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusSuspiciousCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusNotAProblemCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusRemediatedCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusReportedCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusFixedCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusBeingTrackedCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
-        statusUntrackedCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cleanTableAndPagesComboBox();
-            }
-        });
+        statusAutoRemediatedCheckBox.addActionListener(checkBoxActionListener);
+        statusConfirmedCheckBox.addActionListener(checkBoxActionListener);
+        statusSuspiciousCheckBox.addActionListener(checkBoxActionListener);
+        statusNotAProblemCheckBox.addActionListener(checkBoxActionListener);
+        statusRemediatedCheckBox.addActionListener(checkBoxActionListener);
+        statusReportedCheckBox.addActionListener(checkBoxActionListener);
+        statusFixedCheckBox.addActionListener(checkBoxActionListener);
+        statusBeingTrackedCheckBox.addActionListener(checkBoxActionListener);
+        statusUntrackedCheckBox.addActionListener(checkBoxActionListener);
     }
 
     private void setupComboBoxes() {
