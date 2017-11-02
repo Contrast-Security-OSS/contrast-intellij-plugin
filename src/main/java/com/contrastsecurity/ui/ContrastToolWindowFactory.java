@@ -99,6 +99,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JPanel noVulnerabilitiesPanel;
     private JSplitPane mainCard;
     private JLabel noVulnerabilitiesLabel;
+    private JPanel vulnerabilityDetailsPanel;
+    private JLabel traceSeverityLabel;
+    private JLabel traceTitleLabel;
+    private JButton externalLinkButton;
+    private JButton backToResultsButton;
+    private JTabbedPane tabbedPane1;
 
     // Non-UI variables
     private ContrastUtil contrastUtil;
@@ -110,6 +116,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private OrganizationConfig organizationConfig;
     private boolean updatePagesComboBox = false;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
+    private Trace viewDetailsTrace;
 
     public ContrastToolWindowFactory() {
 
@@ -122,6 +129,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 refreshTraces();
                 updatePagesComboBox = false;
+            }
+        });
+
+        backToResultsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewDetailsTrace = null;
+
+                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                cardLayout.show(cardPanel, "mainCard");
             }
         });
 
@@ -558,6 +575,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     if (name.equals("Open in Teamserver")) {
                         Trace traceClicked = contrastTableModel.getTraceAtRow(row);
                         openWebpage(traceClicked);
+                    } else if (name.equals("View Details")) {
+                        Trace traceClicked = contrastTableModel.getTraceAtRow(row);
+                        viewDetailsTrace = traceClicked;
+
+                        CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                        cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
                     }
                 }
             }
