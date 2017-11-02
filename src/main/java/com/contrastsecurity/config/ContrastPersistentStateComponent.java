@@ -37,7 +37,7 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     public String serviceKey = "";
     public String selectedOrganizationName = "";
 //    Key = organization name, Value = Organization (API key;UUID) represented as a String
-    public Map<String, String> organizations = new HashMap<>();
+    public Map<String, String> organizations;
 
     @Nullable
     @Override
@@ -75,6 +75,9 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     }
 
     public Map<String, String> getOrganizations() {
+        if (organizations == null){
+            organizations = new HashMap<>();
+        }
         return organizations;
     }
 

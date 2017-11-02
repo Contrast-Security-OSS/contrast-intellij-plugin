@@ -137,16 +137,22 @@ public class ContrastDialog extends JDialog {
         apiKeyTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
+                organizationNameComboBox.removeAllItems();
+                organizationUuidTextField.setText("");
                 ContrastDialog.this.buttonOK.setEnabled(false);
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
+                organizationNameComboBox.removeAllItems();
+                organizationUuidTextField.setText("");
                 ContrastDialog.this.buttonOK.setEnabled(false);
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
+                organizationNameComboBox.removeAllItems();
+                organizationUuidTextField.setText("");
                 ContrastDialog.this.buttonOK.setEnabled(false);
             }
         });
@@ -160,6 +166,7 @@ public class ContrastDialog extends JDialog {
 
     private void onCancel() {
         // add your code here if necessary
+        apiKeyTextField.setText("");
         dispose();
     }
 
