@@ -142,6 +142,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
+        externalLinkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openWebpage(viewDetailsTrace);
+            }
+        });
+
         settingsLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -581,10 +588,34 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                         CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                         cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
+
+                        populateVulnerabilityDetailsPanel();
                     }
                 }
             }
         });
+    }
+
+    private void populateVulnerabilityDetailsPanel() {
+        String severity = viewDetailsTrace.getSeverity();
+        if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
+            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconNote());
+        } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
+            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconLow());
+        } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
+            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconMedium());
+        } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
+            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconHigh());
+        } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
+            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconCritical());
+        }
+
+        String title = viewDetailsTrace.getTitle();
+        int indexOfUnlicensed = title.indexOf(Constants.UNLICENSED);
+        if (indexOfUnlicensed != -1) {
+            title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
+        }
+        traceTitleLabel.setText(title);
     }
 
     private void updateLastDetectedComboBox() {

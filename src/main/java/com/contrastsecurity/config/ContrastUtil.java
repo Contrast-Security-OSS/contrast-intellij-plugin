@@ -20,6 +20,7 @@ import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import org.apache.commons.lang.StringUtils;
 
+import javax.swing.*;
 import java.util.Map;
 
 public class ContrastUtil {
@@ -30,6 +31,14 @@ public class ContrastUtil {
     private String serviceKey;
     private String username;
     private Map<String, String> organizations;
+
+    private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/contrastToolWindow/critical.png"));
+    private final ImageIcon severityIconHigh = new ImageIcon(getClass().getResource("/contrastToolWindow/high.png"));
+    private final ImageIcon severityIconMedium = new ImageIcon(getClass().getResource("/contrastToolWindow/medium.png"));
+    private final ImageIcon severityIconLow = new ImageIcon(getClass().getResource("/contrastToolWindow/low.png"));
+    private final ImageIcon severityIconNote = new ImageIcon(getClass().getResource("/contrastToolWindow/note.png"));
+    private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/externalLink.png"));
+    private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/details.png"));
 
     public ContrastUtil() {
 
@@ -68,4 +77,31 @@ public class ContrastUtil {
         return teamServerUrl;
     }
 
+    public ImageIcon getSeverityIconCritical() {
+        return severityIconCritical;
+    }
+
+    public ImageIcon getSeverityIconHigh() {
+        return severityIconHigh;
+    }
+
+    public ImageIcon getSeverityIconMedium() {
+        return severityIconMedium;
+    }
+
+    public ImageIcon getSeverityIconLow() {
+        return severityIconLow;
+    }
+
+    public ImageIcon getSeverityIconNote() {
+        return severityIconNote;
+    }
+
+    public ImageIcon getExternalLinkIcon() {
+        return externalLinkIcon;
+    }
+
+    public ImageIcon getDetailsIcon() {
+        return detailsIcon;
+    }
 }
