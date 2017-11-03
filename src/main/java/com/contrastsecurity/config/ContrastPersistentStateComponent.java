@@ -22,6 +22,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @State(
@@ -74,11 +75,14 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     }
 
     public Map<String, String> getOrganizations() {
+        if (organizations == null){
+            organizations = new HashMap<>();
+        }
         return organizations;
     }
 
     public void setOrganizations(Map<String, String> organizations) {
-        this.organizations = organizations;
+        this.organizations = new HashMap<>(organizations);
     }
 
     public String getSelectedOrganizationName() {

@@ -36,4 +36,7 @@ public class ApplicationComboBoxItem {
             return application.getName();
         }
     }
+    public Application getApplication() {
+        return application;
+    }
 }
