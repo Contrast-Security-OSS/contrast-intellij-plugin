@@ -18,6 +18,7 @@ import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
+import com.contrastsecurity.models.Trace;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
@@ -71,6 +72,17 @@ public class ContrastUtil {
         }
         OrganizationConfig organizationConfig = Util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
         return organizationConfig;
+    }
+
+    public boolean isTraceLicensed(Trace trace){
+        boolean licensed = true;
+
+        String title = trace.getTitle();
+        int indexOfUnlicensed = title.indexOf(Constants.UNLICENSED);
+        if (indexOfUnlicensed != -1) {
+            licensed = false;
+        }
+        return licensed;
     }
 
     public String getTeamServerUrl() {

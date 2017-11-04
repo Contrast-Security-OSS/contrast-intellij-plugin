@@ -20,7 +20,10 @@ import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.config.ServerComboBoxItem;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
+import com.contrastsecurity.core.extended.EventSummaryResource;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
+import com.contrastsecurity.core.extended.HttpRequestResource;
+import com.contrastsecurity.core.extended.StoryResource;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.RuleSeverity;
@@ -36,7 +39,6 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import org.jdesktop.swingx.JXDatePicker;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -57,21 +59,16 @@ import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
+    private static final int PAGE_LIMIT = 20;
     private JPanel contrastToolWindowContent;
     private JComboBox serversComboBox;
     private JComboBox applicationsComboBox;
     private JComboBox pagesComboBox;
-    private JLabel serversLabel;
-    private JLabel applicationsLabel;
-    private JLabel pagesLabel;
     private JTable vulnerabilitiesTable;
-    private JScrollPane scrollPane;
     private JButton getTracesButton;
-    private JToolBar toolBar;
     private JLabel settingsLabel;
     private JLabel refreshLabel;
     private JLabel saveLabel;
-    private JLabel severityLabel;
     private JCheckBox severityLevelNoteCheckBox;
     private JCheckBox severityLevelMediumCheckBox;
     private JCheckBox severityLevelLowCheckBox;
@@ -87,31 +84,24 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JCheckBox statusFixedCheckBox;
     private JCheckBox statusBeingTrackedCheckBox;
     private JCheckBox statusUntrackedCheckBox;
-    private JXDatePicker JXDatePicker1;
     private ToolWindow contrastToolWindow;
-    private JLabel lastDetectedLabel;
-    private JLabel lastDetectedFromLabel;
-    private JLabel lastDetectedToLabel;
     private DateTimePicker lastDetectedFromDateTimePicker;
     private DateTimePicker lastDetectedToDateTimePicker;
     private JComboBox lastDetectedComboBox;
     private JPanel cardPanel;
     private JPanel noVulnerabilitiesPanel;
     private JSplitPane mainCard;
-    private JLabel noVulnerabilitiesLabel;
     private JPanel vulnerabilityDetailsPanel;
     private JLabel traceSeverityLabel;
     private JLabel traceTitleLabel;
     private JButton externalLinkButton;
     private JButton backToResultsButton;
     private JTabbedPane tabbedPane1;
-    private JButton button1;
-
+    private JTextArea storyTextArea;
     // Non-UI variables
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private int currentOffset = 0;
-    private static final int PAGE_LIMIT = 20;
     private String traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
     private OrganizationConfig organizationConfig;
@@ -528,12 +518,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         openWebpage(traceClicked);
                     } else if (name.equals("View Details")) {
                         Trace traceClicked = contrastTableModel.getTraceAtRow(row);
-                        viewDetailsTrace = traceClicked;
-
-                        CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                        cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
-
-                        populateVulnerabilityDetailsPanel();
+                        if (contrastUtil.isTraceLicensed(traceClicked)) {
+                            viewDetailsTrace = traceClicked;
+                            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                            cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
+                            populateVulnerabilityDetailsPanel();
+                        }
                     }
                 }
             }
@@ -560,6 +550,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
         }
         traceTitleLabel.setText(title);
+
+        try {
+            StoryResource storyResource = getStory(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+            populateVulnerabilityDetailsOverview(storyResource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnauthorizedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void updateLastDetectedComboBox() {
@@ -940,4 +940,28 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
 
     }
+
+    private StoryResource getStory(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+        StoryResource story = extendedContrastSDK.getStory(orgUuid, traceId);
+        return story;
+    }
+
+    private EventSummaryResource getEventSummary(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+        EventSummaryResource eventSummaryResource = extendedContrastSDK.getEventSummary(orgUuid, traceId);
+        return eventSummaryResource;
+    }
+
+    private HttpRequestResource getHttpRequest(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+        HttpRequestResource httpRequest = extendedContrastSDK.getHttpRequest(orgUuid, traceId);
+        return httpRequest;
+    }
+
+    private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
+        if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
+                && !storyResource.getStory().getChapters().isEmpty()) {
+            storyTextArea.setText(storyResource.getStory().getChapters().get(0).getBody());
+
+        }
+    }
+
 }

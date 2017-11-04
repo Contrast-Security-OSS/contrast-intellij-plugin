@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.contrastsecurity.ui;
 
+import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.models.Trace;
 
@@ -32,6 +33,8 @@ public class ContrastTableModel extends AbstractTableModel {
     private final ImageIcon severityIconNote = new ImageIcon(getClass().getResource("/contrastToolWindow/note.png"));
     private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/externalLink.png"));
     private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/details.png"));
+    private final ImageIcon unlicensedIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/unlicensed.png"));
+    private ContrastUtil contrastUtil = new ContrastUtil();
 
     @Override
     public int getRowCount() {
@@ -75,7 +78,11 @@ public class ContrastTableModel extends AbstractTableModel {
                     obj = title;
                     break;
                 case 2:
-                    obj = detailsIcon;
+                    if (contrastUtil.isTraceLicensed(trace)){
+                        obj = detailsIcon;
+                    } else {
+                        obj = unlicensedIcon;
+                    }
                     break;
                 case 3:
                     obj = externalLinkIcon;
