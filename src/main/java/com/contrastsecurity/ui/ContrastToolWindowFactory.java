@@ -20,10 +20,7 @@ import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.config.ServerComboBoxItem;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
-import com.contrastsecurity.core.extended.EventSummaryResource;
-import com.contrastsecurity.core.extended.ExtendedContrastSDK;
-import com.contrastsecurity.core.extended.HttpRequestResource;
-import com.contrastsecurity.core.extended.StoryResource;
+import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.RuleSeverity;
@@ -40,21 +37,21 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
+import org.unbescape.html.HtmlEscape;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
+import java.util.*;
 import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
@@ -97,7 +94,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton externalLinkButton;
     private JButton backToResultsButton;
     private JTabbedPane tabbedPane1;
-    private JTextArea storyTextArea;
+    private JTextPane overviewTextPane;
+    private JTextPane httpRequestTextPane;
     // Non-UI variables
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
@@ -531,6 +529,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void populateVulnerabilityDetailsPanel() {
+
+        resetVulnerabilityDetails();
+
         String severity = viewDetailsTrace.getSeverity();
         if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
             traceSeverityLabel.setIcon(contrastUtil.getSeverityIconNote());
@@ -559,6 +560,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         } catch (UnauthorizedException e) {
             e.printStackTrace();
         }
+
+        try {
+            HttpRequestResource httpRequestResource = getHttpRequest(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+            populateVulnerabilityDetailsHttpRequest(httpRequestResource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnauthorizedException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -959,8 +970,132 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
-            storyTextArea.setText(storyResource.getStory().getChapters().get(0).getBody());
 
+            insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_CHAPTERS);
+
+            for (Chapter chapter : storyResource.getStory().getChapters()) {
+                String text = chapter.getIntroText() == null ? Constants.BLANK : chapter.getIntroText();
+                String areaText = chapter.getBody() == null ? Constants.BLANK : chapter.getBody();
+                if (areaText.isEmpty()) {
+                    List<PropertyResource> properties = chapter.getPropertyResources();
+                    if (properties != null && properties.size() > 0) {
+                        Iterator<PropertyResource> iter = properties.iterator();
+                        while (iter.hasNext()) {
+                            PropertyResource property = iter.next();
+                            areaText += property.getName() == null ? Constants.BLANK : property.getName();
+                            if (iter.hasNext()) {
+                                areaText += "\n";
+                            }
+                        }
+                    }
+                }
+
+                text = parseMustache(text);
+                if (!areaText.isEmpty()) {
+                    areaText = parseMustache(areaText);
+                }
+                insertChapterIntoOverviewTextPane(text, areaText);
+            }
+            if (storyResource.getStory().getRisk() != null) {
+                Risk risk = storyResource.getStory().getRisk();
+                String riskText = risk.getText() == null ? Constants.BLANK : risk.getText();
+
+                if (!riskText.isEmpty()) {
+                    insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_RISK);
+                    riskText = parseMustache(riskText);
+                    insertTextIntoOverviewTextPane(riskText);
+                }
+            }
+        }
+    }
+
+    private String parseMustache(String text) {
+        text = text.replace(Constants.MUSTACHE_NL, Constants.BLANK);
+        //text = StringEscapeUtils.unescapeHtml(text);
+        text = HtmlEscape.unescapeHtml(text);
+        try {
+            text = URLDecoder.decode(text, "UTF-8");
+        } catch (Exception e) {
+            // ignore
+        }
+        text = text.replace("&lt;", "<");
+        text = text.replace("&gt;", ">");
+        // FIXME
+        text = text.replace("{{#code}}", "");
+        text = text.replace("{{/code}}", "");
+        text = text.replace("{{#p}}", "");
+        text = text.replace("{{/p}}", "");
+        return text;
+    }
+
+    private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setBackground(style, Color.GRAY);
+        StyleConstants.setForeground(style, Color.WHITE);
+
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertTextIntoOverviewTextPane(String text) {
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), text + "\n", null);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertHeaderTextIntoOverviewTextPane(String headerText) {
+
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setBold(style, true);
+
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), headerText + "\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void resetVulnerabilityDetails() {
+        overviewTextPane.setText("");
+        httpRequestTextPane.setText("");
+    }
+
+    private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
+        httpRequestTextPane.setText(Constants.BLANK);
+        if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
+                && httpRequestResource.getHttpRequest().getFormattedText() != null) {
+
+            httpRequestTextPane.setText(httpRequestResource.getHttpRequest().getText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
+        } else if (httpRequestResource != null && httpRequestResource.getReason() != null) {
+            httpRequestTextPane.setText(httpRequestResource.getReason());
+        }
+        String text = httpRequestTextPane.getText();
+        text = HtmlEscape.unescapeHtml(text);
+        try {
+            text = URLDecoder.decode(text, "UTF-8");
+        } catch (Exception e) {
+            // ignore
+        }
+        if (text.contains(Constants.TAINT) && text.contains(Constants.TAINT_CLOSED)) {
+
+            String currentString = text;
+            int start = text.indexOf(Constants.TAINT);
+            currentString = currentString.replace(Constants.TAINT, "");
+            int end = currentString.indexOf(Constants.TAINT_CLOSED);
+            if (end > start) {
+                currentString = currentString.replace(Constants.TAINT_CLOSED, "");
+                httpRequestTextPane.setText(currentString);
+            }
         }
     }
 
