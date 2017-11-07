@@ -530,47 +530,50 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private void populateVulnerabilityDetailsPanel() {
 
-        resetVulnerabilityDetails();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                resetVulnerabilityDetails();
 
-        String severity = viewDetailsTrace.getSeverity();
-        if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
-            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconNote());
-        } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
-            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconLow());
-        } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
-            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconMedium());
-        } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
-            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconHigh());
-        } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
-            traceSeverityLabel.setIcon(contrastUtil.getSeverityIconCritical());
-        }
+                String severity = viewDetailsTrace.getSeverity();
+                if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconNote());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconLow());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconMedium());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconHigh());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconCritical());
+                }
 
-        String title = viewDetailsTrace.getTitle();
-        int indexOfUnlicensed = title.indexOf(Constants.UNLICENSED);
-        if (indexOfUnlicensed != -1) {
-            title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
-        }
-        traceTitleLabel.setText(title);
+                String title = viewDetailsTrace.getTitle();
+                int indexOfUnlicensed = title.indexOf(Constants.UNLICENSED);
+                if (indexOfUnlicensed != -1) {
+                    title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
+                }
+                traceTitleLabel.setText(title);
 
-        try {
-            StoryResource storyResource = getStory(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
-            populateVulnerabilityDetailsOverview(storyResource);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-        }
+                try {
+                    StoryResource storyResource = getStory(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    populateVulnerabilityDetailsOverview(storyResource);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (UnauthorizedException e) {
+                    e.printStackTrace();
+                }
 
-        try {
-            HttpRequestResource httpRequestResource = getHttpRequest(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
-            populateVulnerabilityDetailsHttpRequest(httpRequestResource);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-        }
-
-
+                try {
+                    HttpRequestResource httpRequestResource = getHttpRequest(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    populateVulnerabilityDetailsHttpRequest(httpRequestResource);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (UnauthorizedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void updateLastDetectedComboBox() {
