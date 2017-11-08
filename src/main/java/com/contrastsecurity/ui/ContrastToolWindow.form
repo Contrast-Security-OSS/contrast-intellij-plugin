@@ -270,13 +270,17 @@
                         <constraints>
                           <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <opaque value="false"/>
+                        </properties>
                       </component>
                       <component id="4e33" class="com.github.lgooddatepicker.components.DateTimePicker" binding="lastDetectedToDateTimePicker">
                         <constraints>
                           <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <opaque value="false"/>
+                        </properties>
                       </component>
                       <component id="7f857" class="javax.swing.JLabel">
                         <constraints>
@@ -444,7 +448,9 @@
                                 <preferred-size width="150" height="50"/>
                               </grid>
                             </constraints>
-                            <properties/>
+                            <properties>
+                              <editable value="false"/>
+                            </properties>
                           </component>
                         </children>
                       </grid>

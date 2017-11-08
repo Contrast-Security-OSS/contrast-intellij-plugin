@@ -56,6 +56,7 @@ import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
+    // Non-UI variables
     private static final int PAGE_LIMIT = 20;
     private JPanel contrastToolWindowContent;
     private JComboBox serversComboBox;
@@ -96,7 +97,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JTabbedPane tabbedPane1;
     private JTextPane overviewTextPane;
     private JTextPane httpRequestTextPane;
-    // Non-UI variables
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private int currentOffset = 0;
@@ -997,6 +997,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (!areaText.isEmpty()) {
                     areaText = parseMustache(areaText);
                 }
+
                 insertChapterIntoOverviewTextPane(text, areaText);
             }
             if (storyResource.getStory().getRisk() != null) {
@@ -1031,43 +1032,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return text;
     }
 
-    private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
-        StyleContext styleContext = StyleContext.getDefaultStyleContext();
-        Style style = styleContext.addStyle("test", null);
-
-        StyleConstants.setBackground(style, Color.GRAY);
-        StyleConstants.setForeground(style, Color.WHITE);
-
-        try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void insertTextIntoOverviewTextPane(String text) {
-        try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), text + "\n", null);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void insertHeaderTextIntoOverviewTextPane(String headerText) {
-
-        StyleContext styleContext = StyleContext.getDefaultStyleContext();
-        Style style = styleContext.addStyle("test", null);
-
-        StyleConstants.setBold(style, true);
-
-        try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), headerText + "\n", style);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void resetVulnerabilityDetails() {
         overviewTextPane.setText("");
         httpRequestTextPane.setText("");
@@ -1099,6 +1063,44 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 currentString = currentString.replace(Constants.TAINT_CLOSED, "");
                 httpRequestTextPane.setText(currentString);
             }
+        }
+    }
+
+    private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setBackground(style, Color.GRAY);
+        StyleConstants.setForeground(style, Color.WHITE);
+
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void insertTextIntoOverviewTextPane(String text) {
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), text + "\n", null);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertHeaderTextIntoOverviewTextPane(String headerText) {
+
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setBold(style, true);
+
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), headerText + "\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
         }
     }
 

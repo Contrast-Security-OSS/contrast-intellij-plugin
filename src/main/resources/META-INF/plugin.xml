@@ -1,41 +1,54 @@
 <idea-plugin>
-  <id>com.your.company.unique.plugin.id</id>
-  <name>Plugin display name here</name>
-  <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <id>com.contrastsecurity.contrast-intellij-plugin</id>
+    <name>Contrast</name>
+    <version>1.0</version>
+    <vendor email="support@contrastsecurity.com" url="https://www.contrastsecurity.com">Contrast Security</vendor>
 
-  <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+    <description><![CDATA[
+      <p>Instrument your applications with Contrast Security to gain real-time visibility to vulnerabilities in your application, and to defend them against attacks.</p>
+      <p>Contrast integrates with your existing SDLC processes to provide an easy way to view and fix vulnerabilities in your code, and protect your applications.</p>
+      <p>The Contrast for Eclipse plugin lists the vulnerabilities from your application directly in your Eclipse environment enabling developers to resolve issues faster.</p>
+      <p>Please note that you will need the Contrast TeamServer in order to use this feature.</p>
+      <p>You can learn more about Contrast Security's latest products by visiting our website at <a href="https://www.contrastsecurity.com">www.contrastsecurity.com</a>.</p>
+      <p>To schedule a demo, contact us at <a href="https://www.contrastsecurity.com/demo">www.contrastsecurity.com/demo</a> or by calling 1-888-371-1333.</p>
+      <p>Welcome to the Era of Self-Protecting Software.</p>
     ]]></description>
 
-  <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
-    ]]>
-  </change-notes>
+    <!--<change-notes><![CDATA[-->
+      <!--Add change notes here.<br>-->
+      <!--<em>most HTML tags may be used</em>-->
+    <!--]]>-->
+    <!--</change-notes>-->
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="145.0"/>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="145.0"/>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
-    <toolWindow id="Contrast" secondary="false" icon="/contrastToolWindow/contrastIcon.png" anchor="bottom"
-                factoryClass="com.contrastsecurity.ui.ContrastToolWindowFactory"/>
-    <applicationConfigurable groupId="tools" displayName="Contrast" id="preferences.ContrastSearchableConfigurable" instance="com.contrastsecurity.ui.settings.ContrastSearchableConfigurable" />
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <toolWindow id="Contrast" secondary="false" icon="/contrastToolWindow/contrastIcon.png" anchor="bottom"
+                    factoryClass="com.contrastsecurity.ui.ContrastToolWindowFactory"/>
+        <applicationConfigurable displayName="Contrast" id="preferences.ContrastSearchableConfigurable"
+                                 instance="com.contrastsecurity.ui.settings.ContrastSearchableConfigurable"/>
 
-    <applicationService serviceInterface="com.contrastsecurity.config.ContrastPersistentStateComponent" serviceImplementation="com.contrastsecurity.config.ContrastPersistentStateComponent"/>
-    <applicationService serviceInterface="com.contrastsecurity.config.ContrastFilterPersistentStateComponent" serviceImplementation="com.contrastsecurity.config.ContrastFilterPersistentStateComponent"/>
-  </extensions>
+        <applicationService serviceInterface="com.contrastsecurity.config.ContrastPersistentStateComponent"
+                            serviceImplementation="com.contrastsecurity.config.ContrastPersistentStateComponent"/>
+        <applicationService serviceInterface="com.contrastsecurity.config.ContrastFilterPersistentStateComponent"
+                            serviceImplementation="com.contrastsecurity.config.ContrastFilterPersistentStateComponent"/>
+    </extensions>
 
-  <actions>
-    <!-- Add your actions here -->
-  </actions>
+    <actions>
+        <!-- Add your actions here -->
+        <group id="contrast-intellij-plugin.ContrastMenu" text="C_ontrast" description="Contrast menu">
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <action id="contrast-intellij-plugin.ContrastAction" class="com.contrastsecurity.ui.ContrastAnAction"
+                    text="_Contrast plugin preferences" icon="/contrastToolWindow/settings.png"/>
+        </group>
+    </actions>
 
 </idea-plugin>
