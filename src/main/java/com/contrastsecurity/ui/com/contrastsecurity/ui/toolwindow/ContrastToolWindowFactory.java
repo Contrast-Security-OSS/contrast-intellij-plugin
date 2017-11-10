@@ -1,0 +1,679 @@
+/*******************************************************************************
+ * Copyright (c) 2017 Contrast Security.
+ * All rights reserved.
+ *
+ * This program and the accompanying materials are made available under
+ * the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 3 of the License.
+ *
+ * The terms of the GNU GPL version 3 which accompanies this distribution
+ * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * Contributors:
+ *     Contrast Security - initial API and implementation
+ *******************************************************************************/
+package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
+
+import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
+import com.contrastsecurity.config.ContrastUtil;
+import com.contrastsecurity.core.Constants;
+import com.contrastsecurity.core.Util;
+import com.contrastsecurity.core.extended.*;
+import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
+import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.RuleSeverity;
+import com.contrastsecurity.http.ServerFilterForm;
+import com.contrastsecurity.http.TraceFilterForm;
+import com.contrastsecurity.models.*;
+import com.intellij.openapi.options.ShowSettingsUtil;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
+import org.jetbrains.annotations.NotNull;
+import org.unbescape.html.HtmlEscape;
+
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+
+public class ContrastToolWindowFactory implements ToolWindowFactory {
+
+    private static final int PAGE_LIMIT = 20;
+    private JPanel contrastToolWindowContent;
+    private JTable vulnerabilitiesTable;
+    private JLabel settingsLabel;
+    private JLabel refreshLabel;
+    private ToolWindow contrastToolWindow;
+    private JPanel cardPanel;
+    private JPanel noVulnerabilitiesPanel;
+    private JPanel vulnerabilityDetailsPanel;
+    private JLabel traceSeverityLabel;
+    private JLabel traceTitleLabel;
+    private JButton externalLinkButton;
+    private JButton backToResultsButton;
+    private JTabbedPane tabbedPane1;
+    private JTextPane overviewTextPane;
+    private JTextPane httpRequestTextPane;
+    private JLabel filterLabel;
+    private JScrollPane mainCard;
+    private ContrastUtil contrastUtil;
+    private ExtendedContrastSDK extendedContrastSDK;
+    private ContrastTableModel contrastTableModel = new ContrastTableModel();
+    private OrganizationConfig organizationConfig;
+    private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
+    private Trace viewDetailsTrace;
+    private TraceFilterForm traceFilterForm;
+    private Integer tracesObjectCount;
+
+    private Servers servers;
+    private List<Application> applications;
+
+    public ContrastToolWindowFactory() {
+
+        if (!mainCard.isVisible()) {
+            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+            cardLayout.show(cardPanel, "mainCard");
+        }
+
+        contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
+
+        backToResultsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewDetailsTrace = null;
+
+                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                cardLayout.show(cardPanel, "mainCard");
+            }
+        });
+
+        externalLinkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openWebpage(viewDetailsTrace);
+            }
+        });
+
+        settingsLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
+            }
+        });
+
+        refreshLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                refresh();
+            }
+        });
+
+        filterLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (servers != null && applications != null) {
+                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications, tracesObjectCount);
+                    filtersDialog.setVisible(true);
+
+                    TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
+                    if (dialogTraceFilterForm != null) {
+                        traceFilterForm = dialogTraceFilterForm;
+                        refreshTraces();
+//                    cleanTable();
+                    }
+                }
+            }
+        });
+        refresh();
+    }
+
+    private boolean isFromDateLessThanToDate(LocalDateTime fromDate, LocalDateTime toDate) {
+        Date lastDetectedFromDate = Date.from(fromDate.atZone(ZoneId.systemDefault()).toInstant());
+        Date lastDetectedToDate = Date.from(toDate.atZone(ZoneId.systemDefault()).toInstant());
+
+        if (lastDetectedFromDate.getTime() < lastDetectedToDate.getTime()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
+        if (localDateTime != null) {
+            Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            return date;
+        } else {
+            return null;
+        }
+    }
+
+    public void refresh() {
+        contrastUtil = new ContrastUtil();
+        extendedContrastSDK = contrastUtil.getContrastSDK();
+        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
+        setupTable();
+        traceFilterForm = getTraceFilterFormFromContrastFilterPersistentStateComponent();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                refreshTraces();
+                servers = retrieveServers();
+                applications = retrieveApplications();
+            }
+        }).start();
+    }
+
+    private void cleanTable() {
+        contrastTableModel.setData(new Trace[0]);
+        contrastTableModel.fireTableDataChanged();
+    }
+
+    private void refreshTraces() {
+
+        Trace[] traces = new Trace[0];
+
+        Long serverId = Constants.ALL_SERVERS;
+        String appId = Constants.ALL_APPLICATIONS;
+
+        if (contrastFilterPersistentStateComponent.getSelectedServerUuid() != null) {
+            serverId = contrastFilterPersistentStateComponent.getSelectedServerUuid();
+        }
+        if (contrastFilterPersistentStateComponent.getSelectedApplicationId() != null) {
+            appId = contrastFilterPersistentStateComponent.getSelectedApplicationId();
+        }
+
+        try {
+            Traces tracesObject = getTraces(organizationConfig.getUuid(), serverId, appId, traceFilterForm);
+
+            if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
+                traces = tracesObject.getTraces().toArray(new Trace[0]);
+            }
+            tracesObjectCount = tracesObject.getCount();
+            if (!mainCard.isVisible()) {
+                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                cardLayout.show(cardPanel, "mainCard");
+            }
+        } catch (IOException | UnauthorizedException exception) {
+            exception.printStackTrace();
+            if (!noVulnerabilitiesPanel.isVisible()) {
+                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                cardLayout.show(cardPanel, "noVulnerabilitiesPanel");
+            }
+        }
+        contrastTableModel.setData(traces);
+        contrastTableModel.fireTableDataChanged();
+    }
+
+    @Override
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        contrastToolWindow = toolWindow;
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        Content content = contentFactory.createContent(contrastToolWindowContent, "", false);
+        toolWindow.getContentManager().addContent(content);
+    }
+
+    private Traces getTraces(String orgUuid, Long serverId, String appId, TraceFilterForm form)
+            throws IOException, UnauthorizedException {
+
+        Traces traces = null;
+        if (extendedContrastSDK != null) {
+            if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
+                traces = extendedContrastSDK.getTracesInOrg(orgUuid, form);
+            } else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
+                traces = extendedContrastSDK.getTraces(orgUuid, appId, form);
+            } else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
+                traces = extendedContrastSDK.getTracesInOrg(orgUuid, form);
+            } else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
+                traces = extendedContrastSDK.getTraces(orgUuid, appId, form);
+            }
+        }
+        return traces;
+    }
+
+    private void setupTable() {
+        vulnerabilitiesTable.setModel(contrastTableModel);
+        TableColumn severityColumn = vulnerabilitiesTable.getColumnModel().getColumn(0);
+        severityColumn.setMaxWidth(76);
+        severityColumn.setMinWidth(76);
+
+        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(2);
+        viewDetailsColumn.setMaxWidth(120);
+
+        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(3);
+        openInTeamserverColumn.setMaxWidth(120);
+
+        vulnerabilitiesTable.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+
+                if (contrastTableModel != null && contrastTableModel.getRowCount() > 1) {
+                    int col = vulnerabilitiesTable.columnAtPoint(e.getPoint());
+                    String name = vulnerabilitiesTable.getColumnName(col);
+
+                    if (name.equals("Severity")) {
+                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                            traceFilterForm.setSort(Constants.SORT_BY_SEVERITY);
+                        } else {
+                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
+                        }
+                        refreshTraces();
+                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                    } else if (name.equals("Vulnerability")) {
+                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                            traceFilterForm.setSort(Constants.SORT_BY_TITLE);
+                        } else {
+                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_TITLE);
+                        }
+                        refreshTraces();
+                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                    } else if (name.equals("Last Detected")) {
+                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                            traceFilterForm.setSort(Constants.SORT_BY_LAST_TIME_SEEN);
+                        } else {
+                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_LAST_TIME_SEEN);
+                        }
+                        refreshTraces();
+                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                    } else if (name.equals("Status")) {
+                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                            traceFilterForm.setSort(Constants.SORT_BY_STATUS);
+                        } else {
+                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_STATUS);
+                        }
+                        refreshTraces();
+                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                    }
+                }
+            }
+        });
+
+        vulnerabilitiesTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = vulnerabilitiesTable.rowAtPoint(evt.getPoint());
+                int col = vulnerabilitiesTable.columnAtPoint(evt.getPoint());
+
+                if (row >= 0 && col >= 0) {
+                    String name = vulnerabilitiesTable.getColumnName(col);
+                    if (name.equals("Open in Teamserver")) {
+                        Trace traceClicked = contrastTableModel.getTraceAtRow(row);
+                        openWebpage(traceClicked);
+                    } else if (name.equals("View Details")) {
+                        Trace traceClicked = contrastTableModel.getTraceAtRow(row);
+                        if (contrastUtil.isTraceLicensed(traceClicked)) {
+                            viewDetailsTrace = traceClicked;
+                            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                            cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
+                            populateVulnerabilityDetailsPanel();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void populateVulnerabilityDetailsPanel() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                resetVulnerabilityDetails();
+
+                String severity = viewDetailsTrace.getSeverity();
+                if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconNote());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconLow());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconMedium());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconHigh());
+                } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
+                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconCritical());
+                }
+
+                String title = viewDetailsTrace.getTitle();
+                int indexOfUnlicensed = title.indexOf(Constants.UNLICENSED);
+                if (indexOfUnlicensed != -1) {
+                    title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
+                }
+                traceTitleLabel.setText(title);
+
+                try {
+                    StoryResource storyResource = getStory(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    populateVulnerabilityDetailsOverview(storyResource);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (UnauthorizedException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    HttpRequestResource httpRequestResource = getHttpRequest(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    populateVulnerabilityDetailsHttpRequest(httpRequestResource);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (UnauthorizedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private URL getOverviewUrl(String traceId) throws MalformedURLException {
+        String teamServerUrl = contrastUtil.getTeamServerUrl();
+        teamServerUrl = teamServerUrl.trim();
+        if (teamServerUrl != null && teamServerUrl.endsWith("/api")) {
+            teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 4);
+        }
+        if (teamServerUrl != null && teamServerUrl.endsWith("/api/")) {
+            teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 5);
+        }
+        String urlStr = teamServerUrl + "/static/ng/index.html#/" + contrastUtil.getSelectedOrganizationConfig().getUuid() + "/vulns/" + traceId + "/overview";
+        URL url = new URL(urlStr);
+        return url;
+    }
+
+    public void openWebpage(URI uri) {
+        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+            try {
+                desktop.browse(uri);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void openWebpage(Trace trace) {
+        if (trace == null) {
+            return;
+        }
+        // https://apptwo.contrastsecurity.com/Contrast/static/ng/index.html#/orgUuid/vulns/<VULN_ID>/overview
+        try {
+            URL url = getOverviewUrl(trace.getUuid());
+            openWebpage(url.toURI());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private LocalDateTime getLocalDateTimeFromMillis(Long millis) {
+        Date date = new Date(millis);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return localDateTime;
+    }
+
+    private StoryResource getStory(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+        StoryResource story = extendedContrastSDK.getStory(orgUuid, traceId);
+        return story;
+    }
+
+    private EventSummaryResource getEventSummary(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+        EventSummaryResource eventSummaryResource = extendedContrastSDK.getEventSummary(orgUuid, traceId);
+        return eventSummaryResource;
+    }
+
+    private HttpRequestResource getHttpRequest(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+        HttpRequestResource httpRequest = extendedContrastSDK.getHttpRequest(orgUuid, traceId);
+        return httpRequest;
+    }
+
+    private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
+        if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
+                && !storyResource.getStory().getChapters().isEmpty()) {
+
+            insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_CHAPTERS);
+
+            for (Chapter chapter : storyResource.getStory().getChapters()) {
+                String text = chapter.getIntroText() == null ? Constants.BLANK : chapter.getIntroText();
+                String areaText = chapter.getBody() == null ? Constants.BLANK : chapter.getBody();
+                if (areaText.isEmpty()) {
+                    List<PropertyResource> properties = chapter.getPropertyResources();
+                    if (properties != null && properties.size() > 0) {
+                        Iterator<PropertyResource> iter = properties.iterator();
+                        while (iter.hasNext()) {
+                            PropertyResource property = iter.next();
+                            areaText += property.getName() == null ? Constants.BLANK : property.getName();
+                            if (iter.hasNext()) {
+                                areaText += "\n";
+                            }
+                        }
+                    }
+                }
+
+                text = parseMustache(text);
+                if (!areaText.isEmpty()) {
+                    areaText = parseMustache(areaText);
+                }
+                insertChapterIntoOverviewTextPane(text, areaText);
+            }
+            if (storyResource.getStory().getRisk() != null) {
+                Risk risk = storyResource.getStory().getRisk();
+                String riskText = risk.getText() == null ? Constants.BLANK : risk.getText();
+
+                if (!riskText.isEmpty()) {
+                    insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_RISK);
+                    riskText = parseMustache(riskText);
+                    insertTextIntoOverviewTextPane(riskText);
+                }
+            }
+        }
+    }
+
+    private String parseMustache(String text) {
+        text = text.replace(Constants.MUSTACHE_NL, Constants.BLANK);
+        //text = StringEscapeUtils.unescapeHtml(text);
+        text = HtmlEscape.unescapeHtml(text);
+        try {
+            text = URLDecoder.decode(text, "UTF-8");
+        } catch (Exception e) {
+            // ignore
+        }
+        text = text.replace("&lt;", "<");
+        text = text.replace("&gt;", ">");
+        // FIXME
+        text = text.replace("{{#code}}", "");
+        text = text.replace("{{/code}}", "");
+        text = text.replace("{{#p}}", "");
+        text = text.replace("{{/p}}", "");
+        return text;
+    }
+
+    private void resetVulnerabilityDetails() {
+        overviewTextPane.setText("");
+        httpRequestTextPane.setText("");
+    }
+
+    private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
+        httpRequestTextPane.setText(Constants.BLANK);
+        if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
+                && httpRequestResource.getHttpRequest().getFormattedText() != null) {
+
+            httpRequestTextPane.setText(httpRequestResource.getHttpRequest().getText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
+        } else if (httpRequestResource != null && httpRequestResource.getReason() != null) {
+            httpRequestTextPane.setText(httpRequestResource.getReason());
+        }
+        String text = httpRequestTextPane.getText();
+        text = HtmlEscape.unescapeHtml(text);
+        try {
+            text = URLDecoder.decode(text, "UTF-8");
+        } catch (Exception e) {
+            // ignore
+        }
+        if (text.contains(Constants.TAINT) && text.contains(Constants.TAINT_CLOSED)) {
+
+            String currentString = text;
+            int start = text.indexOf(Constants.TAINT);
+            currentString = currentString.replace(Constants.TAINT, "");
+            int end = currentString.indexOf(Constants.TAINT_CLOSED);
+            if (end > start) {
+                currentString = currentString.replace(Constants.TAINT_CLOSED, "");
+                httpRequestTextPane.setText(currentString);
+            }
+        }
+    }
+
+    private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setBackground(style, Color.GRAY);
+        StyleConstants.setForeground(style, Color.WHITE);
+
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void insertTextIntoOverviewTextPane(String text) {
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), text + "\n", null);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertHeaderTextIntoOverviewTextPane(String headerText) {
+
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setBold(style, true);
+
+        try {
+            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), headerText + "\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private TraceFilterForm getTraceFilterFormFromContrastFilterPersistentStateComponent() {
+
+        TraceFilterForm traceFilterForm = null;
+
+        Long serverId = Constants.ALL_SERVERS;
+        String appId = Constants.ALL_APPLICATIONS;
+
+        if (contrastFilterPersistentStateComponent.getSelectedServerUuid() != null) {
+            serverId = contrastFilterPersistentStateComponent.getSelectedServerUuid();
+        }
+        if (contrastFilterPersistentStateComponent.getSelectedApplicationId() != null) {
+            appId = contrastFilterPersistentStateComponent.getSelectedApplicationId();
+        }
+
+        int offset = contrastFilterPersistentStateComponent.getCurrentOffset();
+
+        if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
+            traceFilterForm = Util.getTraceFilterForm(offset, PAGE_LIMIT);
+        } else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
+            traceFilterForm = Util.getTraceFilterForm(offset, PAGE_LIMIT);
+        } else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
+            traceFilterForm = Util.getTraceFilterForm(serverId, offset, PAGE_LIMIT);
+        } else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
+            traceFilterForm = Util.getTraceFilterForm(serverId, offset, PAGE_LIMIT);
+        }
+        if (contrastFilterPersistentStateComponent.getSeverities() != null && !contrastFilterPersistentStateComponent.getSeverities().isEmpty()) {
+            traceFilterForm.setSeverities(getRuleSeveritiesEnumFromList(contrastFilterPersistentStateComponent.getSeverities()));
+        }
+
+        if (contrastFilterPersistentStateComponent.getLastDetectedFrom() != null) {
+            LocalDateTime localDateTimeFrom = getLocalDateTimeFromMillis(contrastFilterPersistentStateComponent.getLastDetectedFrom());
+            traceFilterForm.setStartDate(getDateFromLocalDateTime(localDateTimeFrom));
+        }
+
+        if (contrastFilterPersistentStateComponent.getLastDetectedTo() != null) {
+            LocalDateTime localDateTimeTo = getLocalDateTimeFromMillis(contrastFilterPersistentStateComponent.getLastDetectedTo());
+            traceFilterForm.setEndDate(getDateFromLocalDateTime(localDateTimeTo));
+        }
+        if (contrastFilterPersistentStateComponent.getStatuses() != null && !contrastFilterPersistentStateComponent.getStatuses().isEmpty()) {
+            traceFilterForm.setStatus(contrastFilterPersistentStateComponent.getStatuses());
+        }
+        if (contrastFilterPersistentStateComponent.getCurrentOffset() != 0) {
+            traceFilterForm.setOffset(contrastFilterPersistentStateComponent.getCurrentOffset());
+        }
+
+        if (contrastFilterPersistentStateComponent.getSort() != null) {
+            traceFilterForm.setSort(contrastFilterPersistentStateComponent.getSort());
+        }
+
+        return traceFilterForm;
+    }
+
+    private EnumSet<RuleSeverity> getRuleSeveritiesEnumFromList(List<String> severities) {
+
+        EnumSet<RuleSeverity> ruleSeverities = EnumSet.noneOf(RuleSeverity.class);
+        if (!severities.isEmpty()) {
+            for (String severity : severities) {
+                if (severity.equals(RuleSeverity.NOTE.toString())) {
+                    ruleSeverities.add(RuleSeverity.NOTE);
+                } else if (severity.equals(RuleSeverity.LOW.toString())) {
+                    ruleSeverities.add(RuleSeverity.LOW);
+                } else if (severity.equals(RuleSeverity.MEDIUM.toString())) {
+                    ruleSeverities.add(RuleSeverity.MEDIUM);
+                } else if (severity.equals(RuleSeverity.HIGH.toString())) {
+                    ruleSeverities.add(RuleSeverity.HIGH);
+                } else if (severity.equals(RuleSeverity.CRITICAL.toString())) {
+                    ruleSeverities.add(RuleSeverity.CRITICAL);
+                }
+            }
+        }
+        return ruleSeverities;
+    }
+
+    private Servers retrieveServers() {
+        int count = 0;
+        Servers servers = null;
+        try {
+            ServerFilterForm serverFilterForm = new ServerFilterForm();
+            serverFilterForm.setExpand(EnumSet.of(ServerFilterForm.ServerExpandValue.APPLICATIONS));
+            servers = extendedContrastSDK.getServers(organizationConfig.getUuid(), serverFilterForm);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return servers;
+    }
+
+    public List<Application> retrieveApplications() {
+        int count = 0;
+        List<Application> applications = null;
+
+        try {
+            Applications apps = extendedContrastSDK.getApplications(organizationConfig.getUuid());
+            if (apps != null) {
+                applications = apps.getApplications();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return applications;
+    }
+
+}

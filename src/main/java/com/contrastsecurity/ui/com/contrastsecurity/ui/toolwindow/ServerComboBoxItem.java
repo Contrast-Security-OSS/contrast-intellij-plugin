@@ -12,31 +12,32 @@
  * Contributors:
  *     Contrast Security - initial API and implementation
  *******************************************************************************/
-package com.contrastsecurity.config;
+package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
-import com.contrastsecurity.models.Application;
+import com.contrastsecurity.models.Server;
 
-public class ApplicationComboBoxItem {
-    private Application application;
-    private String allApplicationsName;
+public class ServerComboBoxItem {
+    private Server server;
+    private String allServersName;
 
-    public ApplicationComboBoxItem(Application application) {
-        this.application = application;
+    public ServerComboBoxItem(Server server) {
+        this.server = server;
     }
 
-    public ApplicationComboBoxItem(String allApplicationsName) {
-        this.allApplicationsName = allApplicationsName;
+    public ServerComboBoxItem(String name) {
+        this.allServersName = name;
     }
 
     @Override
     public String toString() {
-        if (application == null) {
-            return allApplicationsName;
+        if (server == null) {
+            return allServersName;
         } else {
-            return application.getName();
+            return server.getName();
         }
     }
-    public Application getApplication() {
-        return application;
+
+    public Server getServer() {
+        return server;
     }
 }

@@ -12,7 +12,7 @@
  * Contributors:
  *     Contrast Security - initial API and implementation
  *******************************************************************************/
-package com.contrastsecurity.ui;
+package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
