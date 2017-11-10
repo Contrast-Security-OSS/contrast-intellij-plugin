@@ -338,11 +338,10 @@ public class FiltersDialog extends JDialog {
         organizationConfig = contrastUtil.getSelectedOrganizationConfig();
         updateServersComboBox(servers);
         updateLastDetectedComboBox();
+        populateFiltersWithDataFromContrastFilterPersistentStateComponent();
         if (numberOfTraces != null) {
             updatePagesComboBox(PAGE_LIMIT, numberOfTraces);
         }
-
-        populateFiltersWithDataFromContrastFilterPersistentStateComponent();
     }
 
     private void updateServersComboBox(Servers servers) {
