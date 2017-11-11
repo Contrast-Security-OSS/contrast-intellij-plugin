@@ -16,6 +16,7 @@ package com.contrastsecurity.config;
 
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
+import com.contrastsecurity.core.cache.ContrastCache;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.models.Trace;
@@ -41,6 +42,8 @@ public class ContrastUtil {
     private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/externalLink.png"));
     private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/details.png"));
 
+    private ContrastCache contrastCache;
+
     public ContrastUtil() {
 
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
@@ -49,6 +52,7 @@ public class ContrastUtil {
         serviceKey = contrastPersistentStateComponent.getServiceKey();
         username = contrastPersistentStateComponent.getUsername();
         organizations = contrastPersistentStateComponent.getOrganizations();
+        contrastCache = new ContrastCache();
     }
 
     public ExtendedContrastSDK getContrastSDK() {
@@ -64,6 +68,10 @@ public class ContrastUtil {
 //        sdk.setReadTimeout(5000);
 
         return sdk;
+    }
+
+    public ContrastCache getContrastCache() {
+        return contrastCache;
     }
 
     public OrganizationConfig getSelectedOrganizationConfig(){

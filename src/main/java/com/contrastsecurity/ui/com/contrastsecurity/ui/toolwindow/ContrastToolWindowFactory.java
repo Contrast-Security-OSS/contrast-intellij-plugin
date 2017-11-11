@@ -18,6 +18,8 @@ import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
+import com.contrastsecurity.core.cache.ContrastCache;
+import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
@@ -85,6 +87,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private Servers servers;
     private List<Application> applications;
+    private ContrastCache contrastCache;
 
     public ContrastToolWindowFactory() {
 
@@ -180,6 +183,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 applications = retrieveApplications();
             }
         }).start();
+        contrastCache = contrastUtil.getContrastCache();
     }
 
     private void cleanTable() {
@@ -360,20 +364,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 traceTitleLabel.setText(title);
 
                 try {
-                    StoryResource storyResource = getStory(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
-                    populateVulnerabilityDetailsOverview(storyResource);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (UnauthorizedException e) {
-                    e.printStackTrace();
-                }
+                    Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
 
-                try {
-                    HttpRequestResource httpRequestResource = getHttpRequest(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    StoryResource storyResource = getStory(key);
+                    HttpRequestResource httpRequestResource = getHttpRequest(key);
+
+                    populateVulnerabilityDetailsOverview(storyResource);
                     populateVulnerabilityDetailsHttpRequest(httpRequestResource);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (UnauthorizedException e) {
+                } catch (IOException | UnauthorizedException e) {
                     e.printStackTrace();
                 }
             }
@@ -426,19 +424,35 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return localDateTime;
     }
 
-    private StoryResource getStory(String orgUuid, String traceId) throws IOException, UnauthorizedException {
-        StoryResource story = extendedContrastSDK.getStory(orgUuid, traceId);
+    private StoryResource getStory(Key key) throws IOException, UnauthorizedException {
+        StoryResource story = contrastCache.getStoryResources().get(key);
+
+        if (story == null) {
+            story = extendedContrastSDK.getStory(key.getOrgUuid(), key.getTraceId());
+            contrastCache.getStoryResources().put(key, story);
+        }
+
         return story;
     }
 
-    private EventSummaryResource getEventSummary(String orgUuid, String traceId) throws IOException, UnauthorizedException {
-        EventSummaryResource eventSummaryResource = extendedContrastSDK.getEventSummary(orgUuid, traceId);
+    private EventSummaryResource getEventSummary(Key key) throws IOException, UnauthorizedException {
+
+        EventSummaryResource eventSummaryResource = contrastCache.getEventSummaryResources().get(key);
+        if (eventSummaryResource == null) {
+            eventSummaryResource = extendedContrastSDK.getEventSummary(key.getOrgUuid(), key.getTraceId());
+            contrastCache.getEventSummaryResources().put(key, eventSummaryResource);
+        }
         return eventSummaryResource;
     }
 
-    private HttpRequestResource getHttpRequest(String orgUuid, String traceId) throws IOException, UnauthorizedException {
-        HttpRequestResource httpRequest = extendedContrastSDK.getHttpRequest(orgUuid, traceId);
-        return httpRequest;
+    private HttpRequestResource getHttpRequest(Key key) throws IOException, UnauthorizedException {
+
+        HttpRequestResource httpRequestResource = contrastCache.getHttpRequestResources().get(key);
+        if (httpRequestResource == null) {
+            httpRequestResource = extendedContrastSDK.getHttpRequest(key.getOrgUuid(), key.getTraceId());
+            contrastCache.getHttpRequestResources().put(key, httpRequestResource);
+        }
+        return httpRequestResource;
     }
 
     private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
