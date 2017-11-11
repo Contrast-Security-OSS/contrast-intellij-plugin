@@ -200,7 +200,7 @@
         <properties>
           <alignmentX value="0.0"/>
           <horizontalAlignment value="0"/>
-          <icon value="contrastToolWindow/LOGOContrastSec.SVG.png"/>
+          <icon value="contrastToolWindow/contrastLogo.png"/>
           <text value=""/>
         </properties>
       </component>
