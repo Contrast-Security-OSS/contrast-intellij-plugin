@@ -76,6 +76,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JTextPane httpRequestTextPane;
     private JLabel filterLabel;
     private JScrollPane mainCard;
+    private JTree eventsTree;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -138,9 +139,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                     TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
                     if (dialogTraceFilterForm != null) {
+                        dialogTraceFilterForm.setSort(traceFilterForm.getSort());
                         traceFilterForm = dialogTraceFilterForm;
                         refreshTraces();
-//                    cleanTable();
                     }
                 }
             }
@@ -368,8 +369,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                     StoryResource storyResource = getStory(key);
                     HttpRequestResource httpRequestResource = getHttpRequest(key);
+                    EventSummaryResource eventSummaryResource = getEventSummary(key);
 
                     populateVulnerabilityDetailsOverview(storyResource);
+                    populateVulnerabilityDetailsEvents(eventSummaryResource);
                     populateVulnerabilityDetailsHttpRequest(httpRequestResource);
                 } catch (IOException | UnauthorizedException e) {
                     e.printStackTrace();
@@ -548,6 +551,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 httpRequestTextPane.setText(currentString);
             }
         }
+    }
+
+    private void populateVulnerabilityDetailsEvents(EventSummaryResource eventSummaryResource) {
+        
     }
 
     private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {

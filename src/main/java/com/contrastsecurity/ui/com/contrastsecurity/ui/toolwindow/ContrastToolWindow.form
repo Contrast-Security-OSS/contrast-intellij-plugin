@@ -134,7 +134,12 @@
                     </constraints>
                     <properties/>
                     <border type="empty"/>
-                    <children/>
+                    <children>
+                      <component id="ce4ff" class="javax.swing.JTree" binding="eventsTree">
+                        <constraints/>
+                        <properties/>
+                      </component>
+                    </children>
                   </scrollpane>
                   <scrollpane id="9f00e">
                     <constraints>

@@ -664,6 +664,8 @@ public class FiltersDialog extends JDialog {
             contrastFilterPersistentStateComponent.setSelectedApplicationName(applicationComboBoxItem.toString());
             if (applicationComboBoxItem.getApplication() != null) {
                 contrastFilterPersistentStateComponent.setSelectedApplicationId(applicationComboBoxItem.getApplication().getId());
+            } else {
+                contrastFilterPersistentStateComponent.setSelectedApplicationId(null);
             }
         }
         List<String> selectedSeverities = getSelectedSeveritiesAsList();
