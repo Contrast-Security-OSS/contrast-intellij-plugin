@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.ContrastToolWindowFactory">
+  <grid id="27dc6" binding="contrastToolWindowContent" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="14" y="67" width="812" height="429"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="795dc" binding="cardPanel" layout-manager="CardLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="etched"/>
+        <children>
+          <grid id="6a9dc" binding="noVulnerabilitiesPanel" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="noVulnerabilitiesCard"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="d039e" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Could not connect to the server. Please check your connection settings."/>
+                </properties>
+              </component>
+              <hspacer id="f8c82">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <vspacer id="1ac">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+            </children>
+          </grid>
+          <grid id="d47ed" binding="vulnerabilityDetailsPanel" layout-manager="GridLayoutManager" row-count="2" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="vulnerabilityDetailsCard"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="78060" class="javax.swing.JLabel" binding="traceSeverityLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="c8254" class="javax.swing.JLabel" binding="traceTitleLabel">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="2a4b0" class="javax.swing.JButton" binding="externalLinkButton">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <icon value="contrastToolWindow/externalLink.png"/>
+                  <iconTextGap value="0"/>
+                  <margin top="0" left="0" bottom="0" right="0"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="a08fb" class="javax.swing.JButton" binding="backToResultsButton">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Back To Results"/>
+                </properties>
+              </component>
+              <tabbedpane id="df3df" binding="tabbedPane1" default-binding="true">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="200" height="200"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <scrollpane id="2e01e">
+                    <constraints>
+                      <tabbedpane title="Overview"/>
+                    </constraints>
+                    <properties/>
+                    <border type="empty"/>
+                    <children>
+                      <grid id="aa849" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints/>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="7d08" class="javax.swing.JTextPane" binding="overviewTextPane">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="50"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <background color="-855310"/>
+                              <contentType value="text/plain"/>
+                              <editable value="false"/>
+                              <font/>
+                              <opaque value="false"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </scrollpane>
+                  <scrollpane id="8f2cb">
+                    <constraints>
+                      <tabbedpane title="Events">
+                        <tooltip value=""/>
+                      </tabbedpane>
+                    </constraints>
+                    <properties/>
+                    <border type="empty"/>
+                    <children/>
+                  </scrollpane>
+                  <scrollpane id="9f00e">
+                    <constraints>
+                      <tabbedpane title="HTTP Request"/>
+                    </constraints>
+                    <properties/>
+                    <border type="empty"/>
+                    <children>
+                      <grid id="67ef2" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints/>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="46be9" class="javax.swing.JTextPane" binding="httpRequestTextPane">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="50"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </scrollpane>
+                </children>
+              </tabbedpane>
+              <hspacer id="500fa">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+            </children>
+          </grid>
+          <scrollpane id="e67b0" binding="mainCard">
+            <constraints>
+              <card name="mainCard"/>
+            </constraints>
+            <properties/>
+            <border type="empty">
+              <font/>
+            </border>
+            <children>
+              <component id="69728" class="javax.swing.JTable" binding="vulnerabilitiesTable">
+                <constraints/>
+                <properties>
+                  <autoCreateRowSorter value="false"/>
+                  <fillsViewportHeight value="true"/>
+                  <font/>
+                </properties>
+              </component>
+            </children>
+          </scrollpane>
+        </children>
+      </grid>
+      <component id="5d2e4" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <alignmentX value="0.0"/>
+          <horizontalAlignment value="0"/>
+          <icon value="contrastToolWindow/contrastLogo.png"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <toolbar id="e76c3">
+        <constraints>
+          <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="6" hsize-policy="0" anchor="0" fill="2" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="20"/>
+          </grid>
+        </constraints>
+        <properties>
+          <orientation value="1"/>
+        </properties>
+        <border type="empty">
+          <size top="0" left="0" bottom="0" right="0"/>
+        </border>
+        <children>
+          <component id="e3324" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties/>
+          </component>
+          <component id="dc2ec" class="javax.swing.JLabel" binding="settingsLabel">
+            <constraints/>
+            <properties>
+              <icon value="contrastToolWindow/settings.png"/>
+              <text value=""/>
+            </properties>
+          </component>
+          <component id="ae1fc" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties/>
+          </component>
+          <component id="2927d" class="javax.swing.JLabel" binding="refreshLabel">
+            <constraints/>
+            <properties>
+              <icon value="contrastToolWindow/refresh_tab.gif"/>
+              <text value=""/>
+            </properties>
+          </component>
+          <component id="b3b2d" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties>
+              <orientation value="0"/>
+            </properties>
+          </component>
+          <component id="445c8" class="javax.swing.JLabel" binding="filterLabel">
+            <constraints/>
+            <properties>
+              <icon value="contrastToolWindow/filter.png"/>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </toolbar>
+    </children>
+  </grid>
+</form>

@@ -34,6 +34,7 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
 
     public Long selectedServerUuid;
     public String selectedApplicationName = "";
+    public String selectedApplicationId;
     public List<String> severities;
     public String lastDetected = Constants.LAST_DETECTED_ALL;
     public Long lastDetectedFrom;
@@ -41,6 +42,7 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
     public List<String> statuses;
     public Integer page;
     public String sort;
+    public int currentOffset = 0;
 
     @Nullable
     @Override
@@ -128,5 +130,21 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
 
     public void setSelectedServerUuid(Long selectedServerUuid) {
         this.selectedServerUuid = selectedServerUuid;
+    }
+
+    public String getSelectedApplicationId() {
+        return selectedApplicationId;
+    }
+
+    public void setSelectedApplicationId(String selectedApplicationId) {
+        this.selectedApplicationId = selectedApplicationId;
+    }
+
+    public int getCurrentOffset() {
+        return currentOffset;
+    }
+
+    public void setCurrentOffset(int currentOffset) {
+        this.currentOffset = currentOffset;
     }
 }

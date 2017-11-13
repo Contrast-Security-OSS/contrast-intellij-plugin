@@ -74,4 +74,7 @@ public interface Constants {
     static final String LAST_DETECTED_MONTH = "Last Month";
     static final String LAST_DETECTED_YEAR = "Last Year";
     static final String LAST_DETECTED_CUSTOM = "Custom...";
+
+    static final String TRACE_STORY_HEADER_CHAPTERS = "What happened?";
+    static final String TRACE_STORY_HEADER_RISK = "What's the risk?";
 }

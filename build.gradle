@@ -43,6 +43,8 @@ dependencies {
     compile 'com.contrastsecurity:contrast-sdk-java:2.3'
     // https://mvnrepository.com/artifact/com.github.lgooddatepicker/LGoodDatePicker
     compile group: 'com.github.lgooddatepicker', name: 'LGoodDatePicker', version: '10.3.1'
+    compile 'org.unbescape:unbescape:1.1.5.RELEASE'
+    compile 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
 }
 
 apply plugin: 'org.jetbrains.intellij'
