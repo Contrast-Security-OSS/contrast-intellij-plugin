@@ -137,7 +137,11 @@
                     <children>
                       <component id="ce4ff" class="javax.swing.JTree" binding="eventsTree">
                         <constraints/>
-                        <properties/>
+                        <properties>
+                          <largeModel value="false"/>
+                          <rootVisible value="false"/>
+                          <showsRootHandles value="true"/>
+                        </properties>
                       </component>
                     </children>
                   </scrollpane>

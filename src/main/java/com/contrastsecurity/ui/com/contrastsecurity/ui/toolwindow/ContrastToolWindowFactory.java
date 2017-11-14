@@ -42,6 +42,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -554,7 +556,17 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void populateVulnerabilityDetailsEvents(EventSummaryResource eventSummaryResource) {
-        
+        DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+
+        for (EventResource eventResource : eventSummaryResource.getEvents()){
+//            DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
+//            root.add(defaultMutableTreeNode);
+            System.out.println(eventResource.getItems());
+        }
+
+//        root.setUserObject("My label");
+        model.nodeChanged(root);
     }
 
     private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
