@@ -524,6 +524,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void resetVulnerabilityDetails() {
         overviewTextPane.setText("");
         httpRequestTextPane.setText("");
+
+        DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        root.removeAllChildren();
+        model.nodeStructureChanged(root);
+
     }
 
     private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
@@ -560,13 +566,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 
         for (EventResource eventResource : eventSummaryResource.getEvents()){
-//            DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
-//            root.add(defaultMutableTreeNode);
-            System.out.println(eventResource.getItems());
+            DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
+            List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
+            if (!collapsedEvents.isEmpty()) {
+                for (EventResource collapsedEvent : collapsedEvents) {
+                    defaultMutableTreeNode.add(new DefaultMutableTreeNode(collapsedEvent));
+                }
+            }
+            root.add(defaultMutableTreeNode);
         }
-
-//        root.setUserObject("My label");
-        model.nodeChanged(root);
+        model.nodeStructureChanged(root);
     }
 
     private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
