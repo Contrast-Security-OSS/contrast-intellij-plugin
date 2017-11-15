@@ -42,6 +42,10 @@ public class ContrastUtil {
     private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/externalLink.png"));
     private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/details.png"));
 
+    private final ImageIcon saveIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/save.png"));
+    private final ImageIcon refreshIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/refresh_tab.gif"));
+    private final ImageIcon filterIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/filter.png"));
+
     private ContrastCache contrastCache;
 
     public ContrastUtil() {
@@ -123,5 +127,17 @@ public class ContrastUtil {
 
     public ImageIcon getDetailsIcon() {
         return detailsIcon;
+    }
+
+    public ImageIcon getSaveIcon() {
+        return saveIcon;
+    }
+
+    public ImageIcon getRefreshIcon() {
+        return refreshIcon;
+    }
+
+    public ImageIcon getFilterIcon() {
+        return filterIcon;
     }
 }

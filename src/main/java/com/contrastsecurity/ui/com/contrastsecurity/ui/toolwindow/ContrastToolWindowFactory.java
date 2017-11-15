@@ -27,6 +27,8 @@ import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -79,6 +81,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel filterLabel;
     private JScrollPane mainCard;
     private JTree eventsTree;
+    private JComponent jComponent;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -93,12 +96,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastCache contrastCache;
 
     public ContrastToolWindowFactory() {
-
-        if (!mainCard.isVisible()) {
-            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-            cardLayout.show(cardPanel, "mainCard");
-        }
-
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
         backToResultsButton.addActionListener(new ActionListener() {
@@ -223,7 +220,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             exception.printStackTrace();
             if (!noVulnerabilitiesPanel.isVisible()) {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                cardLayout.show(cardPanel, "noVulnerabilitiesPanel");
+                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
             }
         }
         contrastTableModel.setData(traces);
@@ -718,4 +715,19 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return applications;
     }
 
+    private void createUIComponents() {
+        DefaultActionGroup actions = new DefaultActionGroup();
+        AnAction action = new AnAction(contrastUtil.getSaveIcon()) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                System.out.println("AnAction");
+            }
+        };
+
+//        ...; // add your actions here, passing the appropriate icon
+
+        actions.add(action);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, true);
+        jComponent = toolbar.getComponent();
+    }
 }
