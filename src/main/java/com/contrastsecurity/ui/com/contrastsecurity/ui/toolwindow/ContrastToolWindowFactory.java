@@ -65,8 +65,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private static final int PAGE_LIMIT = 20;
     private JPanel contrastToolWindowContent;
     private JTable vulnerabilitiesTable;
-    private JLabel settingsLabel;
-    private JLabel refreshLabel;
     private ToolWindow contrastToolWindow;
     private JPanel cardPanel;
     private JPanel noVulnerabilitiesPanel;
@@ -78,7 +76,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JTabbedPane tabbedPane1;
     private JTextPane overviewTextPane;
     private JTextPane httpRequestTextPane;
-    private JLabel filterLabel;
     private JScrollPane mainCard;
     private JTree eventsTree;
     private JComponent jComponent;
@@ -112,37 +109,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 openWebpage(viewDetailsTrace);
-            }
-        });
-
-        settingsLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
-            }
-        });
-
-        refreshLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                refresh();
-            }
-        });
-
-        filterLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (servers != null && applications != null) {
-                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications, tracesObjectCount);
-                    filtersDialog.setVisible(true);
-
-                    TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
-                    if (dialogTraceFilterForm != null) {
-                        dialogTraceFilterForm.setSort(traceFilterForm.getSort());
-                        traceFilterForm = dialogTraceFilterForm;
-                        refreshTraces();
-                    }
-                }
             }
         });
         refresh();
@@ -569,7 +535,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 for (EventResource collapsedEvent : collapsedEvents) {
                     defaultMutableTreeNode.add(new DefaultMutableTreeNode(collapsedEvent));
                 }
+            } else {
+                
             }
+
             root.add(defaultMutableTreeNode);
         }
         model.nodeStructureChanged(root);
@@ -716,18 +685,44 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void createUIComponents() {
+        ImageIcon settingsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/settings.png"));
+        ImageIcon refreshIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/refresh_tab.gif"));
+        ImageIcon filterIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/filter.png"));
+
         DefaultActionGroup actions = new DefaultActionGroup();
-        AnAction action = new AnAction(contrastUtil.getSaveIcon()) {
+        AnAction settingsAction = new AnAction(settingsIcon) {
             @Override
             public void actionPerformed(AnActionEvent e) {
-                System.out.println("AnAction");
+                ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
+            }
+        };
+        AnAction refreshAction = new AnAction(refreshIcon) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                refresh();
+            }
+        };
+        AnAction filterAction = new AnAction(filterIcon) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                if (servers != null && applications != null) {
+                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications, tracesObjectCount);
+                    filtersDialog.setVisible(true);
+
+                    TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
+                    if (dialogTraceFilterForm != null) {
+                        dialogTraceFilterForm.setSort(traceFilterForm.getSort());
+                        traceFilterForm = dialogTraceFilterForm;
+                        refreshTraces();
+                    }
+                }
             }
         };
 
-//        ...; // add your actions here, passing the appropriate icon
-
-        actions.add(action);
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, true);
+        actions.add(settingsAction);
+        actions.add(refreshAction);
+        actions.add(filterAction);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, false);
         jComponent = toolbar.getComponent();
     }
 }
