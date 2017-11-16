@@ -21,6 +21,7 @@ import com.contrastsecurity.core.Util;
 import com.contrastsecurity.core.cache.ContrastCache;
 import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.extended.*;
+import com.contrastsecurity.core.extended.Event;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.RuleSeverity;
@@ -28,7 +29,6 @@ import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -45,6 +45,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -93,6 +94,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastCache contrastCache;
 
     public ContrastToolWindowFactory() {
+//        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+//        renderer.setLeafIcon(null);
+        EventTreeCellRenderer eventTreeCellRenderer = new EventTreeCellRenderer();
+        eventsTree.setCellRenderer(eventTreeCellRenderer);
+
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
         backToResultsButton.addActionListener(new ActionListener() {
@@ -528,20 +534,29 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 
-        for (EventResource eventResource : eventSummaryResource.getEvents()){
+        for (EventResource eventResource : eventSummaryResource.getEvents()) {
             DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
             List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
             if (!collapsedEvents.isEmpty()) {
                 for (EventResource collapsedEvent : collapsedEvents) {
-                    defaultMutableTreeNode.add(new DefaultMutableTreeNode(collapsedEvent));
+                    DefaultMutableTreeNode collapsedEventNode = new DefaultMutableTreeNode(collapsedEvent);
+                    addEventItemsToDefaultMutableTreeNode(collapsedEventNode, collapsedEvent);
+                    defaultMutableTreeNode.add(collapsedEventNode);
                 }
             } else {
-                
+                addEventItemsToDefaultMutableTreeNode(defaultMutableTreeNode, eventResource);
             }
 
             root.add(defaultMutableTreeNode);
         }
         model.nodeStructureChanged(root);
+    }
+
+    private void addEventItemsToDefaultMutableTreeNode(DefaultMutableTreeNode defaultMutableTreeNode, EventResource eventResource) {
+        EventItem[] eventItems = eventResource.getItems();
+        for (EventItem eventItem: eventItems) {
+            defaultMutableTreeNode.add(new DefaultMutableTreeNode(eventItem));
+        }
     }
 
     private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {

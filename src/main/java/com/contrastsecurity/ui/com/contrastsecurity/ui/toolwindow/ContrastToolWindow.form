@@ -158,6 +158,7 @@
                         <constraints/>
                         <properties>
                           <largeModel value="false"/>
+                          <opaque value="true"/>
                           <rootVisible value="false"/>
                           <showsRootHandles value="true"/>
                         </properties>

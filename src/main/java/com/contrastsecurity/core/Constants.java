@@ -14,6 +14,8 @@
  *******************************************************************************/
 package com.contrastsecurity.core;
 
+import java.awt.*;
+
 public interface Constants {
     static final String TEAM_SERVER_URL = "contrast.we.url";
     static final String TEAM_SERVER_URL_VALUE = "https://app.contrastsecurity.com/Contrast/api";
@@ -32,6 +34,28 @@ public interface Constants {
 
     static final String ORGANIZATION_LIST = "organizationList";
     static final String DELIMITER = ";";
+
+    // #0DA1A9
+    static final Color LINK_COLOR = new Color(13, 161, 169);
+    // #969494
+    static final Color UNLICENSED_COLOR = new Color(150, 148, 148);
+    // #bfbfbf
+    static final Color RULE_COLOR = new Color(191, 191, 191);
+    static final int REFRESH_DELAY = 5 * 60 * 1000; // 5 minutes
+    // green - #aecd43 (r=174, g=205, b=67)
+    // yellow - #f7b600 (r=247, g=182, b=0)
+    // red - #e63025 (r=230, g=48, b=37)
+    static final Color CREATION_COLOR = new Color(230, 48, 37);
+    static final Color P20_COLOR = new Color(247, 182, 0);
+    static final Color TAG_COLOR = new Color(174, 205, 67);
+    // #165BAD
+    static final Color LINK_COLOR2 = new Color(22, 91, 173);
+    // #999999
+    static final Color CONTENT_COLOR = new Color(153, 153, 153);
+    // #1b7eb1 27,126,177
+    static final Color CODE_COLOR = new Color(27, 126, 177);
+    // #e0f2ef
+    static final Color ITEM_BACKGROUND_COLOR = new Color(224, 242, 239);
 
     public String TAINT = "{{#taint}}";
     public String TAINT_CLOSED = "{{/taint}}";
@@ -77,4 +101,11 @@ public interface Constants {
 
     static final String TRACE_STORY_HEADER_CHAPTERS = "What happened?";
     static final String TRACE_STORY_HEADER_RISK = "What's the risk?";
+
+
+    static final String CLASS_METHOD = "Class.Method: ";
+    static final String OBJECT = "Object: ";
+    static final String RETURN = "Return: ";
+    static final String PARAMETERS = "Parameters: ";
+    static final String STACK_TRACE = "Stack Trace: ";
 }
