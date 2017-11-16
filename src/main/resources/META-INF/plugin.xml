@@ -31,7 +31,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="Contrast" secondary="false" icon="/contrastToolWindow/contrastIcon.png" anchor="bottom"
+        <toolWindow id="Contrast" secondary="false" icon="ContrastPluginIcons.CONTRAST_ICON" anchor="bottom"
                     factoryClass="com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.ContrastToolWindowFactory"/>
         <applicationConfigurable displayName="Contrast" id="preferences.ContrastSearchableConfigurable"
                                  instance="com.contrastsecurity.ui.settings.ContrastSearchableConfigurable"/>
@@ -47,7 +47,7 @@
         <group id="contrast-intellij-plugin.ContrastMenu" text="C_ontrast" description="Contrast menu">
             <add-to-group group-id="MainMenu" anchor="last"/>
             <action id="contrast-intellij-plugin.ContrastAction" class="com.contrastsecurity.ui.ContrastAnAction"
-                    text="_Contrast plugin preferences" icon="/contrastToolWindow/settings.png"/>
+                    text="_Contrast plugin preferences" icon="ContrastPluginIcons.SETTINGS_ICON"/>
         </group>
     </actions>
 

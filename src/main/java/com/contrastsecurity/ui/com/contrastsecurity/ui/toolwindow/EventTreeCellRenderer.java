@@ -39,17 +39,14 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
 
                 switch (eventItem.getType()) {
                     case EventResource.RED:
-//                        x = x + 15;
                         jLabel.setText("     " + jLabel.getText());
                         jLabel.setForeground(Constants.CREATION_COLOR);
                         break;
                     case EventResource.CONTENT:
-//                        x = x + 15;
                         jLabel.setText("     " + jLabel.getText());
                         jLabel.setForeground(Constants.CONTENT_COLOR);
                         break;
                     case EventResource.CODE:
-//                        x = x + 15;
                         jLabel.setText("     " + jLabel.getText());
                         jLabel.setForeground(Constants.CODE_COLOR);
                         break;
@@ -58,6 +55,9 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                         break;
                     default:
                         break;
+                }
+                if (selected) {
+                    jLabel.setForeground(Color.WHITE);
                 }
                 returnValue = jLabel;
             }

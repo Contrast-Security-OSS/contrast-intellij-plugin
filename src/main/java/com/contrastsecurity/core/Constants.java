@@ -108,4 +108,6 @@ public interface Constants {
     static final String RETURN = "Return: ";
     static final String PARAMETERS = "Parameters: ";
     static final String STACK_TRACE = "Stack Trace: ";
+    static final String UNLICENSED_DIALOG_MESSAGE = "The vulnerability is associated with an unlicensed application. Please apply a license from TeamServer in order to view the vulnerability finding.";
+    static final String UNLICENSED_DIALOG_TITLE = "Unlicensed";
 }

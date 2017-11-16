@@ -17,6 +17,7 @@ package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.models.Trace;
+import icons.ContrastPluginIcons;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -26,14 +27,15 @@ public class ContrastTableModel extends AbstractTableModel {
     private String[] columnNames = {"Severity", "Vulnerability", "View Details", "Open in Teamserver", "Last Detected", "Status"};
     private Trace[] data = new Trace[0];
 
-    private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/contrastToolWindow/critical.png"));
-    private final ImageIcon severityIconHigh = new ImageIcon(getClass().getResource("/contrastToolWindow/high.png"));
-    private final ImageIcon severityIconMedium = new ImageIcon(getClass().getResource("/contrastToolWindow/medium.png"));
-    private final ImageIcon severityIconLow = new ImageIcon(getClass().getResource("/contrastToolWindow/low.png"));
-    private final ImageIcon severityIconNote = new ImageIcon(getClass().getResource("/contrastToolWindow/note.png"));
-    private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/externalLink.png"));
-    private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/details.png"));
-    private final ImageIcon unlicensedIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/unlicensed.png"));
+    private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/icons/critical.png"));
+    private final ImageIcon severityIconHigh = new ImageIcon(getClass().getResource("/icons/high.png"));
+    private final ImageIcon severityIconMedium = new ImageIcon(getClass().getResource("/icons/medium.png"));
+    private final ImageIcon severityIconLow = new ImageIcon(getClass().getResource("/icons/low.png"));
+    private final ImageIcon severityIconNote = new ImageIcon(getClass().getResource("/icons/note.png"));
+    private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/icons/externalLink.png"));
+    private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/icons/details.png"));
+    private final ImageIcon unlicensedIcon = new ImageIcon(getClass().getResource("/icons/unlicensed.png"));
+
     private ContrastUtil contrastUtil = new ContrastUtil();
 
     @Override
