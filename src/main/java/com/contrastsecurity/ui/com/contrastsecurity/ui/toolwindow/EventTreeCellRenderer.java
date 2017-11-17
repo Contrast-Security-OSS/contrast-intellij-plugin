@@ -1,5 +1,6 @@
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
+import com.contrastsecurity.config.EventTypeIcon;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.extended.EventItem;
 import com.contrastsecurity.core.extended.EventResource;
@@ -60,6 +61,11 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                     jLabel.setForeground(Color.WHITE);
                 }
                 returnValue = jLabel;
+            } else if (userObject instanceof EventResource) {
+                EventResource eventResource = (EventResource) userObject;
+                EventTypeIcon eventTypeIcon = getIcon(eventResource.getType());
+                defaultRenderer.setOpenIcon(eventTypeIcon);
+                defaultRenderer.setClosedIcon(eventTypeIcon);
             }
         }
         if (returnValue == null) {
@@ -69,5 +75,32 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
         return returnValue;
     }
 
-
+    private EventTypeIcon getIcon(String type) {
+        EventTypeIcon eventTypeIcon = null;
+        if (type != null) {
+            switch (type.toLowerCase()) {
+                case "creation":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_CREATION);
+                    break;
+                case "trigger":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_TRIGGER);
+                    break;
+                case "p2o":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                    break;
+                case "p2r":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                    break;
+                case "o2r":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                    break;
+                case "tag":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return eventTypeIcon;
+    }
 }

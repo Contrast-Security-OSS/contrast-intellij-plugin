@@ -362,8 +362,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             viewDetailsTrace = traceClicked;
                             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                             cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
-                            tabbedPane1.setSelectedIndex(1);
                             populateVulnerabilityDetailsPanel();
+
                         } else {
                             MessageDialog messageDialog = new MessageDialog(Constants.UNLICENSED_DIALOG_TITLE, Constants.UNLICENSED_DIALOG_MESSAGE);
                             messageDialog.setVisible(true);
@@ -638,7 +638,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
             if (tabbedPane1.indexOfComponent(eventsScrollPane) < 0) {
 //                tabbedPane1.insertTab(, null, eventsScrollPane, null, 1);
-                tabbedPane1.addTab(Constants.EVENTS_TAB_TITLE, eventsScrollPane );
+                tabbedPane1.addTab(Constants.EVENTS_TAB_TITLE, eventsScrollPane);
             }
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {

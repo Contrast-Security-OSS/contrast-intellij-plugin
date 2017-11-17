@@ -57,6 +57,11 @@ public interface Constants {
     // #e0f2ef
     static final Color ITEM_BACKGROUND_COLOR = new Color(224, 242, 239);
 
+    static final Color EVENT_TYPE_ICON_COLOR_CREATION = new Color(247, 182, 0);
+    static final Color EVENT_TYPE_ICON_COLOR_O2R = new Color(153, 153, 153);
+    static final Color EVENT_TYPE_ICON_COLOR_TRIGGER = new Color(230, 48, 37);
+
+
     public String TAINT = "{{#taint}}";
     public String TAINT_CLOSED = "{{/taint}}";
     public String SPAN_OPENED = "<span";
