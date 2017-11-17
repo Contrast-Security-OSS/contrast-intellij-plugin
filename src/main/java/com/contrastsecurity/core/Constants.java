@@ -74,6 +74,7 @@ public interface Constants {
 
     static final String SORT_BY_LAST_TIME_SEEN = "lastTimeSeen";
     static final String SORT_BY_STATUS = "status";
+    static final String SORT_BY_APPLICATION_NAME = "application.name";
 
     static final String SEVERITY_LEVEL_NOTE = "Note";
     static final String SEVERITY_LEVEL_LOW = "Low";

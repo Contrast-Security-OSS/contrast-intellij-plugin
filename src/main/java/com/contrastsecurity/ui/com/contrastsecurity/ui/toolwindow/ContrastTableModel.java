@@ -16,17 +16,15 @@ package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
+import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Trace;
-import icons.ContrastPluginIcons;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.Date;
+import java.util.List;
 
 public class ContrastTableModel extends AbstractTableModel {
-    private String[] columnNames = {"Severity", "Vulnerability", "View Details", "Open in Teamserver", "Last Detected", "Status"};
-    private Trace[] data = new Trace[0];
-
     private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/icons/critical.png"));
     private final ImageIcon severityIconHigh = new ImageIcon(getClass().getResource("/icons/high.png"));
     private final ImageIcon severityIconMedium = new ImageIcon(getClass().getResource("/icons/medium.png"));
@@ -35,7 +33,8 @@ public class ContrastTableModel extends AbstractTableModel {
     private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/icons/externalLink.png"));
     private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/icons/details.png"));
     private final ImageIcon unlicensedIcon = new ImageIcon(getClass().getResource("/icons/unlicensed.png"));
-
+    private String[] columnNames = {"Severity", "Vulnerability", "Application", "Server", "View Details", "Open in Teamserver", "Last Detected", "Status"};
+    private Trace[] data = new Trace[0];
     private ContrastUtil contrastUtil = new ContrastUtil();
 
     @Override
@@ -80,19 +79,34 @@ public class ContrastTableModel extends AbstractTableModel {
                     obj = title;
                     break;
                 case 2:
-                    if (contrastUtil.isTraceLicensed(trace)){
+                    obj = trace.getApplication().getName();
+                    break;
+                case 3:
+                    StringBuilder stringBuilder = new StringBuilder("");
+                    List<Server> servers = trace.getServers();
+
+                    for (int i = 0; i < servers.size(); i++) {
+                        stringBuilder.append(servers.get(i).getName());
+                        if (i != servers.size() - 1){
+                            stringBuilder.append(", ");
+                        }
+                    }
+                    obj = stringBuilder.toString();
+                    break;
+                case 4:
+                    if (contrastUtil.isTraceLicensed(trace)) {
                         obj = detailsIcon;
                     } else {
                         obj = unlicensedIcon;
                     }
                     break;
-                case 3:
+                case 5:
                     obj = externalLinkIcon;
                     break;
-                case 4:
+                case 6:
                     obj = new Date(trace.getLastTimeSeen());
                     break;
-                case 5:
+                case 7:
                     obj = trace.getStatus();
                     break;
                 default:
@@ -104,7 +118,7 @@ public class ContrastTableModel extends AbstractTableModel {
     }
 
     public Class getColumnClass(int c) {
-        if (getValueAt(0, c)!=null){
+        if (getValueAt(0, c) != null) {
             return getValueAt(0, c).getClass();
         } else {
             return "".getClass();
@@ -120,7 +134,7 @@ public class ContrastTableModel extends AbstractTableModel {
         this.data = data;
     }
 
-    public Trace getTraceAtRow(int row){
+    public Trace getTraceAtRow(int row) {
         return data[row];
     }
 

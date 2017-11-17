@@ -285,10 +285,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         severityColumn.setMaxWidth(76);
         severityColumn.setMinWidth(76);
 
-        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(2);
+        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(4);
         viewDetailsColumn.setMaxWidth(120);
 
-        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(3);
+        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(5);
         openInTeamserverColumn.setMaxWidth(120);
 
         vulnerabilitiesTable.getTableHeader().addMouseListener(new MouseAdapter() {
@@ -329,6 +329,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             traceFilterForm.setSort(Constants.SORT_BY_STATUS);
                         } else {
                             traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_STATUS);
+                        }
+                        refreshTraces();
+                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                    } else if (name.equals("Application")) {
+                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                            traceFilterForm.setSort(Constants.SORT_BY_APPLICATION_NAME);
+                        } else {
+                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_APPLICATION_NAME);
                         }
                         refreshTraces();
                         contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
@@ -748,6 +756,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (contrastFilterPersistentStateComponent.getSort() != null) {
             traceFilterForm.setSort(contrastFilterPersistentStateComponent.getSort());
         }
+        traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION, TraceFilterForm.TraceExpandValue.SERVERS));
 
         return traceFilterForm;
     }
