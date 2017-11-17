@@ -15,25 +15,57 @@
         <properties/>
         <border type="etched"/>
         <children>
-          <scrollpane id="e67b0" binding="mainCard">
+          <grid id="7c027" binding="mainCard" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <card name="mainCard"/>
             </constraints>
             <properties/>
-            <border type="empty">
-              <font/>
-            </border>
+            <border type="none"/>
             <children>
-              <component id="69728" class="javax.swing.JTable" binding="vulnerabilitiesTable">
-                <constraints/>
+              <scrollpane id="5663">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="empty"/>
+                <children>
+                  <component id="d6234" class="javax.swing.JTable" binding="vulnerabilitiesTable">
+                    <constraints/>
+                    <properties>
+                      <fillsViewportHeight value="true"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
+              <component id="d2489" class="javax.swing.JButton" binding="previousPageButton">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
                 <properties>
-                  <autoCreateRowSorter value="false"/>
-                  <fillsViewportHeight value="true"/>
-                  <font/>
+                  <icon value="actions/back.png"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="78c5b" class="javax.swing.JButton" binding="nextPageButton">
+                <constraints>
+                  <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <icon value="actions/forward.png"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="a914a" class="javax.swing.JLabel" binding="pageLabel">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value=""/>
                 </properties>
               </component>
             </children>
-          </scrollpane>
+          </grid>
           <grid id="6a9dc" binding="noVulnerabilitiesPanel" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
@@ -214,11 +246,23 @@
           <text value=""/>
         </properties>
       </component>
-      <component id="ea87b" class="javax.swing.JComponent" binding="jComponent" custom-create="true">
+      <grid id="bed1d" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="6" hsize-policy="0" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="6" hsize-policy="0" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
-      </component>
+        <properties/>
+        <border type="etched">
+          <size top="0" left="0" bottom="0" right="0"/>
+        </border>
+        <children>
+          <component id="ea87b" class="javax.swing.JComponent" binding="jComponent" custom-create="true">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="0" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>

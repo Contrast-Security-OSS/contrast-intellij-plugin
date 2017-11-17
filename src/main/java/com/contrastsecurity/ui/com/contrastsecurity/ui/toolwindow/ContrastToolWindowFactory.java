@@ -39,6 +39,8 @@ import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -76,9 +78,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JTabbedPane tabbedPane1;
     private JTextPane overviewTextPane;
     private JTextPane httpRequestTextPane;
-    private JScrollPane mainCard;
+    private JPanel mainCard;
     private JTree eventsTree;
     private JComponent jComponent;
+    private JButton previousPageButton;
+    private JButton nextPageButton;
+    private JLabel pageLabel;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -86,8 +91,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Trace viewDetailsTrace;
     private TraceFilterForm traceFilterForm;
-    private Integer tracesObjectCount;
 
+    private int numOfPages = 1;
     private Servers servers;
     private List<Application> applications;
     private ContrastCache contrastCache;
@@ -108,12 +113,46 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
+
         externalLinkButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 openWebpage(viewDetailsTrace);
             }
         });
+
+        previousPageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                int prevPage = Integer.valueOf(pageLabel.getText()) - 1;
+                pageLabel.setText(String.valueOf(prevPage));
+
+                int currentOffset = PAGE_LIMIT * (prevPage - 1);
+                traceFilterForm.setOffset(currentOffset);
+
+                contrastFilterPersistentStateComponent.setPage(prevPage);
+                contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
+                refreshTraces();
+            }
+        });
+
+        nextPageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                int nextPage = Integer.valueOf(pageLabel.getText()) + 1;
+                pageLabel.setText(String.valueOf(nextPage));
+
+                int currentOffset = PAGE_LIMIT * (nextPage - 1);
+                traceFilterForm.setOffset(currentOffset);
+
+                contrastFilterPersistentStateComponent.setPage(nextPage);
+                contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
+                refreshTraces();
+            }
+        });
+
         refresh();
     }
 
@@ -180,11 +219,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
                 traces = tracesObject.getTraces().toArray(new Trace[0]);
             }
-            tracesObjectCount = tracesObject.getCount();
             if (!mainCard.isVisible()) {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                 cardLayout.show(cardPanel, "mainCard");
             }
+            pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
+            numOfPages = getNumOfPages(PAGE_LIMIT, tracesObject.getCount());
+            updatePageButtons();
+
         } catch (IOException | UnauthorizedException exception) {
             exception.printStackTrace();
             if (!noVulnerabilitiesPanel.isVisible()) {
@@ -194,6 +236,21 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
         contrastTableModel.setData(traces);
         contrastTableModel.fireTableDataChanged();
+    }
+
+    private void updatePageButtons() {
+        int newPage = Integer.valueOf(pageLabel.getText());
+        if (newPage == 1) {
+            previousPageButton.setEnabled(false);
+        } else {
+            previousPageButton.setEnabled(true);
+        }
+
+        if (newPage == numOfPages) {
+            nextPageButton.setEnabled(false);
+        } else {
+            nextPageButton.setEnabled(true);
+        }
     }
 
     @Override
@@ -745,13 +802,17 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 if (servers != null && applications != null) {
-                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications, tracesObjectCount);
+                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications);
                     filtersDialog.setVisible(true);
 
                     TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
                     if (dialogTraceFilterForm != null) {
                         dialogTraceFilterForm.setSort(traceFilterForm.getSort());
                         traceFilterForm = dialogTraceFilterForm;
+                        traceFilterForm.setOffset(0);
+                        pageLabel.setText("1");
+                        contrastFilterPersistentStateComponent.setPage(1);
+                        contrastFilterPersistentStateComponent.setCurrentOffset(0);
                         refreshTraces();
                     }
                 }
@@ -763,5 +824,17 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         actions.add(filterAction);
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, false);
         jComponent = toolbar.getComponent();
+    }
+
+    private int getNumOfPages(final int pageLimit, final int totalElements) {
+        int numOfPages = 1;
+        if (totalElements % pageLimit > 0) {
+            numOfPages = totalElements / pageLimit + 1;
+        } else {
+            if (totalElements != 0) {
+                numOfPages = totalElements / pageLimit;
+            }
+        }
+        return numOfPages;
     }
 }

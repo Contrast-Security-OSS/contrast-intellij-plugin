@@ -4,13 +4,9 @@ import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
-import com.contrastsecurity.core.extended.ExtendedContrastSDK;
-import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.http.RuleSeverity;
-import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.Application;
-import com.contrastsecurity.models.Applications;
 import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Servers;
 import com.github.lgooddatepicker.components.DateTimePicker;
@@ -34,7 +30,6 @@ public class FiltersDialog extends JDialog {
     private JButton buttonCancel;
     private JComboBox serversComboBox;
     private JComboBox applicationsComboBox;
-    private JComboBox pagesComboBox;
     private JCheckBox severityLevelNoteCheckBox;
     private JCheckBox severityLevelMediumCheckBox;
     private JCheckBox severityLevelLowCheckBox;
@@ -54,18 +49,13 @@ public class FiltersDialog extends JDialog {
     private JComboBox lastDetectedComboBox;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private ContrastUtil contrastUtil;
-    private ExtendedContrastSDK extendedContrastSDK;
-    private OrganizationConfig organizationConfig;
-    private ActionListener checkBoxActionListener;
-    private boolean updatePagesComboBox = false;
-    private int currentOffset = 0;
-    private Integer numberOfTraces;
     private Servers servers;
     private List<Application> applications;
+    private int currentOffset = 0;
 
     private TraceFilterForm traceFilterForm;
 
-    public FiltersDialog(Servers servers, List<Application> applications, Integer tracesCount) {
+    public FiltersDialog(Servers servers, List<Application> applications) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -106,15 +96,8 @@ public class FiltersDialog extends JDialog {
         setTitle("Set Filters");
 
 //        Filters related initialization
-        numberOfTraces = tracesCount;
         this.servers = servers;
         this.applications = applications;
-        checkBoxActionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resetPagesComboBox();
-            }
-        };
 
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
@@ -124,7 +107,6 @@ public class FiltersDialog extends JDialog {
         lastDetectedFromDateTimePicker.addDateTimeChangeListener(new DateTimeChangeListener() {
             @Override
             public void dateOrTimeChanged(DateTimeChangeEvent event) {
-                resetPagesComboBox();
                 if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null) {
 
                     if (!isFromDateLessThanToDate(lastDetectedFromDateTimePicker.getDateTimePermissive(), lastDetectedToDateTimePicker.getDateTimePermissive())) {
@@ -137,7 +119,6 @@ public class FiltersDialog extends JDialog {
         lastDetectedToDateTimePicker.addDateTimeChangeListener(new DateTimeChangeListener() {
             @Override
             public void dateOrTimeChanged(DateTimeChangeEvent event) {
-                resetPagesComboBox();
                 if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null) {
 
                     if (!isFromDateLessThanToDate(lastDetectedFromDateTimePicker.getDateTimePermissive(), lastDetectedToDateTimePicker.getDateTimePermissive())) {
@@ -243,10 +224,6 @@ public class FiltersDialog extends JDialog {
         if (contrastFilterPersistentStateComponent.getStatuses() != null && !contrastFilterPersistentStateComponent.getStatuses().isEmpty()) {
             selectStatusesFromList(contrastFilterPersistentStateComponent.getStatuses());
         }
-        if (contrastFilterPersistentStateComponent.getPage() != null) {
-            pagesComboBox.setSelectedItem(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
-        }
-        currentOffset = contrastFilterPersistentStateComponent.getCurrentOffset();
     }
 
     private void selectServerByUuid(Long serverUuid) {
@@ -334,14 +311,9 @@ public class FiltersDialog extends JDialog {
 
     public void refresh() {
         contrastUtil = new ContrastUtil();
-        extendedContrastSDK = contrastUtil.getContrastSDK();
-        organizationConfig = contrastUtil.getSelectedOrganizationConfig();
         updateServersComboBox(servers);
         updateLastDetectedComboBox();
         populateFiltersWithDataFromContrastFilterPersistentStateComponent();
-        if (numberOfTraces != null) {
-            updatePagesComboBox(PAGE_LIMIT, numberOfTraces);
-        }
     }
 
     private void updateServersComboBox(Servers servers) {
@@ -393,22 +365,6 @@ public class FiltersDialog extends JDialog {
             statusUntrackedCheckBox.setSelected(true);
 
         }
-
-        severityLevelNoteCheckBox.addActionListener(checkBoxActionListener);
-        severityLevelLowCheckBox.addActionListener(checkBoxActionListener);
-        severityLevelMediumCheckBox.addActionListener(checkBoxActionListener);
-        severityLevelHighCheckBox.addActionListener(checkBoxActionListener);
-        severityLevelCriticalCheckBox.addActionListener(checkBoxActionListener);
-
-        statusAutoRemediatedCheckBox.addActionListener(checkBoxActionListener);
-        statusConfirmedCheckBox.addActionListener(checkBoxActionListener);
-        statusSuspiciousCheckBox.addActionListener(checkBoxActionListener);
-        statusNotAProblemCheckBox.addActionListener(checkBoxActionListener);
-        statusRemediatedCheckBox.addActionListener(checkBoxActionListener);
-        statusReportedCheckBox.addActionListener(checkBoxActionListener);
-        statusFixedCheckBox.addActionListener(checkBoxActionListener);
-        statusBeingTrackedCheckBox.addActionListener(checkBoxActionListener);
-        statusUntrackedCheckBox.addActionListener(checkBoxActionListener);
     }
 
     private void setupComboBoxes() {
@@ -419,26 +375,6 @@ public class FiltersDialog extends JDialog {
                 if (e.getStateChange() == e.SELECTED) {
                     ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
                     updateApplicationsComboBox(serverComboBoxItem.getServer());
-                }
-            }
-        });
-
-        applicationsComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    resetPagesComboBox();
-                }
-            }
-        });
-
-        pagesComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    String p = (String) e.getItem();
-                    int page = Integer.parseInt(p);
-                    currentOffset = PAGE_LIMIT * (page - 1);
                 }
             }
         });
@@ -485,34 +421,6 @@ public class FiltersDialog extends JDialog {
                 }
             }
         });
-    }
-
-    private void resetPagesComboBox() {
-        updatePagesComboBox(PAGE_LIMIT, 0);
-        updatePagesComboBox = true;
-    }
-
-    public void updatePagesComboBox(final int pageLimit, final int totalElements) {
-        pagesComboBox.removeAllItems();
-
-        int numOfPages = 1;
-        if (totalElements % pageLimit > 0) {
-            numOfPages = totalElements / pageLimit + 1;
-        } else {
-            if (totalElements != 0) {
-                numOfPages = totalElements / pageLimit;
-            }
-        }
-
-        for (int i = 1; i <= numOfPages; i++) {
-            pagesComboBox.addItem(String.valueOf(i));
-        }
-        if (numOfPages == 1) {
-            pagesComboBox.setEnabled(false);
-        } else {
-            pagesComboBox.setEnabled(true);
-        }
-        pagesComboBox.setSelectedItem("1");
     }
 
     private boolean isFromDateLessThanToDate(LocalDateTime fromDate, LocalDateTime toDate) {
@@ -695,14 +603,6 @@ public class FiltersDialog extends JDialog {
         if (!selectedStatuses.isEmpty()) {
             contrastFilterPersistentStateComponent.setStatuses(selectedStatuses);
         }
-        if ((String) pagesComboBox.getSelectedItem() != null) {
-            Integer page = Integer.valueOf((String) pagesComboBox.getSelectedItem());
-            if (page != null) {
-                contrastFilterPersistentStateComponent.setPage(page);
-            }
-        }
-        contrastFilterPersistentStateComponent.setCurrentOffset(this.currentOffset);
-
     }
 
     private List<String> getSelectedSeveritiesAsList() {
