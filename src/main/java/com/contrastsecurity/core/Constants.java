@@ -110,4 +110,7 @@ public interface Constants {
     static final String STACK_TRACE = "Stack Trace: ";
     static final String UNLICENSED_DIALOG_MESSAGE = "The vulnerability is associated with an unlicensed application. Please have your Contrast administrator apply a license from the TeamServer web application in order to view the vulnerability finding.";
     static final String UNLICENSED_DIALOG_TITLE = "Unlicensed";
+
+    static final String HTTP_REQUEST_TAB_TITLE = "HTTP Request";
+    static final String EVENTS_TAB_TITLE = "Events";
 }

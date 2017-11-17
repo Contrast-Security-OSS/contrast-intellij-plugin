@@ -39,8 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -84,6 +82,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton previousPageButton;
     private JButton nextPageButton;
     private JLabel pageLabel;
+    private JScrollPane eventsScrollPane;
+    private JScrollPane httpRequestScrollPane;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -589,9 +589,17 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
                 && httpRequestResource.getHttpRequest().getFormattedText() != null) {
 
+            if (tabbedPane1.indexOfComponent(httpRequestScrollPane) < 0) {
+                tabbedPane1.addTab(Constants.HTTP_REQUEST_TAB_TITLE, httpRequestScrollPane);
+            }
+
             httpRequestTextPane.setText(httpRequestResource.getHttpRequest().getText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
         } else if (httpRequestResource != null && httpRequestResource.getReason() != null) {
             httpRequestTextPane.setText(httpRequestResource.getReason());
+
+            if (tabbedPane1.indexOfComponent(httpRequestScrollPane) > 0) {
+                tabbedPane1.remove(tabbedPane1.indexOfComponent(httpRequestScrollPane));
+            }
         }
         String text = httpRequestTextPane.getText();
         text = HtmlEscape.unescapeHtml(text);
@@ -614,25 +622,37 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void populateVulnerabilityDetailsEvents(EventSummaryResource eventSummaryResource) {
+
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 
-        for (EventResource eventResource : eventSummaryResource.getEvents()) {
-            DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
-            List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
-            if (!collapsedEvents.isEmpty()) {
-                for (EventResource collapsedEvent : collapsedEvents) {
-                    DefaultMutableTreeNode collapsedEventNode = new DefaultMutableTreeNode(collapsedEvent);
-                    addEventItemsToDefaultMutableTreeNode(collapsedEventNode, collapsedEvent);
-                    defaultMutableTreeNode.add(collapsedEventNode);
-                }
-            } else {
-                addEventItemsToDefaultMutableTreeNode(defaultMutableTreeNode, eventResource);
+        if (!eventSummaryResource.getEvents().isEmpty()) {
+
+            if (tabbedPane1.indexOfComponent(eventsScrollPane) < 0) {
+                tabbedPane1.insertTab(Constants.EVENTS_TAB_TITLE, null, eventsScrollPane, null, 1);
             }
 
-            root.add(defaultMutableTreeNode);
+            for (EventResource eventResource : eventSummaryResource.getEvents()) {
+                DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
+                List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
+                if (!collapsedEvents.isEmpty()) {
+                    for (EventResource collapsedEvent : collapsedEvents) {
+                        DefaultMutableTreeNode collapsedEventNode = new DefaultMutableTreeNode(collapsedEvent);
+                        addEventItemsToDefaultMutableTreeNode(collapsedEventNode, collapsedEvent);
+                        defaultMutableTreeNode.add(collapsedEventNode);
+                    }
+                } else {
+                    addEventItemsToDefaultMutableTreeNode(defaultMutableTreeNode, eventResource);
+                }
+
+                root.add(defaultMutableTreeNode);
+            }
+            model.nodeStructureChanged(root);
+        } else {
+            if (tabbedPane1.indexOfComponent(eventsScrollPane) > 0) {
+                tabbedPane1.remove(tabbedPane1.indexOfComponent(eventsScrollPane));
+            }
         }
-        model.nodeStructureChanged(root);
     }
 
     private void addEventItemsToDefaultMutableTreeNode(DefaultMutableTreeNode defaultMutableTreeNode, EventResource eventResource) {
