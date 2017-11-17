@@ -1,7 +1,6 @@
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
-import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
 import com.contrastsecurity.http.RuleSeverity;
@@ -47,8 +46,9 @@ public class FiltersDialog extends JDialog {
     private DateTimePicker lastDetectedFromDateTimePicker;
     private DateTimePicker lastDetectedToDateTimePicker;
     private JComboBox lastDetectedComboBox;
+    private JPanel filtersPanel;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
-    private ContrastUtil contrastUtil;
+    //    private ContrastUtil contrastUtil;
     private Servers servers;
     private List<Application> applications;
     private int currentOffset = 0;
@@ -87,7 +87,8 @@ public class FiltersDialog extends JDialog {
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        setSize(700, 400);
+        setSize(850, 400);
+
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         final Dimension screenSize = toolkit.getScreenSize();
         final int x = (screenSize.width - getWidth()) / 2;
@@ -310,7 +311,7 @@ public class FiltersDialog extends JDialog {
     }
 
     public void refresh() {
-        contrastUtil = new ContrastUtil();
+//        contrastUtil = new ContrastUtil();
         updateServersComboBox(servers);
         updateLastDetectedComboBox();
         populateFiltersWithDataFromContrastFilterPersistentStateComponent();
