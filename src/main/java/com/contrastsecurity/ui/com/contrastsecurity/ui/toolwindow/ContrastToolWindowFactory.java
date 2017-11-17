@@ -285,10 +285,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         severityColumn.setMaxWidth(76);
         severityColumn.setMinWidth(76);
 
-        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(4);
+        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(3);
         viewDetailsColumn.setMaxWidth(120);
 
-        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(5);
+        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(4);
         openInTeamserverColumn.setMaxWidth(120);
 
         vulnerabilitiesTable.getTableHeader().addMouseListener(new MouseAdapter() {
@@ -637,7 +637,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             if (tabbedPane1.indexOfComponent(eventsScrollPane) < 0) {
-                tabbedPane1.insertTab(Constants.EVENTS_TAB_TITLE, null, eventsScrollPane, null, 1);
+//                tabbedPane1.insertTab(, null, eventsScrollPane, null, 1);
+                tabbedPane1.addTab(Constants.EVENTS_TAB_TITLE, eventsScrollPane );
             }
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
@@ -756,7 +757,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (contrastFilterPersistentStateComponent.getSort() != null) {
             traceFilterForm.setSort(contrastFilterPersistentStateComponent.getSort());
         }
-        traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION, TraceFilterForm.TraceExpandValue.SERVERS));
+        traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
 
         return traceFilterForm;
     }

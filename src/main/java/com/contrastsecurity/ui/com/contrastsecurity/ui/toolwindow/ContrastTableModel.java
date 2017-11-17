@@ -33,7 +33,7 @@ public class ContrastTableModel extends AbstractTableModel {
     private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/icons/externalLink.png"));
     private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/icons/details.png"));
     private final ImageIcon unlicensedIcon = new ImageIcon(getClass().getResource("/icons/unlicensed.png"));
-    private String[] columnNames = {"Severity", "Vulnerability", "Application", "Server", "View Details", "Open in Teamserver", "Last Detected", "Status"};
+    private String[] columnNames = {"Severity", "Vulnerability", "Application", "View Details", "Open in Teamserver", "Last Detected", "Status"};
     private Trace[] data = new Trace[0];
     private ContrastUtil contrastUtil = new ContrastUtil();
 
@@ -82,31 +82,19 @@ public class ContrastTableModel extends AbstractTableModel {
                     obj = trace.getApplication().getName();
                     break;
                 case 3:
-                    StringBuilder stringBuilder = new StringBuilder("");
-                    List<Server> servers = trace.getServers();
-
-                    for (int i = 0; i < servers.size(); i++) {
-                        stringBuilder.append(servers.get(i).getName());
-                        if (i != servers.size() - 1){
-                            stringBuilder.append(", ");
-                        }
-                    }
-                    obj = stringBuilder.toString();
-                    break;
-                case 4:
                     if (contrastUtil.isTraceLicensed(trace)) {
                         obj = detailsIcon;
                     } else {
                         obj = unlicensedIcon;
                     }
                     break;
-                case 5:
+                case 4:
                     obj = externalLinkIcon;
                     break;
-                case 6:
+                case 5:
                     obj = new Date(trace.getLastTimeSeen());
                     break;
-                case 7:
+                case 6:
                     obj = trace.getStatus();
                     break;
                 default:
