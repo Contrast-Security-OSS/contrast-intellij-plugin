@@ -82,8 +82,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton previousPageButton;
     private JButton nextPageButton;
     private JLabel pageLabel;
-    private JScrollPane eventsScrollPane;
-    private JScrollPane httpRequestScrollPane;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -363,7 +361,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                             cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
                             populateVulnerabilityDetailsPanel();
-
+                            tabbedPane1.setSelectedIndex(1);
                         } else {
                             MessageDialog messageDialog = new MessageDialog(Constants.UNLICENSED_DIALOG_TITLE, Constants.UNLICENSED_DIALOG_MESSAGE);
                             messageDialog.setVisible(true);
@@ -580,7 +578,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void resetVulnerabilityDetails() {
-        overviewTextPane.setText("");
+        try {
+            overviewTextPane.getDocument().remove(0, overviewTextPane.getDocument().getLength());
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+
         httpRequestTextPane.setText("");
 
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
@@ -595,17 +598,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
                 && httpRequestResource.getHttpRequest().getFormattedText() != null) {
 
-            if (tabbedPane1.indexOfComponent(httpRequestScrollPane) < 0) {
-                tabbedPane1.addTab(Constants.HTTP_REQUEST_TAB_TITLE, httpRequestScrollPane);
-            }
-
             httpRequestTextPane.setText(httpRequestResource.getHttpRequest().getText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
         } else if (httpRequestResource != null && httpRequestResource.getReason() != null) {
             httpRequestTextPane.setText(httpRequestResource.getReason());
-
-            if (tabbedPane1.indexOfComponent(httpRequestScrollPane) > 0) {
-                tabbedPane1.remove(tabbedPane1.indexOfComponent(httpRequestScrollPane));
-            }
         }
         String text = httpRequestTextPane.getText();
         text = HtmlEscape.unescapeHtml(text);
@@ -633,10 +628,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
-            if (tabbedPane1.indexOfComponent(eventsScrollPane) < 0) {
-                tabbedPane1.addTab(Constants.EVENTS_TAB_TITLE, eventsScrollPane);
-            }
-
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
                 DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
                 List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
@@ -654,9 +645,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
             model.nodeStructureChanged(root);
         } else {
-            if (tabbedPane1.indexOfComponent(eventsScrollPane) > 0) {
-                tabbedPane1.remove(tabbedPane1.indexOfComponent(eventsScrollPane));
-            }
+            root.add(new DefaultMutableTreeNode("No Events info"));
+            model.nodeStructureChanged(root);
         }
     }
 

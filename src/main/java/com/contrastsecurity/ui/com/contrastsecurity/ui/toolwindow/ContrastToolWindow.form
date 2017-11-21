@@ -177,7 +177,7 @@
                       </grid>
                     </children>
                   </scrollpane>
-                  <scrollpane id="8f2cb" binding="eventsScrollPane">
+                  <scrollpane id="8f2cb">
                     <constraints>
                       <tabbedpane title="Events">
                         <tooltip value=""/>
@@ -197,7 +197,7 @@
                       </component>
                     </children>
                   </scrollpane>
-                  <scrollpane id="9f00e" binding="httpRequestScrollPane">
+                  <scrollpane id="9f00e">
                     <constraints>
                       <tabbedpane title="HTTP Request"/>
                     </constraints>
