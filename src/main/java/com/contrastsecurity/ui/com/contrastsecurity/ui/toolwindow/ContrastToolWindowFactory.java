@@ -564,12 +564,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private String parseMustache(String text) {
         text = text.replace(Constants.MUSTACHE_NL, Constants.BLANK);
-        //text = StringEscapeUtils.unescapeHtml(text);
         text = HtmlEscape.unescapeHtml(text);
         try {
             text = URLDecoder.decode(text, "UTF-8");
         } catch (Exception e) {
-            // ignore
         }
         text = text.replace("&lt;", "<");
         text = text.replace("&gt;", ">");
@@ -614,7 +612,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         try {
             text = URLDecoder.decode(text, "UTF-8");
         } catch (Exception e) {
-            // ignore
         }
         if (text.contains(Constants.TAINT) && text.contains(Constants.TAINT_CLOSED)) {
 
@@ -637,7 +634,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             if (tabbedPane1.indexOfComponent(eventsScrollPane) < 0) {
-//                tabbedPane1.insertTab(, null, eventsScrollPane, null, 1);
                 tabbedPane1.addTab(Constants.EVENTS_TAB_TITLE, eventsScrollPane);
             }
 
