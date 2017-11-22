@@ -48,7 +48,6 @@ public class FiltersDialog extends JDialog {
     private JComboBox lastDetectedComboBox;
     private JPanel filtersPanel;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
-    //    private ContrastUtil contrastUtil;
     private Servers servers;
     private List<Application> applications;
     private int currentOffset = 0;
@@ -193,7 +192,6 @@ public class FiltersDialog extends JDialog {
     }
 
     private void onCancel() {
-        // add your code here if necessary
         dispose();
     }
 
@@ -311,7 +309,6 @@ public class FiltersDialog extends JDialog {
     }
 
     public void refresh() {
-//        contrastUtil = new ContrastUtil();
         updateServersComboBox(servers);
         updateLastDetectedComboBox();
         populateFiltersWithDataFromContrastFilterPersistentStateComponent();

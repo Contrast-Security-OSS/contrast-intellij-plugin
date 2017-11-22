@@ -85,19 +85,47 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                 case "trigger":
                     eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_TRIGGER);
                     break;
-                case "p2o":
-                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                case "tag":
+                    eventTypeIcon = new EventTypeIcon(Constants.TAG_COLOR);
                     break;
-                case "p2r":
-                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                case "a2o":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "a2p":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "a2a":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "a2r":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "o2a":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "o2o":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "o2p":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
                     break;
                 case "o2r":
-                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
                     break;
-                case "tag":
-                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_O2R);
+                case "p2a":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "p2o":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "p2p":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "p2r":
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
                     break;
                 default:
+                    eventTypeIcon = new EventTypeIcon(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
                     break;
             }
         }
