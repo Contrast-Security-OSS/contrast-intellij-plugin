@@ -30,10 +30,16 @@ import com.contrastsecurity.models.*;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.OpenSourceUtil;
 import icons.ContrastPluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
@@ -104,7 +110,31 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     if (selectedObject instanceof EventItem) {
                         EventItem eventItem = (EventItem) selectedObject;
                         if (eventItem.isStacktrace()) {
+                            String typeName = getTypeName(eventItem.getValue());
+                            Integer lineNumber = getLineNumber(eventItem.getValue());
 
+                            if (typeName != null && lineNumber != null) {
+                                Project project = ProjectManager.getInstance().getOpenProjects()[0];
+                                JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
+                                GlobalSearchScope globalSearchScope = GlobalSearchScope.allScope(project);
+
+                                PsiClass psiClass = javaPsiFacade.findClass(typeName, globalSearchScope);
+                                String methodName = getMethodName(eventItem.getValue(), typeName);
+
+                                PsiMethod[] psiMethods = psiClass.findMethodsByName(methodName, true);
+                                PsiMethod psiMethod = null;
+                                if (psiMethods != null && psiMethods.length > 0) {
+                                    psiMethod = psiMethods[0];
+                                }
+                                if (psiClass != null) {
+                                    if (psiMethod != null) {
+                                        OpenSourceUtil.navigate(psiMethod);
+                                    } else {
+                                        OpenSourceUtil.navigate(psiClass);
+                                    }
+
+                                }
+                            }
                         }
                     }
                 }
@@ -175,6 +205,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         int end = stacktrace.indexOf(':');
         if (start >= 0 && end > start) {
             String typeName = stacktrace.substring(start + 1, end);
+            int indexOfExtension = typeName.indexOf(".java");
+            if (indexOfExtension > 0) {
+                typeName = typeName.substring(0, indexOfExtension);
+            }
+
             String qualifier = stacktrace.substring(0, start);
             start = qualifier.lastIndexOf('.');
             if (start >= 0) {
@@ -192,6 +227,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             return typeName;
         }
         return null;
+    }
+
+    private String getMethodName(String stacktrace, String typeName) {
+        int startIndex = stacktrace.lastIndexOf(typeName) + typeName.length() + 1;
+        int endIndex = stacktrace.indexOf("(");
+        return stacktrace.substring(startIndex, endIndex);
     }
 
     private Integer getLineNumber(String stacktrace) {
@@ -882,6 +923,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         dialogTraceFilterForm.setSort(traceFilterForm.getSort());
                         traceFilterForm = dialogTraceFilterForm;
                         traceFilterForm.setOffset(0);
+                        traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
                         pageLabel.setText("1");
                         contrastFilterPersistentStateComponent.setPage(1);
                         contrastFilterPersistentStateComponent.setCurrentOffset(0);

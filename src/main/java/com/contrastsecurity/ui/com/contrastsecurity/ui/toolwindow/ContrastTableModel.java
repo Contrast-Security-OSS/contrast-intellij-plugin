@@ -16,13 +16,11 @@ package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
-import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Trace;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.Date;
-import java.util.List;
 
 public class ContrastTableModel extends AbstractTableModel {
     private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/icons/critical.png"));
