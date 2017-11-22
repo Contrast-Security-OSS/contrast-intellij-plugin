@@ -170,6 +170,46 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         refresh();
     }
 
+    private String getTypeName(String stacktrace) {
+        int start = stacktrace.lastIndexOf('(');
+        int end = stacktrace.indexOf(':');
+        if (start >= 0 && end > start) {
+            String typeName = stacktrace.substring(start + 1, end);
+            String qualifier = stacktrace.substring(0, start);
+            start = qualifier.lastIndexOf('.');
+            if (start >= 0) {
+                start = new String((String) qualifier.subSequence(0, start)).lastIndexOf('.');
+                if (start == -1) {
+                    start = 0;
+                }
+            }
+            if (start >= 0) {
+                qualifier = qualifier.substring(0, start);
+            }
+            if (qualifier.length() > 0) {
+                typeName = qualifier + "." + typeName;
+            }
+            return typeName;
+        }
+        return null;
+    }
+
+    private Integer getLineNumber(String stacktrace) {
+        int index = stacktrace.lastIndexOf(':');
+        if (index >= 0) {
+            String numText = stacktrace.substring(index + 1);
+            index = numText.indexOf(')');
+            if (index >= 0) {
+                numText = numText.substring(0, index);
+            }
+            try {
+                return Integer.parseInt(numText);
+            } catch (NumberFormatException e) {
+            }
+        }
+        return null;
+    }
+
     private boolean isFromDateLessThanToDate(LocalDateTime fromDate, LocalDateTime toDate) {
         Date lastDetectedFromDate = Date.from(fromDate.atZone(ZoneId.systemDefault()).toInstant());
         Date lastDetectedToDate = Date.from(toDate.atZone(ZoneId.systemDefault()).toInstant());
