@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright (c) 2017 Contrast Security.
  * All rights reserved. 
- * 
+ *
  * This program and the accompanying materials are made available under 
  * the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 3 of the License.
- * 
+ *
  * The terms of the GNU GPL version 3 which accompanies this distribution
  * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- * 
+ *
  * Contributors:
  *     Contrast Security - initial API and implementation
  *******************************************************************************/
@@ -18,158 +18,162 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventResource extends EventModel {
-	public static final String RED = "RED";
-	public static final String CONTENT = "CONTENT";
-	public static final String CODE = "CODE";
-	public static final String BOLD = "BOLD";
-	
-	//JSON Fields
-	private String id;
-	private boolean important;
-	private String type;
-	private String description;
-	private int dupes;
-	private String extraDetails;
-	
-	private List<EventResource> collapsedEvents;
-	
-	//Internal use
-	private Event event;
-	private EventItem[] items;
+    public static final String RED = "RED";
+    public static final String CONTENT = "CONTENT";
+    public static final String CODE = "CODE";
+    public static final String BOLD = "BOLD";
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    //JSON Fields
+    private String id;
+    private boolean important;
+    private String type;
+    private String description;
+    private int dupes;
+    private String extraDetails;
 
-	public String getId() {
-		return this.id;
-	}
+    private List<EventResource> collapsedEvents;
 
-	public void setImportant(boolean important) {
-		this.important = important;
-	}
+    //Internal use
+    private Event event;
+    private EventItem[] items;
 
-	public boolean getImportant() {
-		return this.important;
-	}
+    public String getId() {
+        return this.id;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getType() {
-		return this.type;
-	}
+    public boolean getImportant() {
+        return this.important;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setImportant(boolean important) {
+        this.important = important;
+    }
 
-	public String getDescription() {
-		return this.description;
-	}
+    public String getType() {
+        return this.type;
+    }
 
-	public int getDupes() {
-		return dupes;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public void setDupes(int dupes) {
-		this.dupes = dupes;
-	}
+    public String getDescription() {
+        return this.description;
+    }
 
-	public String getExtraDetails() {
-		return extraDetails;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setExtraDetails(String extraDetails) {
-		this.extraDetails = extraDetails;
-	}
+    public int getDupes() {
+        return dupes;
+    }
 
-	public List<EventResource> getCollapsedEvents() {
-		return collapsedEvents;
-	}
+    public void setDupes(int dupes) {
+        this.dupes = dupes;
+    }
 
-	public void setCollapsedEvents(List<EventResource> collapsedEvents) {
-		this.collapsedEvents = collapsedEvents;
-	}
+    public String getExtraDetails() {
+        return extraDetails;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + id.hashCode();
-		return result;
-	}
+    public void setExtraDetails(String extraDetails) {
+        this.extraDetails = extraDetails;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EventResource other = (EventResource) obj;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+    public List<EventResource> getCollapsedEvents() {
+        return collapsedEvents;
+    }
 
-	public Event getEvent() {
-		return event;
-	}
+    public void setCollapsedEvents(List<EventResource> collapsedEvents) {
+        this.collapsedEvents = collapsedEvents;
+    }
 
-	public void setEvent(Event event) {
-		this.event = event;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + id.hashCode();
+        return result;
+    }
 
-	public EventItem[] getItems() {
-		if (items == null) {
-			if (event != null) {
-				List<EventItem> eventItems = new ArrayList<>();
-				//EventItem eventItem = new EventItem(this, "", "at " + probableStartLocation, false);
-				//eventItems.add(eventItem);
-				EventItem eventItem = new EventItem(this, BOLD, "Class.Method", false);
-				eventItems.add(eventItem);
-				eventItem = new EventItem(this, CONTENT, event.getClazz() + '.' + event.getMethod(), false);
-				eventItems.add(eventItem);
-				eventItem = new EventItem(this, BOLD, "Object", false);
-				eventItems.add(eventItem);
-				eventItem = new EventItem(this, CONTENT, event.getfObject(), false);
-				eventItems.add(eventItem);
-				eventItem = new EventItem(this, BOLD, "Return", false);
-				eventItems.add(eventItem);
-				eventItem = new EventItem(this, CONTENT, event.getfReturn(), false);
-				eventItems.add(eventItem);
-				eventItem = new EventItem(this, BOLD, "Parameters", false);
-				eventItems.add(eventItem);
-				if (event.getParameters() != null) {
-				for (Parameter paremeter:event.getParameters())
-					if (paremeter.getParameter() != null) {
-						eventItem = new EventItem(this, CONTENT, paremeter.getParameter(), false);
-						eventItems.add(eventItem);
-					}
-				}
-				eventItem = new EventItem(this, BOLD, "Stack Trace", false);
-				eventItems.add(eventItem);
-				if (event.getStacktraces() != null) {
-					boolean first = true;
-					for (Stacktrace stacktrace : event.getStacktraces()) {
-						if (first) {
-							eventItem = new EventItem(this, RED, stacktrace.getDescription(), true);
-							eventItems.add(eventItem);
-							first = false;
-						} else {
-							eventItem = new EventItem(this, CODE, stacktrace.getDescription(), true);
-							eventItems.add(eventItem);
-							first = false;
-						}
-					}
-				}
-				items = eventItems.toArray(new EventItem[0]);
-			}
-		}
-		return items;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EventResource other = (EventResource) obj;
+        if (id != other.id)
+            return false;
+        return true;
+    }
 
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    public EventItem[] getItems() {
+        if (items == null) {
+            if (event != null) {
+                List<EventItem> eventItems = new ArrayList<>();
+                //EventItem eventItem = new EventItem(this, "", "at " + probableStartLocation, false);
+                //eventItems.add(eventItem);
+                EventItem eventItem = new EventItem(this, BOLD, "Class.Method", false);
+                eventItems.add(eventItem);
+                eventItem = new EventItem(this, CONTENT, event.getClazz() + '.' + event.getMethod(), false);
+                eventItems.add(eventItem);
+                eventItem = new EventItem(this, BOLD, "Object", false);
+                eventItems.add(eventItem);
+                eventItem = new EventItem(this, CONTENT, event.getfObject(), false);
+                eventItems.add(eventItem);
+                eventItem = new EventItem(this, BOLD, "Return", false);
+                eventItems.add(eventItem);
+                eventItem = new EventItem(this, CONTENT, event.getfReturn(), false);
+                eventItems.add(eventItem);
+                eventItem = new EventItem(this, BOLD, "Parameters", false);
+                eventItems.add(eventItem);
+                if (event.getParameters() != null) {
+                    for (Parameter paremeter : event.getParameters())
+                        if (paremeter.getParameter() != null) {
+                            eventItem = new EventItem(this, CONTENT, paremeter.getParameter(), false);
+                            eventItems.add(eventItem);
+                        }
+                }
+                eventItem = new EventItem(this, BOLD, "Stack Trace", false);
+                eventItems.add(eventItem);
+                if (event.getStacktraces() != null) {
+                    boolean first = true;
+                    for (Stacktrace stacktrace : event.getStacktraces()) {
+                        if (first) {
+                            eventItem = new EventItem(this, RED, stacktrace.getDescription(), true);
+                            eventItems.add(eventItem);
+                            first = false;
+                        } else {
+                            eventItem = new EventItem(this, CODE, stacktrace.getDescription(), true);
+                            eventItems.add(eventItem);
+                            first = false;
+                        }
+                    }
+                }
+                items = eventItems.toArray(new EventItem[0]);
+            }
+        }
+        return items;
+    }
+
+    @Override
+    public String toString() {
+        return description;
+    }
 }

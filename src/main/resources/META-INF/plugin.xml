@@ -7,7 +7,7 @@
     <description><![CDATA[
       <p>Instrument your applications with Contrast Security to gain real-time visibility to vulnerabilities in your application, and to defend them against attacks.</p>
       <p>Contrast integrates with your existing SDLC processes to provide an easy way to view and fix vulnerabilities in your code, and protect your applications.</p>
-      <p>The Contrast for Eclipse plugin lists the vulnerabilities from your application directly in your Eclipse environment enabling developers to resolve issues faster.</p>
+      <p>The Contrast for IntelliJ plugin lists the vulnerabilities from your application directly in your IntelliJ environment enabling developers to resolve issues faster.</p>
       <p>Please note that you will need the Contrast TeamServer in order to use this feature.</p>
       <p>You can learn more about Contrast Security's latest products by visiting our website at <a href="https://www.contrastsecurity.com">www.contrastsecurity.com</a>.</p>
       <p>To schedule a demo, contact us at <a href="https://www.contrastsecurity.com/demo">www.contrastsecurity.com/demo</a> or by calling 1-888-371-1333.</p>
@@ -31,7 +31,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="Contrast" secondary="false" icon="/contrastToolWindow/contrastIcon.png" anchor="bottom"
+        <toolWindow id="Contrast" secondary="false" icon="ContrastPluginIcons.CONTRAST_ICON" anchor="bottom"
                     factoryClass="com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.ContrastToolWindowFactory"/>
         <applicationConfigurable displayName="Contrast" id="preferences.ContrastSearchableConfigurable"
                                  instance="com.contrastsecurity.ui.settings.ContrastSearchableConfigurable"/>
@@ -47,7 +47,7 @@
         <group id="contrast-intellij-plugin.ContrastMenu" text="C_ontrast" description="Contrast menu">
             <add-to-group group-id="MainMenu" anchor="last"/>
             <action id="contrast-intellij-plugin.ContrastAction" class="com.contrastsecurity.ui.ContrastAnAction"
-                    text="_Contrast plugin preferences" icon="/contrastToolWindow/settings.png"/>
+                    text="_Contrast plugin preferences" icon="ContrastPluginIcons.SETTINGS_ICON"/>
         </group>
     </actions>
 

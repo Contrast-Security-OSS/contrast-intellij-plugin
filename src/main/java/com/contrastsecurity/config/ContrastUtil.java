@@ -22,7 +22,6 @@ import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.models.Trace;
 import org.apache.commons.lang.StringUtils;
 
-import javax.swing.*;
 import java.util.Map;
 
 public class ContrastUtil {
@@ -33,14 +32,6 @@ public class ContrastUtil {
     private String serviceKey;
     private String username;
     private Map<String, String> organizations;
-
-    private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/contrastToolWindow/critical.png"));
-    private final ImageIcon severityIconHigh = new ImageIcon(getClass().getResource("/contrastToolWindow/high.png"));
-    private final ImageIcon severityIconMedium = new ImageIcon(getClass().getResource("/contrastToolWindow/medium.png"));
-    private final ImageIcon severityIconLow = new ImageIcon(getClass().getResource("/contrastToolWindow/low.png"));
-    private final ImageIcon severityIconNote = new ImageIcon(getClass().getResource("/contrastToolWindow/note.png"));
-    private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/externalLink.png"));
-    private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/contrastToolWindow/details.png"));
 
     private ContrastCache contrastCache;
 
@@ -57,7 +48,7 @@ public class ContrastUtil {
 
     public ExtendedContrastSDK getContrastSDK() {
 
-        if (StringUtils.isBlank(teamServerUrl) || StringUtils.isBlank(selectedOrganizationName) || StringUtils.isBlank(serviceKey) || StringUtils.isBlank(username) || organizations.isEmpty() || organizations.get(selectedOrganizationName) == null){
+        if (StringUtils.isBlank(teamServerUrl) || StringUtils.isBlank(selectedOrganizationName) || StringUtils.isBlank(serviceKey) || StringUtils.isBlank(username) || organizations.isEmpty() || organizations.get(selectedOrganizationName) == null) {
             return null;
         }
 
@@ -74,15 +65,15 @@ public class ContrastUtil {
         return contrastCache;
     }
 
-    public OrganizationConfig getSelectedOrganizationConfig(){
-        if (StringUtils.isBlank(selectedOrganizationName) || organizations.get(selectedOrganizationName) == null){
+    public OrganizationConfig getSelectedOrganizationConfig() {
+        if (StringUtils.isBlank(selectedOrganizationName) || organizations.get(selectedOrganizationName) == null) {
             return null;
         }
         OrganizationConfig organizationConfig = Util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
         return organizationConfig;
     }
 
-    public boolean isTraceLicensed(Trace trace){
+    public boolean isTraceLicensed(Trace trace) {
         boolean licensed = true;
 
         String title = trace.getTitle();
@@ -95,33 +86,5 @@ public class ContrastUtil {
 
     public String getTeamServerUrl() {
         return teamServerUrl;
-    }
-
-    public ImageIcon getSeverityIconCritical() {
-        return severityIconCritical;
-    }
-
-    public ImageIcon getSeverityIconHigh() {
-        return severityIconHigh;
-    }
-
-    public ImageIcon getSeverityIconMedium() {
-        return severityIconMedium;
-    }
-
-    public ImageIcon getSeverityIconLow() {
-        return severityIconLow;
-    }
-
-    public ImageIcon getSeverityIconNote() {
-        return severityIconNote;
-    }
-
-    public ImageIcon getExternalLinkIcon() {
-        return externalLinkIcon;
-    }
-
-    public ImageIcon getDetailsIcon() {
-        return detailsIcon;
     }
 }

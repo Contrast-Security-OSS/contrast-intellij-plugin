@@ -27,12 +27,14 @@ import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import icons.ContrastPluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
@@ -42,6 +44,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,8 +65,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private static final int PAGE_LIMIT = 20;
     private JPanel contrastToolWindowContent;
     private JTable vulnerabilitiesTable;
-    private JLabel settingsLabel;
-    private JLabel refreshLabel;
     private ToolWindow contrastToolWindow;
     private JPanel cardPanel;
     private JPanel noVulnerabilitiesPanel;
@@ -74,8 +76,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JTabbedPane tabbedPane1;
     private JTextPane overviewTextPane;
     private JTextPane httpRequestTextPane;
-    private JLabel filterLabel;
-    private JScrollPane mainCard;
+    private JPanel mainCard;
+    private JTree eventsTree;
+    private JComponent jComponent;
+    private JButton previousPageButton;
+    private JButton nextPageButton;
+    private JLabel pageLabel;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -83,18 +89,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Trace viewDetailsTrace;
     private TraceFilterForm traceFilterForm;
-    private Integer tracesObjectCount;
 
+    private int numOfPages = 1;
     private Servers servers;
     private List<Application> applications;
     private ContrastCache contrastCache;
 
     public ContrastToolWindowFactory() {
-
-        if (!mainCard.isVisible()) {
-            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-            cardLayout.show(cardPanel, "mainCard");
-        }
+        EventTreeCellRenderer eventTreeCellRenderer = new EventTreeCellRenderer();
+        eventsTree.setCellRenderer(eventTreeCellRenderer);
 
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
@@ -108,6 +111,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
+
         externalLinkButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -115,36 +119,38 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
-        settingsLabel.addMouseListener(new MouseAdapter() {
+        previousPageButton.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
+            public void actionPerformed(ActionEvent e) {
+
+                int prevPage = Integer.valueOf(pageLabel.getText()) - 1;
+                pageLabel.setText(String.valueOf(prevPage));
+
+                int currentOffset = PAGE_LIMIT * (prevPage - 1);
+                traceFilterForm.setOffset(currentOffset);
+
+                contrastFilterPersistentStateComponent.setPage(prevPage);
+                contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
+                refreshTraces();
             }
         });
 
-        refreshLabel.addMouseListener(new MouseAdapter() {
+        nextPageButton.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                refresh();
+            public void actionPerformed(ActionEvent e) {
+
+                int nextPage = Integer.valueOf(pageLabel.getText()) + 1;
+                pageLabel.setText(String.valueOf(nextPage));
+
+                int currentOffset = PAGE_LIMIT * (nextPage - 1);
+                traceFilterForm.setOffset(currentOffset);
+
+                contrastFilterPersistentStateComponent.setPage(nextPage);
+                contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
+                refreshTraces();
             }
         });
 
-        filterLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (servers != null && applications != null) {
-                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications, tracesObjectCount);
-                    filtersDialog.setVisible(true);
-
-                    TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
-                    if (dialogTraceFilterForm != null) {
-                        traceFilterForm = dialogTraceFilterForm;
-                        refreshTraces();
-//                    cleanTable();
-                    }
-                }
-            }
-        });
         refresh();
     }
 
@@ -211,20 +217,38 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
                 traces = tracesObject.getTraces().toArray(new Trace[0]);
             }
-            tracesObjectCount = tracesObject.getCount();
             if (!mainCard.isVisible()) {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                 cardLayout.show(cardPanel, "mainCard");
             }
+            pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
+            numOfPages = getNumOfPages(PAGE_LIMIT, tracesObject.getCount());
+            updatePageButtons();
+
         } catch (IOException | UnauthorizedException exception) {
             exception.printStackTrace();
             if (!noVulnerabilitiesPanel.isVisible()) {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                cardLayout.show(cardPanel, "noVulnerabilitiesPanel");
+                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
             }
         }
         contrastTableModel.setData(traces);
         contrastTableModel.fireTableDataChanged();
+    }
+
+    private void updatePageButtons() {
+        int newPage = Integer.valueOf(pageLabel.getText());
+        if (newPage == 1) {
+            previousPageButton.setEnabled(false);
+        } else {
+            previousPageButton.setEnabled(true);
+        }
+
+        if (newPage == numOfPages) {
+            nextPageButton.setEnabled(false);
+        } else {
+            nextPageButton.setEnabled(true);
+        }
     }
 
     @Override
@@ -259,10 +283,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         severityColumn.setMaxWidth(76);
         severityColumn.setMinWidth(76);
 
-        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(2);
+        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(3);
         viewDetailsColumn.setMaxWidth(120);
 
-        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(3);
+        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(4);
         openInTeamserverColumn.setMaxWidth(120);
 
         vulnerabilitiesTable.getTableHeader().addMouseListener(new MouseAdapter() {
@@ -306,12 +330,46 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         }
                         refreshTraces();
                         contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                    } else if (name.equals("Application")) {
+                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                            traceFilterForm.setSort(Constants.SORT_BY_APPLICATION_NAME);
+                        } else {
+                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_APPLICATION_NAME);
+                        }
+                        refreshTraces();
+                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
                     }
                 }
             }
         });
 
         vulnerabilitiesTable.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Point point = e.getPoint();
+                int row = vulnerabilitiesTable.rowAtPoint(point);
+                int col = vulnerabilitiesTable.columnAtPoint(point);
+
+                if (row >= 0 && col >= 0) {
+                    String name = vulnerabilitiesTable.getColumnName(col);
+
+                    if (e.getClickCount() == 2 && !name.equals("Open in Teamserver") && !name.equals("View Details")) {
+                        Trace traceClicked = contrastTableModel.getTraceAtRow(row);
+                        if (contrastUtil.isTraceLicensed(traceClicked)) {
+                            viewDetailsTrace = traceClicked;
+                            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                            cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
+                            populateVulnerabilityDetailsPanel();
+                            tabbedPane1.setSelectedIndex(1);
+                        } else {
+                            MessageDialog messageDialog = new MessageDialog(Constants.UNLICENSED_DIALOG_TITLE, Constants.UNLICENSED_DIALOG_MESSAGE);
+                            messageDialog.setVisible(true);
+                        }
+                    }
+                }
+            }
+
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int row = vulnerabilitiesTable.rowAtPoint(evt.getPoint());
@@ -329,6 +387,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                             cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
                             populateVulnerabilityDetailsPanel();
+                        } else {
+                            MessageDialog messageDialog = new MessageDialog(Constants.UNLICENSED_DIALOG_TITLE, Constants.UNLICENSED_DIALOG_MESSAGE);
+                            messageDialog.setVisible(true);
                         }
                     }
                 }
@@ -345,15 +406,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 String severity = viewDetailsTrace.getSeverity();
                 if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
-                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconNote());
+                    traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_NOTE);
                 } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
-                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconLow());
+                    traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_LOW);
                 } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
-                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconMedium());
+                    traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_MEDIUM);
                 } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
-                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconHigh());
+                    traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_HIGH);
                 } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
-                    traceSeverityLabel.setIcon(contrastUtil.getSeverityIconCritical());
+                    traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_CRITICAL);
                 }
 
                 String title = viewDetailsTrace.getTitle();
@@ -368,8 +429,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                     StoryResource storyResource = getStory(key);
                     HttpRequestResource httpRequestResource = getHttpRequest(key);
+                    EventSummaryResource eventSummaryResource = getEventSummary(key);
 
                     populateVulnerabilityDetailsOverview(storyResource);
+                    populateVulnerabilityDetailsEvents(eventSummaryResource);
                     populateVulnerabilityDetailsHttpRequest(httpRequestResource);
                 } catch (IOException | UnauthorizedException e) {
                     e.printStackTrace();
@@ -499,12 +562,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private String parseMustache(String text) {
         text = text.replace(Constants.MUSTACHE_NL, Constants.BLANK);
-        //text = StringEscapeUtils.unescapeHtml(text);
         text = HtmlEscape.unescapeHtml(text);
         try {
             text = URLDecoder.decode(text, "UTF-8");
         } catch (Exception e) {
-            // ignore
         }
         text = text.replace("&lt;", "<");
         text = text.replace("&gt;", ">");
@@ -517,8 +578,19 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void resetVulnerabilityDetails() {
-        overviewTextPane.setText("");
+        try {
+            overviewTextPane.getDocument().remove(0, overviewTextPane.getDocument().getLength());
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+
         httpRequestTextPane.setText("");
+
+        DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        root.removeAllChildren();
+        model.nodeStructureChanged(root);
+
     }
 
     private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
@@ -535,7 +607,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         try {
             text = URLDecoder.decode(text, "UTF-8");
         } catch (Exception e) {
-            // ignore
         }
         if (text.contains(Constants.TAINT) && text.contains(Constants.TAINT_CLOSED)) {
 
@@ -547,6 +618,42 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 currentString = currentString.replace(Constants.TAINT_CLOSED, "");
                 httpRequestTextPane.setText(currentString);
             }
+        }
+    }
+
+    private void populateVulnerabilityDetailsEvents(EventSummaryResource eventSummaryResource) {
+
+        DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+
+        if (!eventSummaryResource.getEvents().isEmpty()) {
+
+            for (EventResource eventResource : eventSummaryResource.getEvents()) {
+                DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
+                List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
+                if (!collapsedEvents.isEmpty()) {
+                    for (EventResource collapsedEvent : collapsedEvents) {
+                        DefaultMutableTreeNode collapsedEventNode = new DefaultMutableTreeNode(collapsedEvent);
+                        addEventItemsToDefaultMutableTreeNode(collapsedEventNode, collapsedEvent);
+                        defaultMutableTreeNode.add(collapsedEventNode);
+                    }
+                } else {
+                    addEventItemsToDefaultMutableTreeNode(defaultMutableTreeNode, eventResource);
+                }
+
+                root.add(defaultMutableTreeNode);
+            }
+            model.nodeStructureChanged(root);
+        } else {
+            root.add(new DefaultMutableTreeNode("No Events info"));
+            model.nodeStructureChanged(root);
+        }
+    }
+
+    private void addEventItemsToDefaultMutableTreeNode(DefaultMutableTreeNode defaultMutableTreeNode, EventResource eventResource) {
+        EventItem[] eventItems = eventResource.getItems();
+        for (EventItem eventItem : eventItems) {
+            defaultMutableTreeNode.add(new DefaultMutableTreeNode(eventItem));
         }
     }
 
@@ -636,6 +743,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (contrastFilterPersistentStateComponent.getSort() != null) {
             traceFilterForm.setSort(contrastFilterPersistentStateComponent.getSort());
         }
+        traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
 
         return traceFilterForm;
     }
@@ -690,4 +798,59 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return applications;
     }
 
+    private void createUIComponents() {
+
+
+        DefaultActionGroup actions = new DefaultActionGroup();
+        AnAction settingsAction = new AnAction(ContrastPluginIcons.SETTINGS_ICON) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
+            }
+        };
+        AnAction refreshAction = new AnAction(ContrastPluginIcons.REFRESH_ICON) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                refresh();
+            }
+        };
+        AnAction filterAction = new AnAction(ContrastPluginIcons.FILTER_ICON) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                if (servers != null && applications != null) {
+                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications);
+                    filtersDialog.setVisible(true);
+
+                    TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
+                    if (dialogTraceFilterForm != null) {
+                        dialogTraceFilterForm.setSort(traceFilterForm.getSort());
+                        traceFilterForm = dialogTraceFilterForm;
+                        traceFilterForm.setOffset(0);
+                        pageLabel.setText("1");
+                        contrastFilterPersistentStateComponent.setPage(1);
+                        contrastFilterPersistentStateComponent.setCurrentOffset(0);
+                        refreshTraces();
+                    }
+                }
+            }
+        };
+
+        actions.add(settingsAction);
+        actions.add(refreshAction);
+        actions.add(filterAction);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, false);
+        jComponent = toolbar.getComponent();
+    }
+
+    private int getNumOfPages(final int pageLimit, final int totalElements) {
+        int numOfPages = 1;
+        if (totalElements % pageLimit > 0) {
+            numOfPages = totalElements / pageLimit + 1;
+        } else {
+            if (totalElements != 0) {
+                numOfPages = totalElements / pageLimit;
+            }
+        }
+        return numOfPages;
+    }
 }
