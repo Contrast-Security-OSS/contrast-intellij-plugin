@@ -46,11 +46,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.net.*;
 import java.time.LocalDateTime;
@@ -63,6 +61,7 @@ import java.util.List;
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private static final int PAGE_LIMIT = 20;
+    MouseListener treeNodeClickListener;
     private JPanel contrastToolWindowContent;
     private JTable vulnerabilitiesTable;
     private ToolWindow contrastToolWindow;
@@ -91,15 +90,32 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Trace viewDetailsTrace;
     private TraceFilterForm traceFilterForm;
-
     private int numOfPages = 1;
     private Servers servers;
     private List<Application> applications;
     private ContrastCache contrastCache;
 
     public ContrastToolWindowFactory() {
+
+        treeNodeClickListener = new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                int selRow = eventsTree.getRowForLocation(e.getX(), e.getY());
+                TreePath selPath = eventsTree.getPathForLocation(e.getX(), e.getY());
+                if (selRow != -1 && e.getClickCount() == 2 && selPath.getPathCount() > 0) {
+                    Object selectedObject = ((DefaultMutableTreeNode) selPath.getLastPathComponent()).getUserObject();
+                    if (selectedObject instanceof EventItem) {
+                        EventItem eventItem = (EventItem) selectedObject;
+                        if (eventItem.isStacktrace()) {
+                            System.out.println(eventItem.getValue());
+                        }
+                    }
+                }
+            }
+        };
+
         EventTreeCellRenderer eventTreeCellRenderer = new EventTreeCellRenderer();
         eventsTree.setCellRenderer(eventTreeCellRenderer);
+        eventsTree.addMouseListener(treeNodeClickListener);
 
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
