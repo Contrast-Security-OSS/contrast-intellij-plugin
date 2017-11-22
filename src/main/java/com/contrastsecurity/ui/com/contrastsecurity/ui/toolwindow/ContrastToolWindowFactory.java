@@ -104,7 +104,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     if (selectedObject instanceof EventItem) {
                         EventItem eventItem = (EventItem) selectedObject;
                         if (eventItem.isStacktrace()) {
-                            System.out.println(eventItem.getValue());
+
                         }
                     }
                 }
