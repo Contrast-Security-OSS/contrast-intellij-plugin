@@ -28,18 +28,22 @@ import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.OpenSourceUtil;
 import icons.ContrastPluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
@@ -114,25 +118,24 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             Integer lineNumber = getLineNumber(eventItem.getValue());
 
                             if (typeName != null && lineNumber != null) {
+
                                 Project project = ProjectManager.getInstance().getOpenProjects()[0];
                                 JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
                                 GlobalSearchScope globalSearchScope = GlobalSearchScope.allScope(project);
 
-                                PsiClass psiClass = javaPsiFacade.findClass(typeName, globalSearchScope);
-                                String methodName = getMethodName(eventItem.getValue(), typeName);
-
-                                PsiMethod[] psiMethods = psiClass.findMethodsByName(methodName, true);
-                                PsiMethod psiMethod = null;
-                                if (psiMethods != null && psiMethods.length > 0) {
-                                    psiMethod = psiMethods[0];
-                                }
-                                if (psiClass != null) {
-                                    if (psiMethod != null) {
-                                        OpenSourceUtil.navigate(psiMethod);
-                                    } else {
-                                        OpenSourceUtil.navigate(psiClass);
+                                if (eventItem.getValue().contains(".java")) {
+                                    PsiClass psiClass = javaPsiFacade.findClass(typeName, globalSearchScope);
+                                    if (psiClass != null) {
+                                        PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
+                                        new OpenFileDescriptor(project, javaFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
                                     }
-
+                                } else {
+                                    PsiFile[] psiFiles = FilenameIndex.getFilesByName(project, typeName, globalSearchScope);
+                                    if (psiFiles != null && psiFiles.length > 0) {
+                                        for (PsiFile psiFile : psiFiles) {
+                                            new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -227,12 +230,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             return typeName;
         }
         return null;
-    }
-
-    private String getMethodName(String stacktrace, String typeName) {
-        int startIndex = stacktrace.lastIndexOf(typeName) + typeName.length() + 1;
-        int endIndex = stacktrace.indexOf("(");
-        return stacktrace.substring(startIndex, endIndex);
     }
 
     private Integer getLineNumber(String stacktrace) {
