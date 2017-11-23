@@ -115,7 +115,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             String typeName = getTypeName(eventItem.getValue());
                             Integer lineNumber = getLineNumber(eventItem.getValue());
 
-                            if (typeName != null && lineNumber != null) {
+                            if (typeName != null) {
 
                                 Project project = ProjectManager.getInstance().getOpenProjects()[0];
                                 JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
@@ -126,7 +126,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                     if (psiClasses != null && psiClasses.length > 0) {
                                         for (PsiClass psiClass : psiClasses) {
                                             PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
-                                            new OpenFileDescriptor(project, javaFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                            if (lineNumber != null) {
+                                                new OpenFileDescriptor(project, javaFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                            } else {
+                                                new OpenFileDescriptor(project, javaFile.getVirtualFile(), 0, 0).navigate(true);
+                                            }
                                         }
                                     } else {
                                         MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
@@ -138,7 +142,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                     PsiFile[] psiFiles = FilenameIndex.getFilesByName(project, typeName, globalSearchScope);
                                     if (psiFiles != null && psiFiles.length > 0) {
                                         for (PsiFile psiFile : psiFiles) {
-                                            new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                            if (lineNumber != null) {
+                                                new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                            } else {
+                                                new OpenFileDescriptor(project, psiFile.getVirtualFile(), 0, 0).navigate(true);
+                                            }
                                         }
                                     } else {
                                         MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
