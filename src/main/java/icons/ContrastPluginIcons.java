@@ -16,6 +16,6 @@ public interface ContrastPluginIcons {
     Icon EXTERNAL_LINK_ICON = IconLoader.getIcon("/icons/externalLink.png");
     Icon DETAILS_ICON = IconLoader.getIcon("/icons/details.png");
     Icon UNLICENSED_ICON = IconLoader.getIcon("/icons/unlicensed.png");
-    Icon REFRESH_ICON = IconLoader.getIcon("/icons/refresh_tab.gif");
+    Icon REFRESH_ICON = IconLoader.getIcon("/icons/refresh_tab.png");
     Icon FILTER_ICON = IconLoader.getIcon("/icons/filter.png");
 }
