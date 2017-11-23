@@ -32,8 +32,6 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.JavaPsiFacade;
@@ -124,11 +122,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                 GlobalSearchScope globalSearchScope = GlobalSearchScope.allScope(project);
 
                                 if (eventItem.getValue().contains(".java")) {
-                                    PsiClass psiClass = javaPsiFacade.findClass(typeName, globalSearchScope);
-                                    if (psiClass != null) {
-                                        PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
-                                        new OpenFileDescriptor(project, javaFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                    PsiClass[] psiClasses = javaPsiFacade.findClasses(typeName, globalSearchScope);
+                                    if (psiClasses != null && psiClasses.length > 0) {
+                                        for (PsiClass psiClass : psiClasses) {
+                                            PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
+                                            new OpenFileDescriptor(project, javaFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                        }
                                     }
+
                                 } else {
                                     PsiFile[] psiFiles = FilenameIndex.getFilesByName(project, typeName, globalSearchScope);
                                     if (psiFiles != null && psiFiles.length > 0) {
