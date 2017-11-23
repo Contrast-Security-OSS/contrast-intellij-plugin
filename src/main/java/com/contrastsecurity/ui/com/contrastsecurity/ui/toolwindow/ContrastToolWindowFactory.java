@@ -128,6 +128,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                             PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
                                             new OpenFileDescriptor(project, javaFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
                                         }
+                                    } else {
+                                        MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
+                                        messageDialog.setVisible(true);
+
                                     }
 
                                 } else {
@@ -136,8 +140,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                         for (PsiFile psiFile : psiFiles) {
                                             new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
                                         }
+                                    } else {
+                                        MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
+                                        messageDialog.setVisible(true);
                                     }
                                 }
+                            } else {
+                                MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
+                                messageDialog.setVisible(true);
                             }
                         }
                     }
