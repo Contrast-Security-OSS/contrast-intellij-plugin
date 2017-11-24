@@ -89,6 +89,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton previousPageButton;
     private JButton nextPageButton;
     private JLabel pageLabel;
+    private JLabel numOfPagesLabel;
+    private JButton firstPageButton;
+    private JButton lastPageButton;
+    private JComboBox pagesComboBox;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -101,9 +105,21 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private List<Application> applications;
     private ContrastCache contrastCache;
 
+    private ActionListener pagesComboBoxActionListener;
+
     public ContrastToolWindowFactory() {
 
+        pagesComboBoxActionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                goToPage(Integer.valueOf(pagesComboBox.getSelectedItem().toString()), true);
+            }
+        };
+
         externalLinkButton.setIcon(ContrastPluginIcons.EXTERNAL_LINK_ICON);
+        firstPageButton.setIcon(ContrastPluginIcons.FIRST_PAGE_ICON);
+        lastPageButton.setIcon(ContrastPluginIcons.LAST_PAGE_ICON);
+        previousPageButton.setIcon(ContrastPluginIcons.PREVIOUS_PAGE_ICON);
+        nextPageButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
 
         treeNodeClickListener = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -189,39 +205,67 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
+        firstPageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        goToPage(1, false);
+                    }
+                }).start();
+            }
+        });
+
+        lastPageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        goToPage(numOfPages, false);
+                    }
+                }).start();
+            }
+        });
+
         previousPageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                int prevPage = Integer.valueOf(pageLabel.getText()) - 1;
-                pageLabel.setText(String.valueOf(prevPage));
-
-                int currentOffset = PAGE_LIMIT * (prevPage - 1);
-                traceFilterForm.setOffset(currentOffset);
-
-                contrastFilterPersistentStateComponent.setPage(prevPage);
-                contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
-                refreshTraces();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        goToPage(Integer.valueOf(pageLabel.getText()) - 1, false);
+                    }
+                }).start();
             }
         });
 
         nextPageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                int nextPage = Integer.valueOf(pageLabel.getText()) + 1;
-                pageLabel.setText(String.valueOf(nextPage));
-
-                int currentOffset = PAGE_LIMIT * (nextPage - 1);
-                traceFilterForm.setOffset(currentOffset);
-
-                contrastFilterPersistentStateComponent.setPage(nextPage);
-                contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
-                refreshTraces();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        goToPage(Integer.valueOf(pageLabel.getText()) + 1, false);
+                    }
+                }).start();
             }
         });
 
         refresh();
+    }
+
+    private void goToPage(final int page, final boolean userUpdatedPagesComboBoxSelection) {
+        int currentOffset = PAGE_LIMIT * (page - 1);
+        traceFilterForm.setOffset(currentOffset);
+
+        contrastFilterPersistentStateComponent.setPage(page);
+        contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
+
+        refreshTraces(userUpdatedPagesComboBoxSelection);
     }
 
     private String getTypeName(String stacktrace) {
@@ -299,7 +343,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                refreshTraces();
+                refreshTraces(false);
                 servers = retrieveServers();
                 applications = retrieveApplications();
             }
@@ -312,7 +356,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastTableModel.fireTableDataChanged();
     }
 
-    private void refreshTraces() {
+    private void refreshTraces(final boolean userUpdatedPagesComboBoxSelection) {
 
         Trace[] traces = new Trace[0];
 
@@ -338,7 +382,19 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
             pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
             numOfPages = getNumOfPages(PAGE_LIMIT, tracesObject.getCount());
+            numOfPagesLabel.setText("/" + numOfPages);
             updatePageButtons();
+
+            if (!userUpdatedPagesComboBoxSelection) {
+                pagesComboBox.removeActionListener(pagesComboBoxActionListener);
+            }
+            updatePagesComboBox(numOfPages);
+            pagesComboBox.setSelectedItem(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
+
+            if (!userUpdatedPagesComboBoxSelection) {
+                pagesComboBox.addActionListener(pagesComboBoxActionListener);
+            }
+
 
         } catch (IOException | UnauthorizedException exception) {
             exception.printStackTrace();
@@ -355,14 +411,30 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         int newPage = Integer.valueOf(pageLabel.getText());
         if (newPage == 1) {
             previousPageButton.setEnabled(false);
+            firstPageButton.setEnabled(false);
         } else {
             previousPageButton.setEnabled(true);
+            firstPageButton.setEnabled(true);
         }
 
         if (newPage == numOfPages) {
             nextPageButton.setEnabled(false);
+            lastPageButton.setEnabled(false);
         } else {
             nextPageButton.setEnabled(true);
+            lastPageButton.setEnabled(true);
+        }
+    }
+
+    public void updatePagesComboBox(final int numOfPages) {
+        pagesComboBox.removeAllItems();
+        for (int i = 1; i <= numOfPages; i++) {
+            pagesComboBox.addItem(String.valueOf(i));
+        }
+        if (numOfPages == 1) {
+            pagesComboBox.setEnabled(false);
+        } else {
+            pagesComboBox.setEnabled(true);
         }
     }
 
@@ -419,40 +491,65 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         } else {
                             traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
                         }
-                        refreshTraces();
-                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshTraces(false);
+                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }
+                        }).start();
                     } else if (name.equals("Vulnerability")) {
                         if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
                             traceFilterForm.setSort(Constants.SORT_BY_TITLE);
                         } else {
                             traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_TITLE);
                         }
-                        refreshTraces();
-                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshTraces(false);
+                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }
+                        }).start();
                     } else if (name.equals("Last Detected")) {
                         if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
                             traceFilterForm.setSort(Constants.SORT_BY_LAST_TIME_SEEN);
                         } else {
                             traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_LAST_TIME_SEEN);
                         }
-                        refreshTraces();
-                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshTraces(false);
+                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }
+                        }).start();
                     } else if (name.equals("Status")) {
                         if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
                             traceFilterForm.setSort(Constants.SORT_BY_STATUS);
                         } else {
                             traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_STATUS);
                         }
-                        refreshTraces();
-                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshTraces(false);
+                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }
+                        }).start();
                     } else if (name.equals("Application")) {
                         if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
                             traceFilterForm.setSort(Constants.SORT_BY_APPLICATION_NAME);
                         } else {
                             traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_APPLICATION_NAME);
                         }
-                        refreshTraces();
-                        contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshTraces(false);
+                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }
+                        }).start();
                     }
                 }
             }
@@ -915,7 +1012,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private void createUIComponents() {
 
-
         DefaultActionGroup actions = new DefaultActionGroup();
         AnAction settingsAction = new AnAction(ContrastPluginIcons.SETTINGS_ICON) {
             @Override
@@ -942,10 +1038,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         traceFilterForm = dialogTraceFilterForm;
                         traceFilterForm.setOffset(0);
                         traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
-                        pageLabel.setText("1");
                         contrastFilterPersistentStateComponent.setPage(1);
                         contrastFilterPersistentStateComponent.setCurrentOffset(0);
-                        refreshTraces();
+                        refreshTraces(false);
                     }
                 }
             }

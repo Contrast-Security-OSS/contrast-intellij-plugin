@@ -18,4 +18,8 @@ public interface ContrastPluginIcons {
     Icon UNLICENSED_ICON = IconLoader.getIcon("/icons/unlicensed.png");
     Icon REFRESH_ICON = IconLoader.getIcon("/icons/refresh_tab.png");
     Icon FILTER_ICON = IconLoader.getIcon("/icons/filter.png");
+    Icon FIRST_PAGE_ICON = IconLoader.getIcon("/icons/first_page.png");
+    Icon LAST_PAGE_ICON = IconLoader.getIcon("/icons/last_page.png");
+    Icon PREVIOUS_PAGE_ICON = IconLoader.getIcon("/icons/previous_page.png");
+    Icon NEXT_PAGE_ICON = IconLoader.getIcon("/icons/next_page.png");
 }
