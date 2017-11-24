@@ -103,6 +103,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     public ContrastToolWindowFactory() {
 
+        externalLinkButton.setIcon(ContrastPluginIcons.EXTERNAL_LINK_ICON);
+
         treeNodeClickListener = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 int selRow = eventsTree.getRowForLocation(e.getX(), e.getY());

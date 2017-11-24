@@ -17,20 +17,13 @@ package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.models.Trace;
+import icons.ContrastPluginIcons;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.Date;
 
 public class ContrastTableModel extends AbstractTableModel {
-    private final ImageIcon severityIconCritical = new ImageIcon(getClass().getResource("/icons/critical.png"));
-    private final ImageIcon severityIconHigh = new ImageIcon(getClass().getResource("/icons/high.png"));
-    private final ImageIcon severityIconMedium = new ImageIcon(getClass().getResource("/icons/medium.png"));
-    private final ImageIcon severityIconLow = new ImageIcon(getClass().getResource("/icons/low.png"));
-    private final ImageIcon severityIconNote = new ImageIcon(getClass().getResource("/icons/note.png"));
-    private final ImageIcon externalLinkIcon = new ImageIcon(getClass().getResource("/icons/externalLink.png"));
-    private final ImageIcon detailsIcon = new ImageIcon(getClass().getResource("/icons/details.png"));
-    private final ImageIcon unlicensedIcon = new ImageIcon(getClass().getResource("/icons/unlicensed.png"));
     private String[] columnNames = {"Severity", "Vulnerability", "Application", "View Details", "Open in Teamserver", "Last Detected", "Status"};
     private Trace[] data = new Trace[0];
     private ContrastUtil contrastUtil = new ContrastUtil();
@@ -55,15 +48,15 @@ public class ContrastTableModel extends AbstractTableModel {
                 case 0:
                     String severity = trace.getSeverity();
                     if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
-                        obj = severityIconNote;
+                        obj = ContrastPluginIcons.SEVERITY_ICON_NOTE;
                     } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
-                        obj = severityIconLow;
+                        obj = ContrastPluginIcons.SEVERITY_ICON_LOW;
                     } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
-                        obj = severityIconMedium;
+                        obj = ContrastPluginIcons.SEVERITY_ICON_MEDIUM;
                     } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
-                        obj = severityIconHigh;
+                        obj = ContrastPluginIcons.SEVERITY_ICON_HIGH;
                     } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
-                        obj = severityIconCritical;
+                        obj = ContrastPluginIcons.SEVERITY_ICON_CRITICAL;
                     } else {
                         obj = "";
                     }
@@ -81,13 +74,13 @@ public class ContrastTableModel extends AbstractTableModel {
                     break;
                 case 3:
                     if (contrastUtil.isTraceLicensed(trace)) {
-                        obj = detailsIcon;
+                        obj = ContrastPluginIcons.DETAILS_ICON;
                     } else {
-                        obj = unlicensedIcon;
+                        obj = ContrastPluginIcons.UNLICENSED_ICON;
                     }
                     break;
                 case 4:
-                    obj = externalLinkIcon;
+                    obj = ContrastPluginIcons.EXTERNAL_LINK_ICON;
                     break;
                 case 5:
                     obj = new Date(trace.getLastTimeSeen());
@@ -105,6 +98,9 @@ public class ContrastTableModel extends AbstractTableModel {
 
     public Class getColumnClass(int c) {
         if (getValueAt(0, c) != null) {
+            if (getValueAt(0, c) instanceof Icon) {
+                return ImageIcon.class;
+            }
             return getValueAt(0, c).getClass();
         } else {
             return "".getClass();
