@@ -93,6 +93,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton firstPageButton;
     private JButton lastPageButton;
     private JComboBox pagesComboBox;
+    private JButton nextTraceButton;
+    private JButton previousTraceButton;
+    private JLabel currentTraceDetailsLabel;
+    private JLabel tracesCountLabel;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -106,20 +110,22 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastCache contrastCache;
 
     private ActionListener pagesComboBoxActionListener;
+    private int selectedTraceRow;
 
     public ContrastToolWindowFactory() {
+        externalLinkButton.setIcon(ContrastPluginIcons.EXTERNAL_LINK_ICON);
+        firstPageButton.setIcon(ContrastPluginIcons.FIRST_PAGE_ICON);
+        lastPageButton.setIcon(ContrastPluginIcons.LAST_PAGE_ICON);
+        previousPageButton.setIcon(ContrastPluginIcons.PREVIOUS_PAGE_ICON);
+        nextPageButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
+        previousTraceButton.setIcon(ContrastPluginIcons.PREVIOUS_PAGE_ICON);
+        nextTraceButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
 
         pagesComboBoxActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 goToPage(Integer.valueOf(pagesComboBox.getSelectedItem().toString()), true);
             }
         };
-
-        externalLinkButton.setIcon(ContrastPluginIcons.EXTERNAL_LINK_ICON);
-        firstPageButton.setIcon(ContrastPluginIcons.FIRST_PAGE_ICON);
-        lastPageButton.setIcon(ContrastPluginIcons.LAST_PAGE_ICON);
-        previousPageButton.setIcon(ContrastPluginIcons.PREVIOUS_PAGE_ICON);
-        nextPageButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
 
         treeNodeClickListener = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -252,6 +258,52 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         goToPage(Integer.valueOf(pageLabel.getText()) + 1, false);
                     }
                 }).start();
+            }
+        });
+
+        previousTraceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedTraceRow > 0) {
+                    boolean cont = true;
+                    int currentRow = selectedTraceRow - 1;
+                    while (currentRow >= 0 && cont) {
+                        Trace trace = contrastTableModel.getTraceAtRow(currentRow);
+                        if (contrastUtil.isTraceLicensed(trace)) {
+                            viewDetailsTrace = trace;
+                            cont = false;
+                            selectedTraceRow = currentRow;
+                            populateVulnerabilityDetailsPanel();
+                            vulnerabilitiesTable.setRowSelectionInterval(selectedTraceRow, selectedTraceRow);
+                        } else {
+                            currentRow--;
+                        }
+                    }
+                }
+            }
+        });
+
+        nextTraceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int rowCount = contrastTableModel.getRowCount();
+                if (selectedTraceRow < rowCount) {
+                    boolean cont = true;
+                    int currentRow = selectedTraceRow + 1;
+
+                    while (currentRow < rowCount && cont) {
+                        Trace trace = contrastTableModel.getTraceAtRow(currentRow);
+                        if (contrastUtil.isTraceLicensed(trace)) {
+                            viewDetailsTrace = trace;
+                            cont = false;
+                            selectedTraceRow = currentRow;
+                            populateVulnerabilityDetailsPanel();
+                            vulnerabilitiesTable.setRowSelectionInterval(selectedTraceRow, selectedTraceRow);
+                        } else {
+                            currentRow++;
+                        }
+                    }
+                }
             }
         });
 
@@ -569,6 +621,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     if (e.getClickCount() == 2 && !name.equals("Open in Teamserver") && !name.equals("View Details")) {
                         Trace traceClicked = contrastTableModel.getTraceAtRow(row);
                         if (contrastUtil.isTraceLicensed(traceClicked)) {
+                            selectedTraceRow = row;
                             viewDetailsTrace = traceClicked;
                             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                             cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
@@ -595,6 +648,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     } else if (name.equals("View Details")) {
                         Trace traceClicked = contrastTableModel.getTraceAtRow(row);
                         if (contrastUtil.isTraceLicensed(traceClicked)) {
+                            selectedTraceRow = row;
                             viewDetailsTrace = traceClicked;
                             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                             cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
@@ -649,6 +703,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 } catch (IOException | UnauthorizedException e) {
                     e.printStackTrace();
                 }
+                currentTraceDetailsLabel.setText(String.valueOf(selectedTraceRow + 1));
+                tracesCountLabel.setText(String.valueOf(contrastTableModel.getRowCount()));
             }
         }).start();
     }
