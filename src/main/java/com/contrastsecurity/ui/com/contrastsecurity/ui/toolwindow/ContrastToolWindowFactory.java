@@ -27,6 +27,7 @@ import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
+import com.contrastsecurity.ui.settings.ContrastSearchableConfigurable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -1072,7 +1073,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         AnAction settingsAction = new AnAction(ContrastPluginIcons.SETTINGS_ICON) {
             @Override
             public void actionPerformed(AnActionEvent e) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(null, "Contrast");
+                ShowSettingsUtil.getInstance().showSettingsDialog(null, ContrastSearchableConfigurable.class);
             }
         };
         AnAction refreshAction = new AnAction(ContrastPluginIcons.REFRESH_ICON) {
