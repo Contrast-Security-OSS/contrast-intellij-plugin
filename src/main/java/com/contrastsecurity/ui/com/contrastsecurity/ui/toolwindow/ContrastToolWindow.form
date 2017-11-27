@@ -182,14 +182,10 @@
                     <properties/>
                     <border type="empty"/>
                     <children>
-                      <component id="7d08" class="javax.swing.JTextPane" binding="overviewTextPane">
+                      <component id="3e988" class="javax.swing.JTextPane" binding="overviewTextPane">
                         <constraints/>
                         <properties>
-                          <background color="-855310"/>
-                          <contentType value="text/plain"/>
                           <editable value="false"/>
-                          <font/>
-                          <opaque value="false"/>
                         </properties>
                       </component>
                     </children>
