@@ -1,3 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2017 Contrast Security.
+ * All rights reserved.
+ *
+ * This program and the accompanying materials are made available under
+ * the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 3 of the License.
+ *
+ * The terms of the GNU GPL version 3 which accompanies this distribution
+ * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * Contributors:
+ *     Contrast Security - initial API and implementation
+ *******************************************************************************/
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.EventTypeIcon;
@@ -6,10 +20,15 @@ import com.contrastsecurity.core.extended.EventItem;
 import com.contrastsecurity.core.extended.EventResource;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.*;
+import java.awt.font.TextAttribute;
+import java.util.Map;
 
 public class EventTreeCellRenderer implements TreeCellRenderer {
 
@@ -33,23 +52,39 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
             Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
             if (userObject instanceof EventItem) {
                 EventItem eventItem = (EventItem) userObject;
-                JLabel jLabel = new JLabel(eventItem.getValue());
 
+                JLabel jLabel = new JLabel(eventItem.getValue());
                 Font font = jLabel.getFont();
                 Font boldFont = new Font(font.getFontName(), Font.BOLD, font.getSize());
+                Map attributes = font.getAttributes();
+                attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+                Font derivedFont = font.deriveFont(attributes);
+                Border border = jLabel.getBorder();
+                Border margin = new EmptyBorder(0, 10, 0, 0);
+                Border compoundBorder = new CompoundBorder(border, margin);
 
                 switch (eventItem.getType()) {
                     case EventResource.RED:
-                        jLabel.setText("     " + jLabel.getText());
+                        jLabel.setBorder(compoundBorder);
                         jLabel.setForeground(Constants.CREATION_COLOR);
                         break;
+                    case EventResource.CUSTOM_RED:
+                        jLabel.setBorder(compoundBorder);
+                        jLabel.setForeground(Constants.CREATION_COLOR);
+                        jLabel.setFont(derivedFont);
+                        break;
                     case EventResource.CONTENT:
-                        jLabel.setText("     " + jLabel.getText());
+                        jLabel.setBorder(compoundBorder);
                         jLabel.setForeground(Constants.CONTENT_COLOR);
                         break;
                     case EventResource.CODE:
-                        jLabel.setText("     " + jLabel.getText());
+                        jLabel.setBorder(compoundBorder);
                         jLabel.setForeground(Constants.CODE_COLOR);
+                        break;
+                    case EventResource.CUSTOM_CODE:
+                        jLabel.setForeground(Constants.CODE_COLOR);
+                        jLabel.setBorder(compoundBorder);
+                        jLabel.setFont(derivedFont);
                         break;
                     case EventResource.BOLD:
                         jLabel.setFont(boldFont);
@@ -57,6 +92,7 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                     default:
                         break;
                 }
+
                 if (selected) {
                     jLabel.setForeground(Color.WHITE);
                 }

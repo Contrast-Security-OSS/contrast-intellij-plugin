@@ -22,6 +22,8 @@ public class EventResource extends EventModel {
     public static final String CONTENT = "CONTENT";
     public static final String CODE = "CODE";
     public static final String BOLD = "BOLD";
+    public static final String CUSTOM_CODE = "CUSTOM_CODE";
+    public static final String CUSTOM_RED = "CUSTOM_RED";
 
     //JSON Fields
     private String id;
@@ -156,11 +158,19 @@ public class EventResource extends EventModel {
                     boolean first = true;
                     for (Stacktrace stacktrace : event.getStacktraces()) {
                         if (first) {
-                            eventItem = new EventItem(this, RED, stacktrace.getDescription(), true);
+                            if (stacktrace.getType().equals("custom")) {
+                                eventItem = new EventItem(this, CUSTOM_RED, stacktrace.getDescription(), true);
+                            } else {
+                                eventItem = new EventItem(this, RED, stacktrace.getDescription(), true);
+                            }
                             eventItems.add(eventItem);
                             first = false;
                         } else {
-                            eventItem = new EventItem(this, CODE, stacktrace.getDescription(), true);
+                            if (stacktrace.getType().equals("custom")) {
+                                eventItem = new EventItem(this, CUSTOM_CODE, stacktrace.getDescription(), true);
+                            } else {
+                                eventItem = new EventItem(this, CODE, stacktrace.getDescription(), true);
+                            }
                             eventItems.add(eventItem);
                             first = false;
                         }
