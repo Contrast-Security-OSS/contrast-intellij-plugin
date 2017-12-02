@@ -44,6 +44,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import icons.ContrastPluginIcons;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
@@ -98,6 +99,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton previousTraceButton;
     private JLabel currentTraceDetailsLabel;
     private JLabel tracesCountLabel;
+    private JTextPane recommendationTextPane;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -627,7 +629,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                             cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
                             populateVulnerabilityDetailsPanel();
-                            tabbedPane1.setSelectedIndex(1);
+                            tabbedPane1.setSelectedIndex(2);
                         } else {
                             MessageDialog messageDialog = new MessageDialog(Constants.UNLICENSED_DIALOG_TITLE, Constants.UNLICENSED_DIALOG_MESSAGE);
                             messageDialog.setVisible(true);
@@ -697,10 +699,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     StoryResource storyResource = getStory(key);
                     HttpRequestResource httpRequestResource = getHttpRequest(key);
                     EventSummaryResource eventSummaryResource = getEventSummary(key);
+                    RecommendationResource recommendationResource = getRecommendationResource(key);
 
                     populateVulnerabilityDetailsOverview(storyResource);
                     populateVulnerabilityDetailsEvents(eventSummaryResource);
                     populateVulnerabilityDetailsHttpRequest(httpRequestResource);
+                    populateVulnerabilityDetailsRecommendation(recommendationResource);
                 } catch (IOException | UnauthorizedException e) {
                     e.printStackTrace();
                 }
@@ -787,6 +791,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return httpRequestResource;
     }
 
+    private RecommendationResource getRecommendationResource(Key key) throws IOException, UnauthorizedException {
+
+        RecommendationResource recommendationResource = contrastCache.getRecommendationResources().get(key);
+        if (recommendationResource == null) {
+            recommendationResource = extendedContrastSDK.getRecommendation(key.getOrgUuid(), key.getTraceId());
+            contrastCache.getRecommendationResources().put(key, recommendationResource);
+        }
+        return recommendationResource;
+    }
+
     private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
@@ -814,7 +828,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (!areaText.isEmpty()) {
                     areaText = parseMustache(areaText);
                 }
-                insertChapterIntoOverviewTextPane(text, areaText);
+                insertChapterIntoTextPane(overviewTextPane, text, areaText);
             }
             if (storyResource.getStory().getRisk() != null) {
                 Risk risk = storyResource.getStory().getRisk();
@@ -823,7 +837,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (!riskText.isEmpty()) {
                     insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_RISK);
                     riskText = parseMustache(riskText);
-                    insertTextIntoOverviewTextPane(riskText);
+                    insertTextIntoTextPane(overviewTextPane, riskText);
                 }
             }
         }
@@ -843,12 +857,18 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         text = text.replace("{{/code}}", "");
         text = text.replace("{{#p}}", "");
         text = text.replace("{{/p}}", "");
+        text = text.replace(Constants.OPEN_TAG_PARAGRAPH, "");
+        text = text.replace(Constants.CLOSE_TAG_PARAGRAPH, "");
+        text = text.replace(Constants.OPEN_TAG_LINK, "");
+        text = text.replace(Constants.CLOSE_TAG_LINK, "");
+
         return text;
     }
 
     private void resetVulnerabilityDetails() {
         try {
             overviewTextPane.getDocument().remove(0, overviewTextPane.getDocument().getLength());
+            recommendationTextPane.getDocument().remove(0, recommendationTextPane.getDocument().getLength());
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -919,6 +939,85 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
+    private void populateVulnerabilityDetailsRecommendation(RecommendationResource recommendationResource) {
+        if (recommendationResource != null && recommendationResource.getRecommendation() != null && recommendationResource.getCustomRecommendation() != null
+                && recommendationResource.getRuleReferences() != null && recommendationResource.getCustomRuleReferences() != null) {
+
+            String formattedRecommendationText = recommendationResource.getRecommendation().getFormattedText();
+            String openTag = null;
+            String closeTag = null;
+
+            if (formattedRecommendationText.contains(Constants.OPEN_TAG_C_SHARP_BLOCK)) {
+                openTag = Constants.OPEN_TAG_C_SHARP_BLOCK;
+                closeTag = Constants.CLOSE_TAG_C_SHARP_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_HTML_BLOCK)) {
+                openTag = Constants.OPEN_TAG_HTML_BLOCK;
+                closeTag = Constants.CLOSE_TAG_HTML_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_JAVA_BLOCK)) {
+                openTag = Constants.OPEN_TAG_JAVA_BLOCK;
+                closeTag = Constants.CLOSE_TAG_JAVA_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_XML_BLOCK)) {
+                openTag = Constants.OPEN_TAG_XML_BLOCK;
+                closeTag = Constants.CLOSE_TAG_XML_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_JAVASCRIPT_BLOCK)) {
+                openTag = Constants.OPEN_TAG_JAVASCRIPT_BLOCK;
+                closeTag = Constants.CLOSE_TAG_JAVASCRIPT_BLOCK;
+            }
+
+            String[] codeBlocks = StringUtils.substringsBetween(formattedRecommendationText, openTag, closeTag);
+            String[] textBlocks = StringUtils.substringsBetween(formattedRecommendationText, closeTag, openTag);
+
+            String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
+            String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
+
+            insertTextIntoTextPane(recommendationTextPane, parseMustache(textBlockFirst));
+            for (int i = 0; i < codeBlocks.length; i++) {
+
+
+                if (openTag.equals(Constants.OPEN_TAG_HTML_BLOCK) || openTag.equals(Constants.OPEN_TAG_XML_BLOCK)) {
+                    String textToInsert = codeBlocks[i].replace("&lt;", "<");
+                    textToInsert = textToInsert.replace("&gt;", ">");
+
+                    insertHighlightedTextIntoTextPane(recommendationTextPane, textToInsert);
+                } else {
+                    insertHighlightedTextIntoTextPane(recommendationTextPane, codeBlocks[i]);
+                }
+
+                if (i < codeBlocks.length - 1) {
+                    insertTextIntoTextPane(recommendationTextPane, parseMustache(textBlocks[i]));
+                }
+            }
+
+            insertTextIntoTextPane(recommendationTextPane, parseMustache(textBlockLast));
+
+
+            CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
+            String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK : customRecommendation.getText();
+            if (!customRecommendationText.isEmpty()) {
+                customRecommendationText = parseMustache(customRecommendationText);
+                insertTextIntoTextPane(recommendationTextPane, customRecommendationText);
+            }
+            String cwe = "CWE " + recommendationResource.getCwe();
+            insertTextIntoTextPane(recommendationTextPane, cwe);
+            String owasp = "OWASP " + recommendationResource.getOwasp();
+            insertTextIntoTextPane(recommendationTextPane, owasp);
+
+            RuleReferences ruleReferences = recommendationResource.getRuleReferences();
+            String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
+            if (!ruleReferencesText.isEmpty()) {
+                ruleReferencesText = parseMustache(ruleReferencesText);
+                insertTextIntoTextPane(recommendationTextPane, "References " + ruleReferencesText);
+            }
+            CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
+            String customRuleReferencesText = customRuleReferences.getText() == null ? Constants.BLANK : customRuleReferences.getText();
+            if (!customRuleReferencesText.isEmpty()) {
+                customRuleReferencesText = parseMustache(customRuleReferencesText);
+                insertTextIntoTextPane(recommendationTextPane, customRuleReferencesText);
+            }
+
+        }
+    }
+
     private void addEventItemsToDefaultMutableTreeNode(DefaultMutableTreeNode defaultMutableTreeNode, EventResource eventResource) {
         EventItem[] eventItems = eventResource.getItems();
         for (EventItem eventItem : eventItems) {
@@ -926,7 +1025,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
+    private void insertChapterIntoTextPane(JTextPane jTextPane, String chapterIntroText, String chapterBody) {
         StyleContext styleContext = StyleContext.getDefaultStyleContext();
         Style style = styleContext.addStyle("test", null);
 
@@ -934,17 +1033,31 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         StyleConstants.setForeground(style, Color.WHITE);
 
         try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertHighlightedTextIntoTextPane(JTextPane jTextPane, String text) {
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setBackground(style, Color.GRAY);
+        StyleConstants.setForeground(style, Color.WHITE);
+
+        try {
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text + "\n", style);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
 
 
-    private void insertTextIntoOverviewTextPane(String text) {
+    private void insertTextIntoTextPane(JTextPane jTextPane, String text) {
         try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), text + "\n", null);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text + "\n", null);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }

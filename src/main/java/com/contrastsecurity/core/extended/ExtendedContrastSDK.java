@@ -183,4 +183,23 @@ public class ExtendedContrastSDK extends ContrastSDK {
 	private String getTraceUrl(String orgUuid, String traceId) {
 		return String.format("/ng/%s/traces/%s/story?expand=skip_links", orgUuid, traceId);
 	}
+
+	public RecommendationResource getRecommendation(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+		InputStream is = null;
+		InputStreamReader reader = null;
+		try {
+			String recommendationUrl = getRecommendationUrl(orgUuid, traceId);
+			is = makeRequest(HttpMethod.GET, recommendationUrl);
+			reader = new InputStreamReader(is);
+			RecommendationResource recommendationResource = gson.fromJson(reader, RecommendationResource.class);
+			return recommendationResource;
+		} finally {
+			IOUtils.closeQuietly(is);
+			IOUtils.closeQuietly(reader);
+		}
+	}
+
+	private String getRecommendationUrl(String orgUuid, String traceId) {
+		return String.format("/ng/%s/traces/%s/recommendation", orgUuid, traceId);
+	}
 }

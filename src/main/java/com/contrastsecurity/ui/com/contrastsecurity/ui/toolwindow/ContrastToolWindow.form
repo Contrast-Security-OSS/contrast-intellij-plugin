@@ -190,6 +190,21 @@
                       </component>
                     </children>
                   </scrollpane>
+                  <scrollpane id="29aba">
+                    <constraints>
+                      <tabbedpane title="How to Fix"/>
+                    </constraints>
+                    <properties/>
+                    <border type="empty"/>
+                    <children>
+                      <component id="1419e" class="javax.swing.JTextPane" binding="recommendationTextPane">
+                        <constraints/>
+                        <properties>
+                          <editable value="false"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
                   <scrollpane id="8f2cb">
                     <constraints>
                       <tabbedpane title="Events">

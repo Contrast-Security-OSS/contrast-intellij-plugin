@@ -31,6 +31,24 @@ public interface Constants {
     static final String BLANK = "";
     static final String MUSTACHE_NL = "{{{nl}}}";
     static final String UNLICENSED = "{{#unlicensed}}";
+    static final String OPEN_TAG_PARAGRAPH = "{{#paragraph}}";
+    static final String CLOSE_TAG_PARAGRAPH = "{{/paragraph}}";
+    static final String OPEN_TAG_LINK = "{{#link}}";
+    static final String CLOSE_TAG_LINK = "{{/link}}";
+    static final String OPEN_TAG_BAD_PARAM = "{{#badParam}}";
+    static final String CLOSE_TAG_BAD_PARAM = "{{/badParam}}";
+    static final String OPEN_TAG_JAVA_BLOCK = "{{#javaBlock}}";
+    static final String CLOSE_TAG_JAVA_BLOCK = "{{/javaBlock}}";
+    static final String OPEN_TAG_GOOD_PARAM = "{{#goodParam}}";
+    static final String CLOSE_TAG_GOOD_PARAM = "{{/goodParam}}";
+    static final String OPEN_TAG_C_SHARP_BLOCK = "{{#csharpBlock}}";
+    static final String CLOSE_TAG_C_SHARP_BLOCK = "{{/csharpBlock}}";
+    static final String OPEN_TAG_HTML_BLOCK = "{{#htmlBlock}}";
+    static final String CLOSE_TAG_HTML_BLOCK = "{{/htmlBlock}}";
+    static final String OPEN_TAG_JAVASCRIPT_BLOCK = "{{#javascriptBlock}}";
+    static final String CLOSE_TAG_JAVASCRIPT_BLOCK = "{{/javascriptBlock}}";
+    static final String OPEN_TAG_XML_BLOCK = "{{#xmlBlock}}";
+    static final String CLOSE_TAG_XML_BLOCK = "{{/xmlBlock}}";
 
     static final String ORGANIZATION_LIST = "organizationList";
     static final String DELIMITER = ";";
