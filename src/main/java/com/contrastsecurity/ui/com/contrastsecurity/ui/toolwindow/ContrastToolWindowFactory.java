@@ -964,13 +964,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 closeTag = Constants.CLOSE_TAG_JAVASCRIPT_BLOCK;
             }
 
+            formattedRecommendationText = formatLinks(formattedRecommendationText);
+
             String[] codeBlocks = StringUtils.substringsBetween(formattedRecommendationText, openTag, closeTag);
             String[] textBlocks = StringUtils.substringsBetween(formattedRecommendationText, closeTag, openTag);
 
             String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
             String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
 
-            insertTextIntoTextPane(recommendationTextPane, parseMustache(textBlockFirst));
+            insertTextBlockIntoTextPane(recommendationTextPane, textBlockFirst);
             for (int i = 0; i < codeBlocks.length; i++) {
 
 
@@ -984,11 +986,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 }
 
                 if (i < codeBlocks.length - 1) {
-                    insertTextIntoTextPane(recommendationTextPane, parseMustache(textBlocks[i]));
+                    insertTextBlockIntoTextPane(recommendationTextPane, textBlocks[i]);
                 }
             }
 
-            insertTextIntoTextPane(recommendationTextPane, parseMustache(textBlockLast));
+            insertTextBlockIntoTextPane(recommendationTextPane, textBlockLast);
 
 
             CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
@@ -1016,6 +1018,20 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
 
         }
+    }
+
+    private String formatLinks(String text) {
+
+        String formattedText = text;
+        String[] links = StringUtils.substringsBetween(formattedText, Constants.OPEN_TAG_LINK, Constants.CLOSE_TAG_LINK);
+        for (String link : links) {
+            int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
+            String formattedLink = link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + " (" + link.substring(0, indexOfDelimiter) + ")";
+
+            formattedText = formattedText.substring(0, formattedText.indexOf(link)) + formattedLink + formattedText.substring(formattedText.indexOf(link) + link.length());
+        }
+
+        return formattedText;
     }
 
     private void addEventItemsToDefaultMutableTreeNode(DefaultMutableTreeNode defaultMutableTreeNode, EventResource eventResource) {
@@ -1054,6 +1070,19 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
+    private void insertColoredTextIntoTextPane(JTextPane jTextPane, String text, Color color) {
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setForeground(style, color);
+
+        try {
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text + "\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void insertTextIntoTextPane(JTextPane jTextPane, String text) {
         try {
@@ -1074,6 +1103,32 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), headerText + "\n", style);
         } catch (BadLocationException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void insertTextBlockIntoTextPane(JTextPane jTextPane, String textBlock) {
+        if (textBlock.contains(Constants.OPEN_TAG_GOOD_PARAM)) {
+            int indexOfGoodParamOpenTag = textBlock.indexOf(Constants.OPEN_TAG_GOOD_PARAM);
+            String textBeforeGoodParamOpenTag = textBlock.substring(0, indexOfGoodParamOpenTag);
+            int indexOfGoodParamCloseTag = textBlock.indexOf(Constants.CLOSE_TAG_GOOD_PARAM);
+            String textAfterGoodParamCloseTag = textBlock.substring(indexOfGoodParamCloseTag + Constants.CLOSE_TAG_GOOD_PARAM.length());
+            String goodParam = StringUtils.substringBetween(textBlock, Constants.OPEN_TAG_GOOD_PARAM, Constants.CLOSE_TAG_GOOD_PARAM);
+            insertTextIntoTextPane(jTextPane, parseMustache(textBeforeGoodParamOpenTag));
+            insertColoredTextIntoTextPane(jTextPane, goodParam, Constants.GOOD_PARAM_COLOR);
+            insertTextIntoTextPane(jTextPane, parseMustache(textAfterGoodParamCloseTag));
+
+        } else if (textBlock.contains(Constants.OPEN_TAG_BAD_PARAM)) {
+            int indexOfBadParamOpenTag = textBlock.indexOf(Constants.OPEN_TAG_BAD_PARAM);
+            String textBeforeBadParamOpenTag = textBlock.substring(0, indexOfBadParamOpenTag);
+            int indexOfBadParamCloseTag = textBlock.indexOf(Constants.CLOSE_TAG_BAD_PARAM);
+            String textAfterBadParamCloseTag = textBlock.substring(indexOfBadParamCloseTag + Constants.CLOSE_TAG_BAD_PARAM.length());
+            String badParam = StringUtils.substringBetween(textBlock, Constants.OPEN_TAG_BAD_PARAM, Constants.CLOSE_TAG_BAD_PARAM);
+            insertTextIntoTextPane(jTextPane, parseMustache(textBeforeBadParamOpenTag));
+            insertColoredTextIntoTextPane(jTextPane, badParam, Constants.CREATION_COLOR);
+            insertTextIntoTextPane(jTextPane, parseMustache(textAfterBadParamCloseTag));
+
+        } else {
+            insertTextIntoTextPane(jTextPane, parseMustache(textBlock));
         }
     }
 

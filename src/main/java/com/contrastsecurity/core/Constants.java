@@ -66,6 +66,7 @@ public interface Constants {
     static final Color CREATION_COLOR = new Color(230, 48, 37);
     static final Color P20_COLOR = new Color(247, 182, 0);
     static final Color TAG_COLOR = new Color(174, 205, 67);
+    static final Color GOOD_PARAM_COLOR = new Color(0,128, 0);
     // #165BAD
     static final Color LINK_COLOR2 = new Color(22, 91, 173);
     // #999999
@@ -137,4 +138,5 @@ public interface Constants {
 
     static final String HTTP_REQUEST_TAB_TITLE = "HTTP Request";
     static final String EVENTS_TAB_TITLE = "Events";
+    static final String LINK_DELIM = "$$LINK_DELIM$$";
 }
