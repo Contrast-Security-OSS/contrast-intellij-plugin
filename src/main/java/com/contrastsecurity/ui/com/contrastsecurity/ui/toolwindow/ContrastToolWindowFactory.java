@@ -435,7 +435,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                 cardLayout.show(cardPanel, "mainCard");
             }
-            pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
+            if (contrastFilterPersistentStateComponent.getPage()!=null) {
+                pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
+            } else {
+                pageLabel.setText(String.valueOf(1));
+            }
             numOfPages = getNumOfPages(PAGE_LIMIT, tracesObject.getCount());
             numOfPagesLabel.setText("/" + numOfPages);
             updatePageButtons();
@@ -1175,6 +1179,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         if (contrastFilterPersistentStateComponent.getSort() != null) {
             traceFilterForm.setSort(contrastFilterPersistentStateComponent.getSort());
+        } else {
+            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
         }
         traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
 
