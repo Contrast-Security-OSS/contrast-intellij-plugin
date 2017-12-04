@@ -1024,11 +1024,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         String formattedText = text;
         String[] links = StringUtils.substringsBetween(formattedText, Constants.OPEN_TAG_LINK, Constants.CLOSE_TAG_LINK);
-        for (String link : links) {
-            int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
-            String formattedLink = link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + " (" + link.substring(0, indexOfDelimiter) + ")";
+        if (links != null && links.length > 0) {
+            for (String link : links) {
+                int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
+                String formattedLink = link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + " (" + link.substring(0, indexOfDelimiter) + ")";
 
-            formattedText = formattedText.substring(0, formattedText.indexOf(link)) + formattedLink + formattedText.substring(formattedText.indexOf(link) + link.length());
+                formattedText = formattedText.substring(0, formattedText.indexOf(link)) + formattedLink + formattedText.substring(formattedText.indexOf(link) + link.length());
+            }
         }
 
         return formattedText;
