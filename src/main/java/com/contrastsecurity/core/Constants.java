@@ -49,6 +49,8 @@ public interface Constants {
     static final String CLOSE_TAG_JAVASCRIPT_BLOCK = "{{/javascriptBlock}}";
     static final String OPEN_TAG_XML_BLOCK = "{{#xmlBlock}}";
     static final String CLOSE_TAG_XML_BLOCK = "{{/xmlBlock}}";
+    static final String OPEN_TAG_HEADER = "{{#header}}";
+    static final String CLOSE_TAG_HEADER = "{{/header}}";
 
     static final String ORGANIZATION_LIST = "organizationList";
     static final String DELIMITER = ";";

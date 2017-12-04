@@ -861,6 +861,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         text = text.replace(Constants.CLOSE_TAG_PARAGRAPH, "");
         text = text.replace(Constants.OPEN_TAG_LINK, "");
         text = text.replace(Constants.CLOSE_TAG_LINK, "");
+        text = text.replace(Constants.OPEN_TAG_HEADER, "");
+        text = text.replace(Constants.CLOSE_TAG_HEADER, "");
 
         return text;
     }
@@ -975,15 +977,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             insertTextBlockIntoTextPane(recommendationTextPane, textBlockFirst);
             for (int i = 0; i < codeBlocks.length; i++) {
 
-
-                if (openTag.equals(Constants.OPEN_TAG_HTML_BLOCK) || openTag.equals(Constants.OPEN_TAG_XML_BLOCK)) {
-                    String textToInsert = codeBlocks[i].replace("&lt;", "<");
-                    textToInsert = textToInsert.replace("&gt;", ">");
-
-                    insertHighlightedTextIntoTextPane(recommendationTextPane, textToInsert);
-                } else {
-                    insertHighlightedTextIntoTextPane(recommendationTextPane, codeBlocks[i]);
-                }
+                String textToInsert = codeBlocks[i].replace("&lt;", "<");
+                textToInsert = textToInsert.replace("&gt;", ">");
+                insertHighlightedTextIntoTextPane(recommendationTextPane, textToInsert);
 
                 if (i < codeBlocks.length - 1) {
                     insertTextBlockIntoTextPane(recommendationTextPane, textBlocks[i]);
