@@ -36,4 +36,5 @@ public interface ContrastPluginIcons {
     Icon LAST_PAGE_ICON = IconLoader.getIcon("/icons/last_page.png");
     Icon PREVIOUS_PAGE_ICON = IconLoader.getIcon("/icons/previous_page.png");
     Icon NEXT_PAGE_ICON = IconLoader.getIcon("/icons/next_page.png");
+    Icon TAG_ICON = IconLoader.getIcon("/icons/tag.png");
 }

@@ -62,9 +62,7 @@ import java.io.IOException;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
@@ -98,6 +96,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton previousTraceButton;
     private JLabel currentTraceDetailsLabel;
     private JLabel tracesCountLabel;
+    private JButton tagButton;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -121,6 +120,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         nextPageButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
         previousTraceButton.setIcon(ContrastPluginIcons.PREVIOUS_PAGE_ICON);
         nextTraceButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
+        tagButton.setIcon(ContrastPluginIcons.TAG_ICON);
 
         pagesComboBoxActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -305,6 +305,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         }
                     }
                 }
+            }
+        });
+
+        tagButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TagDialog tagDialog = new TagDialog();
+                tagDialog .setVisible(true);
             }
         });
 
@@ -703,6 +711,28 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     HttpRequestResource httpRequestResource = getHttpRequest(key);
                     EventSummaryResource eventSummaryResource = getEventSummary(key);
 
+
+//                    TagsResource tagsResource = getTags(key);
+//                    Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
+//
+//                    TagsResource tagsResourceForORg = getTags(keyForOrg);
+//
+//                    List<String> tags = new ArrayList<>();
+//                    tags.add("abcd");
+//                    List<String> tracesId = new ArrayList<>();
+//                    tracesId.add(key.getTraceId());
+//                    TagsServersResource tagsServersResource = new TagsServersResource();
+//                    tagsServersResource.setTags(tags);
+//                    tagsServersResource.setTracesId(tracesId);
+//
+//
+//                    BaseResponse baseResponse = extendedContrastSDK.putTags(key.getOrgUuid(), tagsServersResource);
+//
+//                    System.out.println(tagsResource.getTags());
+//                    System.out.println(tagsResourceForORg.getTags());
+//                    System.out.println(baseResponse.getMessages().get(0));
+
+
                     populateVulnerabilityDetailsOverview(storyResource);
                     populateVulnerabilityDetailsEvents(eventSummaryResource);
                     populateVulnerabilityDetailsHttpRequest(httpRequestResource);
@@ -780,6 +810,20 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             contrastCache.getEventSummaryResources().put(key, eventSummaryResource);
         }
         return eventSummaryResource;
+    }
+
+    private TagsResource getTags(Key key) throws IOException, UnauthorizedException {
+        TagsResource tagsResource = contrastCache.getTagsResources().get(key);
+
+        if (tagsResource == null) {
+            if (key.getTraceId() != null) {
+                tagsResource = extendedContrastSDK.getTagsByTrace(key.getOrgUuid(), key.getTraceId());
+            } else {
+                tagsResource = extendedContrastSDK.getTagsByOrg(key.getOrgUuid());
+            }
+            contrastCache.getTagsResources().put(key, tagsResource);
+        }
+        return tagsResource;
     }
 
     private HttpRequestResource getHttpRequest(Key key) throws IOException, UnauthorizedException {
