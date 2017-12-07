@@ -103,6 +103,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private OrganizationConfig organizationConfig;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Trace viewDetailsTrace;
+    private TagsResource viewDetailsTraceTagsResource;
+    private TagsResource orgTagsResource;
     private TraceFilterForm traceFilterForm;
     private int numOfPages = 1;
     private Servers servers;
@@ -311,8 +313,61 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         tagButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                TagDialog tagDialog = new TagDialog();
-                tagDialog .setVisible(true);
+                if (viewDetailsTraceTagsResource != null && orgTagsResource != null) {
+                    TagDialog tagDialog = new TagDialog(viewDetailsTraceTagsResource, orgTagsResource);
+                    tagDialog.setVisible(true);
+
+                    List<String> newTraceTags = tagDialog.getNewTraceTags();
+                    if (newTraceTags != null) {
+                        Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                        Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
+                        boolean tagsChanged = false;
+//                        remove tags if necessary
+                        for (String tag : viewDetailsTraceTagsResource.getTags()) {
+                            if (!newTraceTags.contains(tag)) {
+                                try {
+                                    extendedContrastSDK.deleteTag(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid(), tag);
+                                    if (!tagsChanged) {
+                                        tagsChanged = true;
+                                    }
+                                } catch (IOException | UnauthorizedException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
+                        }
+//                        add tags if necessary
+                        List<String> tagsToAdd = new ArrayList<>();
+                        for (String tag : newTraceTags) {
+                            if (!viewDetailsTraceTagsResource.getTags().contains(tag)) {
+                                tagsToAdd.add((tag));
+                            }
+                        }
+                        if (!tagsToAdd.isEmpty()) {
+                            List<String> tracesId = new ArrayList<>();
+                            tracesId.add(viewDetailsTrace.getUuid());
+                            TagsServersResource tagsServersResource = new TagsServersResource(tagsToAdd, tracesId);
+                            try {
+                                BaseResponse baseResponse = extendedContrastSDK.putTags(contrastUtil.getSelectedOrganizationConfig().getUuid(), tagsServersResource);
+                                if (!tagsChanged) {
+                                    tagsChanged = true;
+                                }
+                            } catch (IOException | UnauthorizedException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                        if (tagsChanged) {
+                            contrastCache.getTagsResources().remove(key);
+                            contrastCache.getTagsResources().remove(keyForOrg);
+                            try {
+                                viewDetailsTraceTagsResource = getTags(key);
+                                orgTagsResource = getTags(keyForOrg);
+                            } catch (IOException | UnauthorizedException e1) {
+                                e1.printStackTrace();
+                            }
+
+                        }
+                    }
+                }
             }
         });
 
@@ -706,32 +761,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 try {
                     Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
 
                     StoryResource storyResource = getStory(key);
                     HttpRequestResource httpRequestResource = getHttpRequest(key);
                     EventSummaryResource eventSummaryResource = getEventSummary(key);
 
-
-//                    TagsResource tagsResource = getTags(key);
-//                    Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
-//
-//                    TagsResource tagsResourceForORg = getTags(keyForOrg);
-//
-//                    List<String> tags = new ArrayList<>();
-//                    tags.add("abcd");
-//                    List<String> tracesId = new ArrayList<>();
-//                    tracesId.add(key.getTraceId());
-//                    TagsServersResource tagsServersResource = new TagsServersResource();
-//                    tagsServersResource.setTags(tags);
-//                    tagsServersResource.setTracesId(tracesId);
-//
-//
-//                    BaseResponse baseResponse = extendedContrastSDK.putTags(key.getOrgUuid(), tagsServersResource);
-//
-//                    System.out.println(tagsResource.getTags());
-//                    System.out.println(tagsResourceForORg.getTags());
-//                    System.out.println(baseResponse.getMessages().get(0));
-
+                    viewDetailsTraceTagsResource = getTags(key);
+                    orgTagsResource = getTags(keyForOrg);
 
                     populateVulnerabilityDetailsOverview(storyResource);
                     populateVulnerabilityDetailsEvents(eventSummaryResource);

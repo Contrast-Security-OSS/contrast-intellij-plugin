@@ -233,7 +233,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
         InputStreamReader reader = null;
         TagRequest tagRequest = new TagRequest(tag);
         try {
-            String tagsUrl = getTagsUrl(orgUuid, traceId);
+            String tagsUrl = getTagsUrlForDelete(orgUuid, traceId);
             is = makeRequest(HttpMethod.DELETE, tagsUrl, tagRequest);
             reader = new InputStreamReader(is);
             TagsResource resource = gson.fromJson(reader, TagsResource.class);
@@ -254,6 +254,10 @@ public class ExtendedContrastSDK extends ContrastSDK {
 
     private String getTagsUrl(String orgUuid, String traceId) {
         return String.format("/ng/%s/tags/traces/trace/%s", orgUuid, traceId);
+    }
+
+    private String getTagsUrlForDelete(String orgUuid, String traceId) {
+        return String.format("/ng/%s/tags/trace/%s", orgUuid, traceId);
     }
 
     // ------------------------ Utilities -----------------------------------------------

@@ -25,6 +25,11 @@ public class TagsServersResource {
     @SerializedName("traces_id")
     private List<String> tracesId;
 
+    public TagsServersResource(List<String> tags, List<String> tracesId) {
+        this.tags = tags;
+        this.tracesId = tracesId;
+    }
+
     public List<String> getLinks() {
         return links;
     }
