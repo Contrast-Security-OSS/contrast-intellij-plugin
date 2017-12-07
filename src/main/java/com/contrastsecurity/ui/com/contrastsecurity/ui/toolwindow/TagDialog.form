@@ -71,7 +71,7 @@
             </constraints>
             <properties>
               <labelFor value="e864"/>
-              <text value="Apply existing label"/>
+              <text value="Apply existing tag"/>
             </properties>
           </component>
           <component id="46d76" class="javax.swing.JLabel">
@@ -80,7 +80,7 @@
             </constraints>
             <properties>
               <labelFor value="e0deb"/>
-              <text value="Create and apply a new label"/>
+              <text value="Create and apply a new tag"/>
             </properties>
           </component>
           <component id="e0deb" class="javax.swing.JTextField" binding="newLabelTextField">
@@ -117,7 +117,7 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Applied labels"/>
+              <text value="Applied tags"/>
             </properties>
           </component>
         </children>
