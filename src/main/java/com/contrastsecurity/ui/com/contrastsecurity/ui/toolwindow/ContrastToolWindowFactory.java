@@ -876,7 +876,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
-
+//            remove previous contents
+            if (!overviewTextPane.getText().isEmpty()) {
+                overviewTextPane.setText("");
+            }
+//
             insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_CHAPTERS);
 
             for (Chapter chapter : storyResource.getStory().getChapters()) {
@@ -933,22 +937,26 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void resetVulnerabilityDetails() {
-        try {
-            overviewTextPane.getDocument().remove(0, overviewTextPane.getDocument().getLength());
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+        if (!overviewTextPane.getText().isEmpty()) {
+            overviewTextPane.setText("");
         }
-
-        httpRequestTextPane.setText("");
-
+        if (!httpRequestTextPane.getText().isEmpty()) {
+            httpRequestTextPane.setText("");
+        }
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-        root.removeAllChildren();
-        model.nodeStructureChanged(root);
-
+        if (root.getChildCount() > 0) {
+            root.removeAllChildren();
+            model.nodeStructureChanged(root);
+        }
     }
 
     private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
+//        clear previous contents
+        if (!httpRequestTextPane.getText().isEmpty()) {
+            httpRequestTextPane.setText("");
+        }
+//
         httpRequestTextPane.setText(Constants.BLANK);
         if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
                 && httpRequestResource.getHttpRequest().getFormattedText() != null) {
@@ -980,7 +988,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-
+//        clear previous contents
+        if (root.getChildCount() > 0) {
+            root.removeAllChildren();
+            model.nodeStructureChanged(root);
+        }
+//
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
