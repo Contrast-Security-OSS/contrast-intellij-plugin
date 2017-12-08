@@ -872,6 +872,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         text = text.replace(Constants.CLOSE_TAG_LINK, "");
         text = text.replace(Constants.OPEN_TAG_HEADER, "");
         text = text.replace(Constants.CLOSE_TAG_HEADER, "");
+        text = text.replace("{{link1}}", "");
+        text = text.replace("{{link2}}", "");
 
         return text;
     }
@@ -1003,9 +1005,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK : customRecommendation.getText();
 
             JTextPane jTextPane = new JTextPane();
+            jTextPane.setEditable(false);
             if (!customRecommendationText.isEmpty()) {
                 customRecommendationText = parseMustache(customRecommendationText);
-                insertTextIntoTextPane(jTextPane, customRecommendationText);
+                insertTextIntoTextPane(jTextPane, customRecommendationText + "\n\n");
             }
             String cwe = "CWE: " + recommendationResource.getCwe() + "\n";
             insertTextIntoTextPane(jTextPane, cwe);
@@ -1027,6 +1030,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
             Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
             jTextPane.setBorder(emptyBorder);
+
+            jTextPane.setPreferredSize(new Dimension(100, jTextPane.getPreferredSize().height));
+
             recommendationPanel.add(jTextPane);
         }
     }
@@ -1035,7 +1041,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         JTextPane jTextPane = new JTextPane();
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
         jTextPane.setBorder(emptyBorder);
+        jTextPane.setEditable(false);
         insertTextBlockIntoTextPane(jTextPane, text);
+
+        jTextPane.setPreferredSize(new Dimension(100, jTextPane.getPreferredSize().height));
+
         jPanel.add(jTextPane);
     }
 
@@ -1046,6 +1056,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         Border outsideCompoundBorder = BorderFactory.createCompoundBorder(emptyBorder, lineBorder);
         Border compoundBorder = BorderFactory.createCompoundBorder(outsideCompoundBorder, emptyBorder);
         jTextPane.setBorder(compoundBorder);
+        jTextPane.setEditable(false);
         insertTextBlockIntoTextPane(jTextPane, text);
         jPanel.add(jTextPane);
     }
