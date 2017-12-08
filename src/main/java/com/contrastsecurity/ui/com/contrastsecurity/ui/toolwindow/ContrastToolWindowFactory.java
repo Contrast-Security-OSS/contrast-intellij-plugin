@@ -49,6 +49,7 @@ import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -99,7 +100,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton previousTraceButton;
     private JLabel currentTraceDetailsLabel;
     private JLabel tracesCountLabel;
-    private JTextPane recommendationTextPane;
+    private JPanel recommendationPanel;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -123,6 +124,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         nextPageButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
         previousTraceButton.setIcon(ContrastPluginIcons.PREVIOUS_PAGE_ICON);
         nextTraceButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
+
+//
+        recommendationPanel.setLayout(new BoxLayout(recommendationPanel, BoxLayout.Y_AXIS));
+//
 
         pagesComboBoxActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -435,7 +440,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                 cardLayout.show(cardPanel, "mainCard");
             }
-            if (contrastFilterPersistentStateComponent.getPage()!=null) {
+            if (contrastFilterPersistentStateComponent.getPage() != null) {
                 pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
             } else {
                 pageLabel.setText(String.valueOf(1));
@@ -874,7 +879,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void resetVulnerabilityDetails() {
         try {
             overviewTextPane.getDocument().remove(0, overviewTextPane.getDocument().getLength());
-            recommendationTextPane.getDocument().remove(0, recommendationTextPane.getDocument().getLength());
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -885,6 +889,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
         root.removeAllChildren();
         model.nodeStructureChanged(root);
+
+        recommendationPanel.removeAll();
 
     }
 
@@ -978,46 +984,70 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
             String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
 
-            insertTextBlockIntoTextPane(recommendationTextPane, textBlockFirst);
+            addTextPaneToPanel(textBlockFirst, recommendationPanel);
+
             for (int i = 0; i < codeBlocks.length; i++) {
 
                 String textToInsert = codeBlocks[i].replace("&lt;", "<");
                 textToInsert = textToInsert.replace("&gt;", ">");
-                insertHighlightedTextIntoTextPane(recommendationTextPane, textToInsert);
+
+                addCodeTextPaneToPanel(textToInsert, recommendationPanel);
 
                 if (i < codeBlocks.length - 1) {
-                    insertTextBlockIntoTextPane(recommendationTextPane, textBlocks[i]);
+                    addTextPaneToPanel(textBlocks[i], recommendationPanel);
                 }
             }
-
-            insertTextBlockIntoTextPane(recommendationTextPane, textBlockLast);
-
+            addTextPaneToPanel(textBlockLast, recommendationPanel);
 
             CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
             String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK : customRecommendation.getText();
+
+            JTextPane jTextPane = new JTextPane();
             if (!customRecommendationText.isEmpty()) {
                 customRecommendationText = parseMustache(customRecommendationText);
-                insertTextIntoTextPane(recommendationTextPane, customRecommendationText);
+                insertTextIntoTextPane(jTextPane, customRecommendationText);
             }
-            String cwe = "CWE " + recommendationResource.getCwe();
-            insertTextIntoTextPane(recommendationTextPane, cwe);
-            String owasp = "OWASP " + recommendationResource.getOwasp();
-            insertTextIntoTextPane(recommendationTextPane, owasp);
+            String cwe = "CWE: " + recommendationResource.getCwe() + "\n";
+            insertTextIntoTextPane(jTextPane, cwe);
+
+            String owasp = "OWASP: " + recommendationResource.getOwasp() + "\n";
+            insertTextIntoTextPane(jTextPane, owasp);
 
             RuleReferences ruleReferences = recommendationResource.getRuleReferences();
             String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
             if (!ruleReferencesText.isEmpty()) {
                 ruleReferencesText = parseMustache(ruleReferencesText);
-                insertTextIntoTextPane(recommendationTextPane, "References " + ruleReferencesText);
+                insertTextIntoTextPane(jTextPane, "References: " + ruleReferencesText + "\n");
             }
             CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
             String customRuleReferencesText = customRuleReferences.getText() == null ? Constants.BLANK : customRuleReferences.getText();
             if (!customRuleReferencesText.isEmpty()) {
-                customRuleReferencesText = parseMustache(customRuleReferencesText);
-                insertTextIntoTextPane(recommendationTextPane, customRuleReferencesText);
+                customRuleReferencesText = parseMustache(customRuleReferencesText) + "\n";
+                insertTextIntoTextPane(jTextPane, customRuleReferencesText);
             }
-
+            Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
+            jTextPane.setBorder(emptyBorder);
+            recommendationPanel.add(jTextPane);
         }
+    }
+
+    private void addTextPaneToPanel(String text, JPanel jPanel) {
+        JTextPane jTextPane = new JTextPane();
+        Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
+        jTextPane.setBorder(emptyBorder);
+        insertTextBlockIntoTextPane(jTextPane, text);
+        jPanel.add(jTextPane);
+    }
+
+    private void addCodeTextPaneToPanel(String text, JPanel jPanel) {
+        JTextPane jTextPane = new JTextPane();
+        Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
+        Border lineBorder = BorderFactory.createLineBorder(Color.lightGray);
+        Border outsideCompoundBorder = BorderFactory.createCompoundBorder(emptyBorder, lineBorder);
+        Border compoundBorder = BorderFactory.createCompoundBorder(outsideCompoundBorder, emptyBorder);
+        jTextPane.setBorder(compoundBorder);
+        insertTextBlockIntoTextPane(jTextPane, text);
+        jPanel.add(jTextPane);
     }
 
     private String formatLinks(String text) {
@@ -1079,7 +1109,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         StyleConstants.setForeground(style, color);
 
         try {
-            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text + "\n", style);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text, style);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -1088,7 +1118,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private void insertTextIntoTextPane(JTextPane jTextPane, String text) {
         try {
-            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text + "\n", null);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text, null);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
