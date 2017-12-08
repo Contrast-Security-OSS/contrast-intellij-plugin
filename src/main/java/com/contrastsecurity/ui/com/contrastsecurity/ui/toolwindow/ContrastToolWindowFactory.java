@@ -62,9 +62,7 @@ import java.io.IOException;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
@@ -98,12 +96,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton previousTraceButton;
     private JLabel currentTraceDetailsLabel;
     private JLabel tracesCountLabel;
+    private JButton tagButton;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
     private OrganizationConfig organizationConfig;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Trace viewDetailsTrace;
+    private TagsResource viewDetailsTraceTagsResource;
+    private TagsResource orgTagsResource;
     private TraceFilterForm traceFilterForm;
     private int numOfPages = 1;
     private Servers servers;
@@ -121,6 +122,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         nextPageButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
         previousTraceButton.setIcon(ContrastPluginIcons.PREVIOUS_PAGE_ICON);
         nextTraceButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
+        tagButton.setIcon(ContrastPluginIcons.TAG_ICON);
 
         pagesComboBoxActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -308,6 +310,67 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
+        tagButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (viewDetailsTraceTagsResource != null && orgTagsResource != null) {
+                    TagDialog tagDialog = new TagDialog(viewDetailsTraceTagsResource, orgTagsResource);
+                    tagDialog.setVisible(true);
+
+                    List<String> newTraceTags = tagDialog.getNewTraceTags();
+                    if (newTraceTags != null) {
+                        Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                        Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
+                        boolean tagsChanged = false;
+//                        remove tags if necessary
+                        for (String tag : viewDetailsTraceTagsResource.getTags()) {
+                            if (!newTraceTags.contains(tag)) {
+                                try {
+                                    extendedContrastSDK.deleteTag(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid(), tag);
+                                    if (!tagsChanged) {
+                                        tagsChanged = true;
+                                    }
+                                } catch (IOException | UnauthorizedException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
+                        }
+//                        add tags if necessary
+                        List<String> tagsToAdd = new ArrayList<>();
+                        for (String tag : newTraceTags) {
+                            if (!viewDetailsTraceTagsResource.getTags().contains(tag)) {
+                                tagsToAdd.add((tag));
+                            }
+                        }
+                        if (!tagsToAdd.isEmpty()) {
+                            List<String> tracesId = new ArrayList<>();
+                            tracesId.add(viewDetailsTrace.getUuid());
+                            TagsServersResource tagsServersResource = new TagsServersResource(tagsToAdd, tracesId);
+                            try {
+                                BaseResponse baseResponse = extendedContrastSDK.putTags(contrastUtil.getSelectedOrganizationConfig().getUuid(), tagsServersResource);
+                                if (!tagsChanged) {
+                                    tagsChanged = true;
+                                }
+                            } catch (IOException | UnauthorizedException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                        if (tagsChanged) {
+                            contrastCache.getTagsResources().remove(key);
+                            contrastCache.getTagsResources().remove(keyForOrg);
+                            try {
+                                viewDetailsTraceTagsResource = getTags(key);
+                                orgTagsResource = getTags(keyForOrg);
+                            } catch (IOException | UnauthorizedException e1) {
+                                e1.printStackTrace();
+                            }
+
+                        }
+                    }
+                }
+            }
+        });
+
         refresh();
     }
 
@@ -433,7 +496,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                 cardLayout.show(cardPanel, "mainCard");
             }
-            pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
+            if (contrastFilterPersistentStateComponent.getPage() != null) {
+                pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
+            } else {
+                pageLabel.setText("1");
+            }
+
             numOfPages = getNumOfPages(PAGE_LIMIT, tracesObject.getCount());
             numOfPagesLabel.setText("/" + numOfPages);
             updatePageButtons();
@@ -693,10 +761,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 try {
                     Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
 
                     StoryResource storyResource = getStory(key);
                     HttpRequestResource httpRequestResource = getHttpRequest(key);
                     EventSummaryResource eventSummaryResource = getEventSummary(key);
+
+                    viewDetailsTraceTagsResource = getTags(key);
+                    orgTagsResource = getTags(keyForOrg);
 
                     populateVulnerabilityDetailsOverview(storyResource);
                     populateVulnerabilityDetailsEvents(eventSummaryResource);
@@ -777,6 +849,20 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return eventSummaryResource;
     }
 
+    private TagsResource getTags(Key key) throws IOException, UnauthorizedException {
+        TagsResource tagsResource = contrastCache.getTagsResources().get(key);
+
+        if (tagsResource == null) {
+            if (key.getTraceId() != null) {
+                tagsResource = extendedContrastSDK.getTagsByTrace(key.getOrgUuid(), key.getTraceId());
+            } else {
+                tagsResource = extendedContrastSDK.getTagsByOrg(key.getOrgUuid());
+            }
+            contrastCache.getTagsResources().put(key, tagsResource);
+        }
+        return tagsResource;
+    }
+
     private HttpRequestResource getHttpRequest(Key key) throws IOException, UnauthorizedException {
 
         HttpRequestResource httpRequestResource = contrastCache.getHttpRequestResources().get(key);
@@ -790,7 +876,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
-
+//            remove previous contents
+            if (!overviewTextPane.getText().isEmpty()) {
+                overviewTextPane.setText("");
+            }
+//
             insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_CHAPTERS);
 
             for (Chapter chapter : storyResource.getStory().getChapters()) {
@@ -847,22 +937,26 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void resetVulnerabilityDetails() {
-        try {
-            overviewTextPane.getDocument().remove(0, overviewTextPane.getDocument().getLength());
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+        if (!overviewTextPane.getText().isEmpty()) {
+            overviewTextPane.setText("");
         }
-
-        httpRequestTextPane.setText("");
-
+        if (!httpRequestTextPane.getText().isEmpty()) {
+            httpRequestTextPane.setText("");
+        }
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-        root.removeAllChildren();
-        model.nodeStructureChanged(root);
-
+        if (root.getChildCount() > 0) {
+            root.removeAllChildren();
+            model.nodeStructureChanged(root);
+        }
     }
 
     private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
+//        clear previous contents
+        if (!httpRequestTextPane.getText().isEmpty()) {
+            httpRequestTextPane.setText("");
+        }
+//
         httpRequestTextPane.setText(Constants.BLANK);
         if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
                 && httpRequestResource.getHttpRequest().getFormattedText() != null) {
@@ -894,7 +988,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-
+//        clear previous contents
+        if (root.getChildCount() > 0) {
+            root.removeAllChildren();
+            model.nodeStructureChanged(root);
+        }
+//
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
