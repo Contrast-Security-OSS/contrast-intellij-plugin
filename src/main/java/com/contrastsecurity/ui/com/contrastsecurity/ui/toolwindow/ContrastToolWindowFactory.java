@@ -41,6 +41,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import icons.ContrastPluginIcons;
@@ -1052,10 +1053,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void addCodeTextPaneToPanel(String text, JPanel jPanel) {
         JTextPane jTextPane = new JTextPane();
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
-        Border lineBorder = BorderFactory.createLineBorder(Color.lightGray);
+        Border lineBorder = BorderFactory.createLineBorder(new JBColor(new Color(204, 204, 204), new Color(24, 24, 24)));
         Border outsideCompoundBorder = BorderFactory.createCompoundBorder(emptyBorder, lineBorder);
         Border compoundBorder = BorderFactory.createCompoundBorder(outsideCompoundBorder, emptyBorder);
         jTextPane.setBorder(compoundBorder);
+
+        jTextPane.setMargin(new Insets(50, 50, 50, 50));
+        jTextPane.setBackground(new JBColor(new Color(238, 238, 238), new Color(58, 58, 58)));
+
         jTextPane.setEditable(false);
         insertTextBlockIntoTextPane(jTextPane, text);
         jPanel.add(jTextPane);
