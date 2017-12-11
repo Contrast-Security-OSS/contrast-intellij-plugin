@@ -14,14 +14,18 @@
  *******************************************************************************/
 package com.contrastsecurity.core.cache;
 
-import com.contrastsecurity.core.extended.EventSummaryResource;
-import com.contrastsecurity.core.extended.HttpRequestResource;
-import com.contrastsecurity.core.extended.RecommendationResource;
-import com.contrastsecurity.core.extended.StoryResource;
+import com.contrastsecurity.core.extended.*;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 
 public class ContrastCache {
     private static final int MAX_CACHE_SIZE = 50;
+
+
+    private ConcurrentLinkedHashMap<Key, TagsResource> tagsResources =
+            new ConcurrentLinkedHashMap.Builder<Key, TagsResource>()
+                    .initialCapacity(MAX_CACHE_SIZE / 2)
+                    .maximumWeightedCapacity(MAX_CACHE_SIZE)
+                    .build();
 
     private ConcurrentLinkedHashMap<Key, EventSummaryResource> eventSummaryResources =
             new ConcurrentLinkedHashMap.Builder<Key, EventSummaryResource>()
@@ -45,6 +49,10 @@ public class ContrastCache {
                     .maximumWeightedCapacity(MAX_CACHE_SIZE)
                     .build();
 
+    public ConcurrentLinkedHashMap<Key, TagsResource> getTagsResources() {
+        return tagsResources;
+    }
+
     public ConcurrentLinkedHashMap<Key, EventSummaryResource> getEventSummaryResources() {
         return eventSummaryResources;
     }
@@ -66,5 +74,6 @@ public class ContrastCache {
         storyResources.clear();
         httpRequestResources.clear();
         recommendationResources.clear();
+        tagsResources.clear();
     }
 }
