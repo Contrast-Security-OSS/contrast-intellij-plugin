@@ -97,6 +97,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel currentTraceDetailsLabel;
     private JLabel tracesCountLabel;
     private JButton tagButton;
+    private JButton markAsButton;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -368,6 +369,45 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         }
                     }
                 }
+            }
+        });
+
+        markAsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StatusDialog statusDialog = new StatusDialog();
+                statusDialog.setVisible(true);
+                String status = statusDialog.getStatus();
+                if (status != null) {
+                    StatusRequest statusRequest = new StatusRequest();
+
+                    if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_2)) {
+                        statusRequest.setStatus(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_3);
+                        String reason = statusDialog.getReason();
+                        statusRequest.setSubstatus(reason);
+                        statusRequest.setCommentPreference(false);
+                    } else {
+                        statusRequest.setStatus(status);
+                    }
+
+                    String comment = statusDialog.getComment();
+                    if (!comment.isEmpty()) {
+                        statusRequest.setNote(comment);
+                        if (!status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_2)) {
+                            statusRequest.setCommentPreference(true);
+                        }
+                    }
+                    List<String> traces = new ArrayList<>();
+                    traces.add(viewDetailsTrace.getUuid());
+                    statusRequest.setTraces(traces);
+
+                    try {
+                        extendedContrastSDK.putStatus(contrastUtil.getSelectedOrganizationConfig().getUuid(), statusRequest);
+                    } catch (IOException | UnauthorizedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+
             }
         });
 

@@ -244,6 +244,21 @@ public class ExtendedContrastSDK extends ContrastSDK {
         }
     }
 
+    public BaseResponse putStatus(String orgUuid, StatusRequest statusRequest) throws IOException, UnauthorizedException {
+        InputStream is = null;
+        InputStreamReader reader = null;
+        try {
+            String statusUrl = getStatusUrl(orgUuid);
+            is = makeRequest(HttpMethod.PUT, statusUrl, statusRequest);
+            reader = new InputStreamReader(is);
+            BaseResponse baseResponse = gson.fromJson(reader, BaseResponse.class);
+            return baseResponse;
+        } finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(reader);
+        }
+    }
+
     private String getTraceUrl(String orgUuid, String traceId) {
         return String.format("/ng/%s/traces/%s/story?expand=skip_links", orgUuid, traceId);
     }
@@ -258,6 +273,10 @@ public class ExtendedContrastSDK extends ContrastSDK {
 
     private String getTagsUrlForDelete(String orgUuid, String traceId) {
         return String.format("/ng/%s/tags/trace/%s", orgUuid, traceId);
+    }
+
+    private String getStatusUrl(String orgUuid) {
+        return String.format("/ng/%s/orgtraces/mark", orgUuid);
     }
 
     // ------------------------ Utilities -----------------------------------------------

@@ -91,6 +91,8 @@ public interface Constants {
     static final String VULNERABILITY_STATUS_CONFIRMED = "Confirmed";
     static final String VULNERABILITY_STATUS_SUSPICIOUS = "Suspicious";
     static final String VULNERABILITY_STATUS_NOT_A_PROBLEM = "Not+a+Problem";
+    static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_2 = "Not a Problem";
+    static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_3 = "NotAProblem";
     static final String VULNERABILITY_STATUS_REMEDIATED = "Remediated";
     static final String VULNERABILITY_STATUS_REPORTED = "Reported";
     static final String VULNERABILITY_STATUS_FIXED = "Fixed";
@@ -119,4 +121,10 @@ public interface Constants {
 
     static final String HTTP_REQUEST_TAB_TITLE = "HTTP Request";
     static final String EVENTS_TAB_TITLE = "Events";
+
+    static final String REASON_URL_IS_ONLY_ACCESSIBLE_BY_TRUSTED_POWER_USERS = "URL is only accessible by trusted power users";
+    static final String REASON_FALSE_POSITIVE = "False positive";
+    static final String REASON_GOES_THROUGH_AN_INTERNAL_SECURITY_CONTROL = "Goes through an internal security control";
+    static final String REASON_ATTACK_IS_DEFENDED_BY_AN_EXTERNAL_CONTROL = "Attack is defended by an external control";
+    static final String REASON_OTHER = "Other";
 }
