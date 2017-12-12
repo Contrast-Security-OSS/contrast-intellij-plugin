@@ -76,7 +76,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JPanel noVulnerabilitiesPanel;
     private JPanel vulnerabilityDetailsPanel;
     private JLabel traceSeverityLabel;
-    private JLabel traceTitleLabel;
     private JButton externalLinkButton;
     private JButton backToResultsButton;
     private JTabbedPane tabbedPane1;
@@ -98,6 +97,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel tracesCountLabel;
     private JButton tagButton;
     private JButton markAsButton;
+    private JTextPane traceTitleTextPane;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -803,7 +803,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (indexOfUnlicensed != -1) {
                     title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
                 }
-                traceTitleLabel.setText(title);
+                traceTitleTextPane.setText(title);
 
                 try {
                     Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
