@@ -401,11 +401,17 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     traces.add(viewDetailsTrace.getUuid());
                     statusRequest.setTraces(traces);
 
-                    try {
-                        extendedContrastSDK.putStatus(contrastUtil.getSelectedOrganizationConfig().getUuid(), statusRequest);
-                    } catch (IOException | UnauthorizedException e1) {
-                        e1.printStackTrace();
-                    }
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                extendedContrastSDK.putStatus(contrastUtil.getSelectedOrganizationConfig().getUuid(), statusRequest);
+                                refreshTraces(false);
+                            } catch (IOException | UnauthorizedException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    }).start();
                 }
 
             }
@@ -532,7 +538,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
                 traces = tracesObject.getTraces().toArray(new Trace[0]);
             }
-            if (!mainCard.isVisible()) {
+            if (!mainCard.isVisible() && !vulnerabilityDetailsPanel.isVisible()) {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                 cardLayout.show(cardPanel, "mainCard");
             }
