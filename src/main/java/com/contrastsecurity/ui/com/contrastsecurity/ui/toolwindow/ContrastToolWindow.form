@@ -34,6 +34,7 @@
                     <constraints/>
                     <properties>
                       <fillsViewportHeight value="true"/>
+                      <opaque value="false"/>
                     </properties>
                   </component>
                 </children>
@@ -186,6 +187,7 @@
                         <constraints/>
                         <properties>
                           <editable value="false"/>
+                          <opaque value="false"/>
                         </properties>
                       </component>
                     </children>
@@ -194,7 +196,10 @@
                     <constraints>
                       <tabbedpane title="How to Fix"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <opaque value="true"/>
+                      <verticalScrollBarPolicy value="20"/>
+                    </properties>
                     <border type="empty"/>
                     <children>
                       <grid id="6f4e9" binding="recommendationPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -221,7 +226,7 @@
                         <constraints/>
                         <properties>
                           <largeModel value="false"/>
-                          <opaque value="true"/>
+                          <opaque value="false"/>
                           <rootVisible value="false"/>
                           <showsRootHandles value="true"/>
                         </properties>
@@ -239,6 +244,7 @@
                         <constraints/>
                         <properties>
                           <editable value="false"/>
+                          <opaque value="false"/>
                         </properties>
                       </component>
                     </children>

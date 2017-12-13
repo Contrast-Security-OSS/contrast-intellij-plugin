@@ -1110,6 +1110,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 JTextPane customRecommendationLabel = new JTextPane();
                 customRecommendationLabel.setText(customRecommendationText);
                 customRecommendationLabel.setEditable(false);
+                customRecommendationLabel.setOpaque(false);
 
                 headerPanel.add(customRecommendationLabel);
             }
@@ -1117,10 +1118,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             JTextPane cweHeaderLabel = new JTextPane();
             cweHeaderLabel.setText("CWE:");
             cweHeaderLabel.setEditable(false);
+            cweHeaderLabel.setOpaque(false);
 
             JTextPane cweLabel = new JTextPane();
             cweLabel.setText(recommendationResource.getCwe());
             cweLabel.setEditable(false);
+            cweLabel.setOpaque(false);
 
             headerPanel.add(cweHeaderLabel);
             linksPanel.add(cweLabel);
@@ -1128,10 +1131,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             JTextPane owaspHeaderLabel = new JTextPane();
             owaspHeaderLabel.setText("OWASP:");
             owaspHeaderLabel.setEditable(false);
+            owaspHeaderLabel.setOpaque(false);
 
             JTextPane owaspLabel = new JTextPane();
             owaspLabel.setText(recommendationResource.getOwasp());
             owaspLabel.setEditable(false);
+            owaspLabel.setOpaque(false);
 
             headerPanel.add(owaspHeaderLabel);
             linksPanel.add(owaspLabel);
@@ -1144,10 +1149,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 JTextPane referencesHeaderLabel = new JTextPane();
                 referencesHeaderLabel.setText("References:");
                 referencesHeaderLabel.setEditable(false);
+                referencesHeaderLabel.setOpaque(false);
 
                 JTextPane referencesLabel = new JTextPane();
                 referencesLabel.setText(ruleReferencesText);
                 referencesLabel.setEditable(false);
+                referencesLabel.setOpaque(false);
 
                 headerPanel.add(referencesHeaderLabel);
                 linksPanel.add(referencesLabel);
@@ -1160,6 +1167,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 JTextPane customReferencesLabel = new JTextPane();
                 customReferencesLabel.setText(customRuleReferencesText);
                 customReferencesLabel.setEditable(false);
+                customReferencesLabel.setOpaque(false);
 
                 headerPanel.add(customReferencesLabel);
             }
@@ -1175,6 +1183,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void addTextPaneToPanel(String text, JPanel jPanel) {
         JTextPane jTextPane = new JTextPane();
         jTextPane.setEditable(false);
+        jTextPane.setOpaque(false);
         insertTextBlockIntoTextPane(jTextPane, text);
 
         jTextPane.setPreferredSize(new Dimension(100, jTextPane.getPreferredSize().height));

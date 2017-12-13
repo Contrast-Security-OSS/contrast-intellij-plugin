@@ -100,8 +100,11 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
             } else if (userObject instanceof EventResource) {
                 EventResource eventResource = (EventResource) userObject;
                 EventTypeIcon eventTypeIcon = getIcon(eventResource.getType());
-                defaultRenderer.setOpenIcon(eventTypeIcon);
-                defaultRenderer.setClosedIcon(eventTypeIcon);
+//                defaultRenderer.setOpenIcon(eventTypeIcon);
+//                defaultRenderer.setClosedIcon(eventTypeIcon);
+                JLabel jLabel = new JLabel(eventResource.toString());
+                jLabel.setIcon(eventTypeIcon);
+                returnValue = jLabel;
             }
         }
         if (returnValue == null) {
