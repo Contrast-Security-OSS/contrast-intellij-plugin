@@ -201,7 +201,9 @@
                         <margin top="0" left="0" bottom="0" right="0"/>
                         <constraints/>
                         <properties/>
-                        <border type="none"/>
+                        <border type="empty">
+                          <size top="0" left="10" bottom="0" right="10"/>
+                        </border>
                         <children/>
                       </grid>
                     </children>

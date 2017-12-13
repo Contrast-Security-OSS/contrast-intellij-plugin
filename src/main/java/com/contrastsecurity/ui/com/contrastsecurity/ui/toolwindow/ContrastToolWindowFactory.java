@@ -128,9 +128,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         nextTraceButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
         tagButton.setIcon(ContrastPluginIcons.TAG_ICON);
 
-//
         recommendationPanel.setLayout(new BoxLayout(recommendationPanel, BoxLayout.Y_AXIS));
-//
 
         pagesComboBoxActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1097,46 +1095,85 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
             addTextPaneToPanel(textBlockLast, recommendationPanel);
 
+
+            JPanel compoundPanel = new JPanel();
+            JPanel headerPanel = new JPanel();
+            headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+            JPanel linksPanel = new JPanel();
+            linksPanel.setLayout(new BoxLayout(linksPanel, BoxLayout.Y_AXIS));
+
             CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
             String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK : customRecommendation.getText();
-
-            JTextPane jTextPane = new JTextPane();
-            jTextPane.setEditable(false);
             if (!customRecommendationText.isEmpty()) {
                 customRecommendationText = parseMustache(customRecommendationText);
-                insertTextIntoTextPane(jTextPane, customRecommendationText + "\n\n");
-            }
-            String cwe = "CWE: " + recommendationResource.getCwe() + "\n";
-            insertTextIntoTextPane(jTextPane, cwe);
 
-            String owasp = "OWASP: " + recommendationResource.getOwasp() + "\n";
-            insertTextIntoTextPane(jTextPane, owasp);
+                JTextPane customRecommendationLabel = new JTextPane();
+                customRecommendationLabel.setText(customRecommendationText);
+                customRecommendationLabel.setEditable(false);
+
+                headerPanel.add(customRecommendationLabel);
+            }
+
+            JTextPane cweHeaderLabel = new JTextPane();
+            cweHeaderLabel.setText("CWE:");
+            cweHeaderLabel.setEditable(false);
+
+            JTextPane cweLabel = new JTextPane();
+            cweLabel.setText(recommendationResource.getCwe());
+            cweLabel.setEditable(false);
+
+            headerPanel.add(cweHeaderLabel);
+            linksPanel.add(cweLabel);
+
+            JTextPane owaspHeaderLabel = new JTextPane();
+            owaspHeaderLabel.setText("OWASP:");
+            owaspHeaderLabel.setEditable(false);
+
+            JTextPane owaspLabel = new JTextPane();
+            owaspLabel.setText(recommendationResource.getOwasp());
+            owaspLabel.setEditable(false);
+
+            headerPanel.add(owaspHeaderLabel);
+            linksPanel.add(owaspLabel);
 
             RuleReferences ruleReferences = recommendationResource.getRuleReferences();
             String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
             if (!ruleReferencesText.isEmpty()) {
                 ruleReferencesText = parseMustache(ruleReferencesText);
-                insertTextIntoTextPane(jTextPane, "References: " + ruleReferencesText + "\n");
+
+                JTextPane referencesHeaderLabel = new JTextPane();
+                referencesHeaderLabel.setText("References:");
+                referencesHeaderLabel.setEditable(false);
+
+                JTextPane referencesLabel = new JTextPane();
+                referencesLabel.setText(ruleReferencesText);
+                referencesLabel.setEditable(false);
+
+                headerPanel.add(referencesHeaderLabel);
+                linksPanel.add(referencesLabel);
             }
             CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
             String customRuleReferencesText = customRuleReferences.getText() == null ? Constants.BLANK : customRuleReferences.getText();
             if (!customRuleReferencesText.isEmpty()) {
-                customRuleReferencesText = parseMustache(customRuleReferencesText) + "\n";
-                insertTextIntoTextPane(jTextPane, customRuleReferencesText);
+                customRuleReferencesText = parseMustache(customRuleReferencesText);
+
+                JTextPane customReferencesLabel = new JTextPane();
+                customReferencesLabel.setText(customRuleReferencesText);
+                customReferencesLabel.setEditable(false);
+
+                headerPanel.add(customReferencesLabel);
             }
-            Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
-            jTextPane.setBorder(emptyBorder);
 
-            jTextPane.setPreferredSize(new Dimension(100, jTextPane.getPreferredSize().height));
+            compoundPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+            compoundPanel.add(headerPanel);
+            compoundPanel.add(linksPanel);
 
-            recommendationPanel.add(jTextPane);
+            recommendationPanel.add(compoundPanel);
         }
     }
 
     private void addTextPaneToPanel(String text, JPanel jPanel) {
         JTextPane jTextPane = new JTextPane();
-        Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
-        jTextPane.setBorder(emptyBorder);
         jTextPane.setEditable(false);
         insertTextBlockIntoTextPane(jTextPane, text);
 
@@ -1147,10 +1184,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private void addCodeTextPaneToPanel(String text, JPanel jPanel) {
         JTextPane jTextPane = new JTextPane();
-        Border emptyBorder = BorderFactory.createEmptyBorder(0, 10, 0, 10);
+        Border emptyBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         Border lineBorder = BorderFactory.createLineBorder(new JBColor(new Color(204, 204, 204), new Color(24, 24, 24)));
-//        Border outsideCompoundBorder = BorderFactory.createCompoundBorder(emptyBorder, lineBorder);
-//        Border compoundBorder = BorderFactory.createCompoundBorder(outsideCompoundBorder, emptyBorder);
         Border compoundBorder = BorderFactory.createCompoundBorder(lineBorder, emptyBorder);
         jTextPane.setBorder(compoundBorder);
 
