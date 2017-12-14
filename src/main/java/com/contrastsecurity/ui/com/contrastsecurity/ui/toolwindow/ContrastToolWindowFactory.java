@@ -381,8 +381,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (status != null) {
                     StatusRequest statusRequest = new StatusRequest();
 
-                    if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_2)) {
-                        statusRequest.setStatus(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_3);
+                    if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
+                        statusRequest.setStatus(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING);
                         String reason = statusDialog.getReason();
                         statusRequest.setSubstatus(reason);
                         statusRequest.setCommentPreference(false);
@@ -393,7 +393,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     String comment = statusDialog.getComment();
                     if (!comment.isEmpty()) {
                         statusRequest.setNote(comment);
-                        if (!status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_2)) {
+                        if (!status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
                             statusRequest.setCommentPreference(true);
                         }
                     }

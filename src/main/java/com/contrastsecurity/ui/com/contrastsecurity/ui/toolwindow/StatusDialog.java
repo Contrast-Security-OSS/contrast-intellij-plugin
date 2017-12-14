@@ -64,7 +64,7 @@ public class StatusDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String status = statusComboBox.getSelectedItem().toString();
-                if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_2)) {
+                if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
                     reasonComboBox.setEnabled(true);
                     buttonOK.setEnabled(false);
                 } else {
@@ -78,7 +78,7 @@ public class StatusDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String status = statusComboBox.getSelectedItem().toString();
-                if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_2) && !buttonOK.isEnabled()) {
+                if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM) && !buttonOK.isEnabled()) {
                     buttonOK.setEnabled(true);
                 }
             }
@@ -107,19 +107,13 @@ public class StatusDialog extends JDialog {
 
     private void resetComboBoxes() {
         statusComboBox.removeAllItems();
-        statusComboBox.addItem(Constants.VULNERABILITY_STATUS_CONFIRMED);
-        statusComboBox.addItem(Constants.VULNERABILITY_STATUS_SUSPICIOUS);
-        statusComboBox.addItem(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_2);
-        statusComboBox.addItem(Constants.VULNERABILITY_STATUS_REMEDIATED);
-        statusComboBox.addItem(Constants.VULNERABILITY_STATUS_REPORTED);
-        statusComboBox.addItem(Constants.VULNERABILITY_STATUS_FIXED);
-
+        for (String status : Constants.STATUS_ARRAY) {
+            statusComboBox.addItem(status);
+        }
         reasonComboBox.removeAllItems();
-        reasonComboBox.addItem(Constants.REASON_URL_IS_ONLY_ACCESSIBLE_BY_TRUSTED_POWER_USERS);
-        reasonComboBox.addItem(Constants.REASON_FALSE_POSITIVE);
-        reasonComboBox.addItem(Constants.REASON_GOES_THROUGH_AN_INTERNAL_SECURITY_CONTROL);
-        reasonComboBox.addItem(Constants.REASON_ATTACK_IS_DEFENDED_BY_AN_EXTERNAL_CONTROL);
-        reasonComboBox.addItem(Constants.REASON_OTHER);
+        for (String reason : Constants.REASON_ARRAY) {
+            reasonComboBox.addItem(reason);
+        }
 
         reasonComboBox.setEnabled(false);
     }
