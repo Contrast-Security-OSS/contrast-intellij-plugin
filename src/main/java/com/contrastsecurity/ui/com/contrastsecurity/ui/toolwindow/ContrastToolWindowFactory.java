@@ -1074,9 +1074,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             for (int i = 0; i < codeBlocks.length; i++) {
 
                 String textToInsert = StringEscapeUtils.unescapeHtml4(codeBlocks[i]);
-//                        .replace("&lt;", "<");
-//                textToInsert = textToInsert.replace("&gt;", ">");
-
                 addCodeTextPaneToPanel(textToInsert, recommendationPanel);
 
                 if (i < codeBlocks.length - 1) {
