@@ -84,7 +84,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton externalLinkButton;
     private JButton backToResultsButton;
     private JTabbedPane tabbedPane1;
-    private JTextPane overviewTextPane;
     private JTextPane httpRequestTextPane;
     private JPanel mainCard;
     private JTree eventsTree;
@@ -102,6 +101,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel tracesCountLabel;
     private JPanel recommendationPanel;
     private JButton tagButton;
+    private JPanel overviewPanel;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -130,6 +130,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         tagButton.setIcon(ContrastPluginIcons.TAG_ICON);
 
         recommendationPanel.setLayout(new BoxLayout(recommendationPanel, BoxLayout.Y_AXIS));
+        overviewPanel.setLayout(new BoxLayout(overviewPanel, BoxLayout.Y_AXIS));
 
         pagesComboBoxActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -895,12 +896,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
-//            remove previous contents
-            if (!overviewTextPane.getText().isEmpty()) {
-                overviewTextPane.setText("");
-            }
-//
-            insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_CHAPTERS);
+
+            insertHeaderTextIntoPanel(Constants.TRACE_STORY_HEADER_CHAPTERS, overviewPanel);
 
             for (Chapter chapter : storyResource.getStory().getChapters()) {
                 String text = chapter.getIntroText() == null ? Constants.BLANK : chapter.getIntroText();
@@ -923,16 +920,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (!areaText.isEmpty()) {
                     areaText = parseMustache(areaText);
                 }
-                insertChapterIntoTextPane(overviewTextPane, text, areaText);
+                insertChapterIntoPanel(overviewPanel, text, areaText);
             }
             if (storyResource.getStory().getRisk() != null) {
                 Risk risk = storyResource.getStory().getRisk();
                 String riskText = risk.getText() == null ? Constants.BLANK : risk.getText();
 
                 if (!riskText.isEmpty()) {
-                    insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_RISK);
+                    insertHeaderTextIntoPanel(Constants.TRACE_STORY_HEADER_RISK, overviewPanel);
                     riskText = parseMustache(riskText);
-                    insertTextIntoTextPane(overviewTextPane, riskText);
+                    addTextPaneToPanel(riskText, overviewPanel);
                 }
             }
         }
@@ -953,15 +950,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void resetVulnerabilityDetails() {
-        if (!overviewTextPane.getText().isEmpty()) {
-            overviewTextPane.setText("");
-        }
         if (!httpRequestTextPane.getText().isEmpty()) {
             httpRequestTextPane.setText("");
         }
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 
+        overviewPanel.removeAll();
         recommendationPanel.removeAll();
         if (root.getChildCount() > 0) {
             root.removeAllChildren();
@@ -1189,6 +1184,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         jTextPane.setEditable(false);
         insertTextBlockIntoTextPane(jTextPane, text);
+
         jPanel.add(jTextPane);
     }
 
@@ -1215,19 +1211,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void insertChapterIntoTextPane(JTextPane jTextPane, String chapterIntroText, String chapterBody) {
-        StyleContext styleContext = StyleContext.getDefaultStyleContext();
-        Style style = styleContext.addStyle("test", null);
-
-        StyleConstants.setBackground(style, Color.GRAY);
-        StyleConstants.setForeground(style, Color.WHITE);
-
-        try {
-            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
-            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
+    private void insertChapterIntoPanel(JPanel jPanel, String chapterIntroText, String chapterBody) {
+        addTextPaneToPanel(chapterIntroText, jPanel);
+        addCodeTextPaneToPanel(chapterBody, jPanel);
     }
 
     private void insertHighlightedTextIntoTextPane(JTextPane jTextPane, String text) {
@@ -1266,7 +1252,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void insertHeaderTextIntoOverviewTextPane(String headerText) {
+    private void insertHeaderTextIntoPanel(String headerText, JPanel jPanel) {
+
+
+        JTextPane jTextPane = new JTextPane();
+        jTextPane.setEditable(false);
+        jTextPane.setOpaque(false);
 
         StyleContext styleContext = StyleContext.getDefaultStyleContext();
         Style style = styleContext.addStyle("test", null);
@@ -1274,11 +1265,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         StyleConstants.setBold(style, true);
 
         try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), headerText + "\n", style);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), headerText, style);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
+
+        jTextPane.setPreferredSize(new Dimension(100, jTextPane.getPreferredSize().height));
+
+        jPanel.add(jTextPane);
     }
+
 
     private void insertTextBlockIntoTextPane(JTextPane jTextPane, String textBlock) {
         if (textBlock.contains(Constants.OPEN_TAG_GOOD_PARAM)) {

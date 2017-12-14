@@ -183,13 +183,15 @@
                     <properties/>
                     <border type="empty"/>
                     <children>
-                      <component id="3e988" class="javax.swing.JTextPane" binding="overviewTextPane">
+                      <grid id="54876" binding="overviewPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
                         <constraints/>
-                        <properties>
-                          <editable value="false"/>
-                          <opaque value="false"/>
-                        </properties>
-                      </component>
+                        <properties/>
+                        <border type="empty">
+                          <size top="0" left="10" bottom="0" right="10"/>
+                        </border>
+                        <children/>
+                      </grid>
                     </children>
                   </scrollpane>
                   <scrollpane id="29aba">
@@ -244,6 +246,7 @@
                         <constraints/>
                         <properties>
                           <editable value="false"/>
+                          <margin top="3" left="10" bottom="3" right="10"/>
                           <opaque value="false"/>
                         </properties>
                       </component>
