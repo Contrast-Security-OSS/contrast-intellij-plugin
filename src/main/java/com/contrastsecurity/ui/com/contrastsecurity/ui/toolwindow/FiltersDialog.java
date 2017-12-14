@@ -357,24 +357,24 @@ public class FiltersDialog extends JDialog {
     private void setupCheckBoxes() {
 
         if (contrastFilterPersistentStateComponent.getSeverities() == null || contrastFilterPersistentStateComponent.getSeverities().isEmpty()) {
-            severityLevelNoteCheckBox.setSelected(true);
-            severityLevelLowCheckBox.setSelected(true);
-            severityLevelMediumCheckBox.setSelected(true);
-            severityLevelHighCheckBox.setSelected(true);
-            severityLevelCriticalCheckBox.setSelected(true);
+            severityLevelNoteCheckBox.setSelected(false);
+            severityLevelLowCheckBox.setSelected(false);
+            severityLevelMediumCheckBox.setSelected(false);
+            severityLevelHighCheckBox.setSelected(false);
+            severityLevelCriticalCheckBox.setSelected(false);
         }
 
         if (contrastFilterPersistentStateComponent.getStatuses() == null || contrastFilterPersistentStateComponent.getStatuses().isEmpty()) {
 
-            statusAutoRemediatedCheckBox.setSelected(true);
-            statusConfirmedCheckBox.setSelected(true);
-            statusSuspiciousCheckBox.setSelected(true);
-            statusNotAProblemCheckBox.setSelected(true);
-            statusRemediatedCheckBox.setSelected(true);
-            statusReportedCheckBox.setSelected(true);
-            statusFixedCheckBox.setSelected(true);
-            statusBeingTrackedCheckBox.setSelected(true);
-            statusUntrackedCheckBox.setSelected(true);
+            statusAutoRemediatedCheckBox.setSelected(false);
+            statusConfirmedCheckBox.setSelected(false);
+            statusSuspiciousCheckBox.setSelected(false);
+            statusNotAProblemCheckBox.setSelected(false);
+            statusRemediatedCheckBox.setSelected(false);
+            statusReportedCheckBox.setSelected(false);
+            statusFixedCheckBox.setSelected(false);
+            statusBeingTrackedCheckBox.setSelected(false);
+            statusUntrackedCheckBox.setSelected(false);
 
         }
     }
@@ -589,9 +589,8 @@ public class FiltersDialog extends JDialog {
             }
         }
         List<String> selectedSeverities = getSelectedSeveritiesAsList();
-        if (!selectedSeverities.isEmpty()) {
-            contrastFilterPersistentStateComponent.setSeverities(selectedSeverities);
-        }
+        contrastFilterPersistentStateComponent.setSeverities(selectedSeverities);
+
         String lastDetected = (String) lastDetectedComboBox.getSelectedItem();
         if (lastDetected != null) {
             contrastFilterPersistentStateComponent.setLastDetected(lastDetected);
@@ -612,9 +611,7 @@ public class FiltersDialog extends JDialog {
         }
 
         List<String> selectedStatuses = getSelectedStatuses();
-        if (!selectedStatuses.isEmpty()) {
-            contrastFilterPersistentStateComponent.setStatuses(selectedStatuses);
-        }
+        contrastFilterPersistentStateComponent.setStatuses(selectedStatuses);
     }
 
     private List<String> getSelectedSeveritiesAsList() {
