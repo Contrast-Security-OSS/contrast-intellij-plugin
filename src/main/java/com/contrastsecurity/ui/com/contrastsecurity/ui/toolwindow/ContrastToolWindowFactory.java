@@ -46,6 +46,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import icons.ContrastPluginIcons;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
@@ -938,27 +939,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private String parseMustache(String text) {
-        text = text.replace(Constants.MUSTACHE_NL, Constants.BLANK);
-        text = HtmlEscape.unescapeHtml(text);
         try {
             text = URLDecoder.decode(text, "UTF-8");
         } catch (Exception e) {
         }
-        text = text.replace("&lt;", "<");
-        text = text.replace("&gt;", ">");
-        // FIXME
-        text = text.replace("{{#code}}", "");
-        text = text.replace("{{/code}}", "");
-        text = text.replace("{{#p}}", "");
-        text = text.replace("{{/p}}", "");
-        text = text.replace(Constants.OPEN_TAG_PARAGRAPH, "");
-        text = text.replace(Constants.CLOSE_TAG_PARAGRAPH, "");
-        text = text.replace(Constants.OPEN_TAG_LINK, "");
-        text = text.replace(Constants.CLOSE_TAG_LINK, "");
-        text = text.replace(Constants.OPEN_TAG_HEADER, "");
-        text = text.replace(Constants.CLOSE_TAG_HEADER, "");
-        text = text.replace("{{link1}}", "");
-        text = text.replace("{{link2}}", "");
+        text = StringEscapeUtils.unescapeHtml4(text);
+
+        for (String mustache : Constants.MUSTACHE_CONSTANTS) {
+            text = text.replace(mustache, Constants.BLANK);
+        }
 
         return text;
     }
@@ -1084,8 +1073,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
             for (int i = 0; i < codeBlocks.length; i++) {
 
-                String textToInsert = codeBlocks[i].replace("&lt;", "<");
-                textToInsert = textToInsert.replace("&gt;", ">");
+                String textToInsert = StringEscapeUtils.unescapeHtml4(codeBlocks[i]);
+//                        .replace("&lt;", "<");
+//                textToInsert = textToInsert.replace("&gt;", ">");
 
                 addCodeTextPaneToPanel(textToInsert, recommendationPanel);
 
