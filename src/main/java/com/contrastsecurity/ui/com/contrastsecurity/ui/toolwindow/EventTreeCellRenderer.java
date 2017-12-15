@@ -15,9 +15,12 @@
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.EventTypeIcon;
+import com.contrastsecurity.config.EventTypeIconRect;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.extended.EventItem;
 import com.contrastsecurity.core.extended.EventResource;
+import com.contrastsecurity.core.extended.Line;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -99,12 +102,12 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                 returnValue = jLabel;
             } else if (userObject instanceof EventResource) {
                 EventResource eventResource = (EventResource) userObject;
-                EventTypeIcon eventTypeIcon = getIcon(eventResource.getType());
-//                defaultRenderer.setOpenIcon(eventTypeIcon);
-//                defaultRenderer.setClosedIcon(eventTypeIcon);
-                JLabel jLabel = new JLabel(eventResource.toString());
-                jLabel.setIcon(eventTypeIcon);
-                returnValue = jLabel;
+//                EventTypeIcon eventTypeIcon = getIcon(eventResource.getType());
+//                JLabel jLabel = new JLabel(eventResource.toString());
+//                jLabel.setIcon(eventTypeIcon);
+//                returnValue = jLabel;
+
+                returnValue = getEventResourcePanel(eventResource);
             }
         }
         if (returnValue == null) {
@@ -169,5 +172,102 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
             }
         }
         return eventTypeIcon;
+    }
+
+    private EventTypeIconRect getIconRect(String type) {
+        EventTypeIconRect eventTypeIconRect = null;
+        if (type != null) {
+            switch (type.toLowerCase()) {
+                case "creation":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_CREATION);
+                    break;
+                case "trigger":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_TRIGGER);
+                    break;
+                case "tag":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.TAG_COLOR);
+                    break;
+                case "a2o":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "a2p":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "a2a":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "a2r":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "o2a":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "o2o":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "o2p":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "o2r":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "p2a":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "p2o":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "p2p":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                case "p2r":
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+                default:
+                    eventTypeIconRect = new EventTypeIconRect(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+                    break;
+            }
+        }
+        return eventTypeIconRect;
+    }
+
+
+    private JPanel getEventResourcePanel(EventResource eventResource) {
+
+        JPanel eventResourcePanel = new JPanel();
+        JPanel descriptionPanel = new JPanel();
+        JPanel codeViewPanel = new JPanel();
+        JPanel dataViewPanel = new JPanel();
+
+        descriptionPanel.setLayout(new BoxLayout(descriptionPanel, BoxLayout.Y_AXIS));
+        codeViewPanel.setLayout(new BoxLayout(codeViewPanel, BoxLayout.Y_AXIS));
+        dataViewPanel.setLayout(new BoxLayout(dataViewPanel, BoxLayout.Y_AXIS));
+
+        JLabel descriptionLabel = new JLabel(eventResource.toString().toUpperCase());
+        JLabel descriptionIconLabel = new JLabel(getIconRect(eventResource.getType()));
+        descriptionPanel.add(descriptionLabel);
+        descriptionPanel.add(descriptionIconLabel);
+
+        for (Line line : eventResource.getCodeView().getLines()) {
+
+//            StringEscapeUtils.unescapeHtml4(text);
+            JLabel jLabel = new JLabel(line.getText());
+            codeViewPanel.add(jLabel);
+        }
+
+        for (Line line : eventResource.getProbableStartLocationView().getLines()) {
+            JLabel jLabel = new JLabel(line.getText());
+            codeViewPanel.add(jLabel);
+        }
+
+        for (Line line : eventResource.getDataView().getLines()) {
+            JLabel jLabel = new JLabel(line.getText());
+            dataViewPanel.add(jLabel);
+        }
+        eventResourcePanel.add(descriptionPanel);
+        eventResourcePanel.add(codeViewPanel);
+        eventResourcePanel.add(dataViewPanel);
+
+        return eventResourcePanel;
     }
 }

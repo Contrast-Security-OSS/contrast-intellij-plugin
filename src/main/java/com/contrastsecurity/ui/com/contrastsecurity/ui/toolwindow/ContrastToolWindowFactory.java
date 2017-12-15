@@ -897,6 +897,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
 
+            overviewPanel.removeAll();
+
             insertHeaderTextIntoPanel(Constants.TRACE_STORY_HEADER_CHAPTERS, overviewPanel);
 
             for (Chapter chapter : storyResource.getStory().getChapters()) {
@@ -1010,6 +1012,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
+
                 DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
                 List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
                 if (!collapsedEvents.isEmpty()) {
@@ -1035,6 +1038,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (recommendationResource != null && recommendationResource.getRecommendation() != null && recommendationResource.getCustomRecommendation() != null
                 && recommendationResource.getRuleReferences() != null && recommendationResource.getCustomRuleReferences() != null) {
 
+            recommendationPanel.removeAll();
             String formattedRecommendationText = recommendationResource.getRecommendation().getFormattedText();
             String openTag = null;
             String closeTag = null;
