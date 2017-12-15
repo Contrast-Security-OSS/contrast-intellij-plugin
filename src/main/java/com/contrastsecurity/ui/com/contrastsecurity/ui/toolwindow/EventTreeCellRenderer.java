@@ -1,17 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2017 Contrast Security.
- * All rights reserved.
- *
- * This program and the accompanying materials are made available under
- * the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License.
- *
- * The terms of the GNU GPL version 3 which accompanies this distribution
- * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Contributors:
- *     Contrast Security - initial API and implementation
- *******************************************************************************/
+/******************************************************************************
+ Copyright (c) 2017 Contrast Security.
+ All rights reserved.
+
+ This program and the accompanying materials are made available under
+ the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 3 of the License.
+
+ The terms of the GNU GPL version 3 which accompanies this distribution
+ and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+
+ Contributors:
+ Contrast Security - initial API and implementation
+ */
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.EventTypeIcon;
@@ -19,31 +19,33 @@ import com.contrastsecurity.config.EventTypeIconRect;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.extended.EventItem;
 import com.contrastsecurity.core.extended.EventResource;
+import com.contrastsecurity.core.extended.Fragment;
 import com.contrastsecurity.core.extended.Line;
+import com.intellij.ui.JBColor;
+import com.intellij.util.ui.JBUI;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.*;
 import java.awt.font.TextAttribute;
+import java.net.URLDecoder;
 import java.util.Map;
 
 public class EventTreeCellRenderer implements TreeCellRenderer {
 
-    DefaultTreeCellRenderer defaultRenderer = new DefaultTreeCellRenderer();
-    Color backgroundSelectionColor;
-    Color backgroundNonSelectionColor;
+    private DefaultTreeCellRenderer defaultRenderer = new DefaultTreeCellRenderer();
 
-    public EventTreeCellRenderer() {
+    EventTreeCellRenderer() {
         defaultRenderer.setLeafIcon(null);
-
-        backgroundSelectionColor = defaultRenderer.getBackgroundSelectionColor();
-        backgroundNonSelectionColor = defaultRenderer.getBackgroundNonSelectionColor();
     }
 
     @Override
@@ -63,7 +65,7 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                 attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
                 Font derivedFont = font.deriveFont(attributes);
                 Border border = jLabel.getBorder();
-                Border margin = new EmptyBorder(0, 10, 0, 0);
+                Border margin = JBUI.Borders.emptyLeft(10);
                 Border compoundBorder = new CompoundBorder(border, margin);
 
                 switch (eventItem.getType()) {
@@ -95,10 +97,7 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                     default:
                         break;
                 }
-
-                if (selected) {
-                    jLabel.setForeground(Color.WHITE);
-                }
+                if (selected) jLabel.setForeground(JBColor.WHITE);
                 returnValue = jLabel;
             } else if (userObject instanceof EventResource) {
                 EventResource eventResource = (EventResource) userObject;
@@ -107,7 +106,7 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
 //                jLabel.setIcon(eventTypeIcon);
 //                returnValue = jLabel;
 
-                returnValue = getEventResourcePanel(eventResource);
+                returnValue = getEventResourcePanel(eventResource, selected);
             }
         }
         if (returnValue == null) {
@@ -232,7 +231,7 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
     }
 
 
-    private JPanel getEventResourcePanel(EventResource eventResource) {
+    private JPanel getEventResourcePanel(EventResource eventResource, boolean selected) {
 
         JPanel eventResourcePanel = new JPanel();
         JPanel descriptionPanel = new JPanel();
@@ -240,34 +239,117 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
         JPanel dataViewPanel = new JPanel();
 
         descriptionPanel.setLayout(new BoxLayout(descriptionPanel, BoxLayout.Y_AXIS));
+        descriptionPanel.setOpaque(false);
         codeViewPanel.setLayout(new BoxLayout(codeViewPanel, BoxLayout.Y_AXIS));
+        codeViewPanel.setOpaque(false);
         dataViewPanel.setLayout(new BoxLayout(dataViewPanel, BoxLayout.Y_AXIS));
+        dataViewPanel.setOpaque(false);
 
         JLabel descriptionLabel = new JLabel(eventResource.toString().toUpperCase());
+        descriptionLabel.setForeground(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+
         JLabel descriptionIconLabel = new JLabel(getIconRect(eventResource.getType()));
         descriptionPanel.add(descriptionLabel);
         descriptionPanel.add(descriptionIconLabel);
 
         for (Line line : eventResource.getCodeView().getLines()) {
 
-//            StringEscapeUtils.unescapeHtml4(text);
-            JLabel jLabel = new JLabel(line.getText());
-            codeViewPanel.add(jLabel);
+            JTextPane jTextPane = new JTextPane();
+            jTextPane.setEditable(false);
+            jTextPane.setOpaque(false);
+
+            for (Fragment fragment : line.getFragments()) {
+                switch (fragment.getType()) {
+                    case Constants.FRAGMENT_TYPE_NORMAL_CODE:
+                        insertTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()));
+                        break;
+                    case Constants.FRAGMENT_TYPE_CODE_STRING:
+                        if (!selected) {
+                            insertColoredTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()), Constants.CODE_COLOR);
+                        } else {
+                            insertColoredTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()), Color.WHITE);
+                        }
+                        break;
+                    default:
+                        insertTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()));
+                        break;
+                }
+            }
+
+            codeViewPanel.add(jTextPane);
         }
 
         for (Line line : eventResource.getProbableStartLocationView().getLines()) {
-            JLabel jLabel = new JLabel(line.getText());
-            codeViewPanel.add(jLabel);
+            JTextPane jTextPane = new JTextPane();
+            jTextPane.setEditable(false);
+            jTextPane.setOpaque(false);
+            jTextPane.setForeground(Constants.EVENT_TYPE_ICON_COLOR_PROPAGATION);
+            jTextPane.setText(line.getText());
+            codeViewPanel.add(jTextPane);
         }
 
         for (Line line : eventResource.getDataView().getLines()) {
-            JLabel jLabel = new JLabel(line.getText());
-            dataViewPanel.add(jLabel);
+            JTextPane jTextPane = new JTextPane();
+            jTextPane.setEditable(false);
+            jTextPane.setOpaque(false);
+
+            for (Fragment fragment : line.getFragments()) {
+                switch (fragment.getType()) {
+                    case Constants.FRAGMENT_TYPE_TEXT:
+                        insertTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()));
+                        break;
+                    case Constants.FRAGMENT_TYPE_TAINT_VALUE:
+                        insertColoredTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()), Constants.CREATION_COLOR);
+                        break;
+                    default:
+                        insertTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()));
+                        break;
+                }
+            }
+            dataViewPanel.add(jTextPane);
         }
+
         eventResourcePanel.add(descriptionPanel);
         eventResourcePanel.add(codeViewPanel);
         eventResourcePanel.add(dataViewPanel);
 
         return eventResourcePanel;
+    }
+
+    private void insertColoredTextIntoTextPane(JTextPane jTextPane, String text, Color color) {
+        StyleContext styleContext = StyleContext.getDefaultStyleContext();
+        Style style = styleContext.addStyle("test", null);
+
+        StyleConstants.setForeground(style, color);
+
+        try {
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text, style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void insertTextIntoTextPane(JTextPane jTextPane, String text) {
+        try {
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text, null);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String parseMustache(String text) {
+        try {
+            text = URLDecoder.decode(text, "UTF-8");
+        } catch (Exception ignored) {
+        }
+        text = StringEscapeUtils.unescapeHtml4(text);
+        text = text.replace("&apos;", "'");
+
+        for (String mustache : Constants.MUSTACHE_CONSTANTS) {
+            text = text.replace(mustache, Constants.BLANK);
+        }
+
+        return text;
     }
 }

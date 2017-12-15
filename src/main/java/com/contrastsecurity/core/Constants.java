@@ -195,4 +195,9 @@ public interface Constants {
     String HTTP_REQUEST_TAB_TITLE = "HTTP Request";
     String EVENTS_TAB_TITLE = "Events";
     String LINK_DELIM = "$$LINK_DELIM$$";
+    String FRAGMENT_TYPE_NORMAL_CODE = "NORMAL_CODE";
+    String FRAGMENT_TYPE_CODE_STRING = "CODE_STRING";
+    String FRAGMENT_TYPE_TEXT = "TEXT";
+    String FRAGMENT_TYPE_TAINT_VALUE = "TAINT_VALUE";
+
 }
