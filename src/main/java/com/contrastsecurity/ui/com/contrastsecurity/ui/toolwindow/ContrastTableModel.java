@@ -1,17 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2017 Contrast Security.
- * All rights reserved.
- *
- * This program and the accompanying materials are made available under
- * the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License.
- *
- * The terms of the GNU GPL version 3 which accompanies this distribution
- * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Contributors:
- *     Contrast Security - initial API and implementation
- *******************************************************************************/
+/*
+ Copyright (c) 2017 Contrast Security.
+ All rights reserved.
+
+ This program and the accompanying materials are made available under
+ the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 3 of the License.
+
+ The terms of the GNU GPL version 3 which accompanies this distribution
+ and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+
+ Contributors:
+ Contrast Security - initial API and implementation
+ */
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastUtil;
@@ -47,18 +47,25 @@ public class ContrastTableModel extends AbstractTableModel {
             switch (columnIndex) {
                 case 0:
                     String severity = trace.getSeverity();
-                    if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
-                        obj = ContrastPluginIcons.SEVERITY_ICON_NOTE;
-                    } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
-                        obj = ContrastPluginIcons.SEVERITY_ICON_LOW;
-                    } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
-                        obj = ContrastPluginIcons.SEVERITY_ICON_MEDIUM;
-                    } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
-                        obj = ContrastPluginIcons.SEVERITY_ICON_HIGH;
-                    } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
-                        obj = ContrastPluginIcons.SEVERITY_ICON_CRITICAL;
-                    } else {
-                        obj = "";
+                    switch (severity) {
+                        case Constants.SEVERITY_LEVEL_NOTE:
+                            obj = ContrastPluginIcons.SEVERITY_ICON_NOTE;
+                            break;
+                        case Constants.SEVERITY_LEVEL_LOW:
+                            obj = ContrastPluginIcons.SEVERITY_ICON_LOW;
+                            break;
+                        case Constants.SEVERITY_LEVEL_MEDIUM:
+                            obj = ContrastPluginIcons.SEVERITY_ICON_MEDIUM;
+                            break;
+                        case Constants.SEVERITY_LEVEL_HIGH:
+                            obj = ContrastPluginIcons.SEVERITY_ICON_HIGH;
+                            break;
+                        case Constants.SEVERITY_LEVEL_CRITICAL:
+                            obj = ContrastPluginIcons.SEVERITY_ICON_CRITICAL;
+                            break;
+                        default:
+                            obj = "";
+                            break;
                     }
                     break;
                 case 1:

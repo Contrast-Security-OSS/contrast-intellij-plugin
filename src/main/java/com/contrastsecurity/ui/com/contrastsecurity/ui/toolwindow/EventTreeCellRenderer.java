@@ -267,7 +267,7 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                         if (!selected) {
                             insertColoredTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()), Constants.CODE_COLOR);
                         } else {
-                            insertColoredTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()), Color.WHITE);
+                            insertColoredTextIntoTextPane(jTextPane, parseMustache(fragment.getValue()), JBColor.WHITE);
                         }
                         break;
                     default:

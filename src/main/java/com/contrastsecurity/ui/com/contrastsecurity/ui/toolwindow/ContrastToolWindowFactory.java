@@ -95,7 +95,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel numOfPagesLabel;
     private JButton firstPageButton;
     private JButton lastPageButton;
-    private JComboBox pagesComboBox;
+    private JComboBox<String> pagesComboBox;
     private JButton nextTraceButton;
     private JButton previousTraceButton;
     private JLabel currentTraceDetailsLabel;
@@ -446,11 +446,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastCache = contrastUtil.getContrastCache();
     }
 
-    private void cleanTable() {
-        contrastTableModel.setData(new Trace[0]);
-        contrastTableModel.fireTableDataChanged();
-    }
-
     private void refreshTraces(final boolean userUpdatedPagesComboBoxSelection) {
 
         Trace[] traces = new Trace[0];
@@ -540,7 +535,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        ToolWindow contrastToolWindow = toolWindow;
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contrastToolWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
@@ -869,13 +863,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     List<PropertyResource> properties = chapter.getPropertyResources();
                     if (properties != null && properties.size() > 0) {
                         Iterator<PropertyResource> iter = properties.iterator();
+                        StringBuilder areaTextBuilder = new StringBuilder(areaText);
                         while (iter.hasNext()) {
                             PropertyResource property = iter.next();
-                            areaText += property.getName() == null ? Constants.BLANK : property.getName();
+                            areaTextBuilder.append(property.getName() == null ? Constants.BLANK : property.getName());
                             if (iter.hasNext()) {
-                                areaText += "\n";
+                                areaTextBuilder.append("\n");
                             }
                         }
+                        areaText = areaTextBuilder.toString();
                     }
                 }
 
@@ -1160,20 +1156,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void insertChapterIntoPanel(JPanel jPanel, String chapterIntroText, String chapterBody) {
         addTextPaneToPanel(chapterIntroText, jPanel);
         addCodeTextPaneToPanel(chapterBody, jPanel);
-    }
-
-    private void insertHighlightedTextIntoTextPane(JTextPane jTextPane, String text) {
-        StyleContext styleContext = StyleContext.getDefaultStyleContext();
-        Style style = styleContext.addStyle("test", null);
-
-        StyleConstants.setBackground(style, JBColor.GRAY);
-        StyleConstants.setForeground(style, JBColor.WHITE);
-
-        try {
-            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text + "\n", style);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
     }
 
     private void insertColoredTextIntoTextPane(JTextPane jTextPane, String text, Color color) {
