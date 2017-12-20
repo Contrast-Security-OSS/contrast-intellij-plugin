@@ -76,7 +76,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JPanel noVulnerabilitiesPanel;
     private JPanel vulnerabilityDetailsPanel;
     private JLabel traceSeverityLabel;
-    private JLabel traceTitleLabel;
     private JButton externalLinkButton;
     private JButton backToResultsButton;
     private JTabbedPane tabbedPane1;
@@ -97,6 +96,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel currentTraceDetailsLabel;
     private JLabel tracesCountLabel;
     private JButton tagButton;
+    private JButton markAsButton;
+    private JTextPane traceTitleTextPane;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -371,6 +372,51 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
         });
 
+        markAsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StatusDialog statusDialog = new StatusDialog();
+                statusDialog.setVisible(true);
+                String status = statusDialog.getStatus();
+                if (status != null) {
+                    StatusRequest statusRequest = new StatusRequest();
+
+                    if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
+                        statusRequest.setStatus(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING);
+                        String reason = statusDialog.getReason();
+                        statusRequest.setSubstatus(reason);
+                        statusRequest.setCommentPreference(false);
+                    } else {
+                        statusRequest.setStatus(status);
+                    }
+
+                    String comment = statusDialog.getComment();
+                    if (!comment.isEmpty()) {
+                        statusRequest.setNote(comment);
+                        if (!status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
+                            statusRequest.setCommentPreference(true);
+                        }
+                    }
+                    List<String> traces = new ArrayList<>();
+                    traces.add(viewDetailsTrace.getUuid());
+                    statusRequest.setTraces(traces);
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                extendedContrastSDK.putStatus(contrastUtil.getSelectedOrganizationConfig().getUuid(), statusRequest);
+                                refreshTraces(false);
+                            } catch (IOException | UnauthorizedException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    }).start();
+                }
+
+            }
+        });
+
         refresh();
     }
 
@@ -492,7 +538,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
                 traces = tracesObject.getTraces().toArray(new Trace[0]);
             }
-            if (!mainCard.isVisible()) {
+            if (!mainCard.isVisible() && !vulnerabilityDetailsPanel.isVisible()) {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                 cardLayout.show(cardPanel, "mainCard");
             }
@@ -757,7 +803,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (indexOfUnlicensed != -1) {
                     title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
                 }
-                traceTitleLabel.setText(title);
+                traceTitleTextPane.setText(title);
 
                 try {
                     Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());

@@ -91,11 +91,17 @@ public interface Constants {
     static final String VULNERABILITY_STATUS_CONFIRMED = "Confirmed";
     static final String VULNERABILITY_STATUS_SUSPICIOUS = "Suspicious";
     static final String VULNERABILITY_STATUS_NOT_A_PROBLEM = "Not+a+Problem";
+    static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM = "Not a Problem";
+    static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING = "NotAProblem";
     static final String VULNERABILITY_STATUS_REMEDIATED = "Remediated";
     static final String VULNERABILITY_STATUS_REPORTED = "Reported";
     static final String VULNERABILITY_STATUS_FIXED = "Fixed";
     static final String VULNERABILITY_STATUS_BEING_TRACKED = "Being+Tracked";
     static final String VULNERABILITY_STATUS_UNTRACKED = "Untracked";
+
+    String[] STATUS_ARRAY = {VULNERABILITY_STATUS_CONFIRMED, VULNERABILITY_STATUS_SUSPICIOUS,
+            VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM, VULNERABILITY_STATUS_REMEDIATED, VULNERABILITY_STATUS_REPORTED,
+            VULNERABILITY_STATUS_FIXED};
 
     static final String LAST_DETECTED_ALL = "All";
     static final String LAST_DETECTED_HOUR = "Last Hour";
@@ -119,4 +125,13 @@ public interface Constants {
 
     static final String HTTP_REQUEST_TAB_TITLE = "HTTP Request";
     static final String EVENTS_TAB_TITLE = "Events";
+
+    static final String REASON_URL_IS_ONLY_ACCESSIBLE_BY_TRUSTED_POWER_USERS = "URL is only accessible by trusted power users";
+    static final String REASON_FALSE_POSITIVE = "False positive";
+    static final String REASON_GOES_THROUGH_AN_INTERNAL_SECURITY_CONTROL = "Goes through an internal security control";
+    static final String REASON_ATTACK_IS_DEFENDED_BY_AN_EXTERNAL_CONTROL = "Attack is defended by an external control";
+    static final String REASON_OTHER = "Other";
+
+    String[] REASON_ARRAY = {REASON_URL_IS_ONLY_ACCESSIBLE_BY_TRUSTED_POWER_USERS, REASON_FALSE_POSITIVE,
+            REASON_GOES_THROUGH_AN_INTERNAL_SECURITY_CONTROL, REASON_ATTACK_IS_DEFENDED_BY_AN_EXTERNAL_CONTROL, REASON_OTHER};
 }
