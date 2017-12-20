@@ -1,22 +1,22 @@
-/*******************************************************************************
- * Copyright (c) 2017 Contrast Security.
- * All rights reserved. 
- *
- * This program and the accompanying materials are made available under 
- * the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License.
- *
- * The terms of the GNU GPL version 3 which accompanies this distribution
- * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Contributors:
- *     Contrast Security - initial API and implementation
- *******************************************************************************/
+/******************************************************************************
+ Copyright (c) 2017 Contrast Security.
+ All rights reserved.
+
+ This program and the accompanying materials are made available under
+ the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 3 of the License.
+
+ The terms of the GNU GPL version 3 which accompanies this distribution
+ and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+
+ Contributors:
+ Contrast Security - initial API and implementation
+ */
 package com.contrastsecurity.core.extended;
 
+import com.contrastsecurity.core.UrlConstants;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.HttpMethod;
-import com.contrastsecurity.http.RequestConstants;
 import com.contrastsecurity.sdk.ContrastSDK;
 import com.google.gson.*;
 import org.apache.commons.io.IOUtils;
@@ -31,13 +31,10 @@ import java.util.Set;
 
 public class ExtendedContrastSDK extends ContrastSDK {
 
-    private Gson gson;
     private static final int BAD_REQUEST = 400;
     private static final int SERVER_ERROR = 500;
+    private Gson gson;
     private String restApiURL;
-
-    public ExtendedContrastSDK() {
-    }
 
     public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL)
             throws IllegalArgumentException {
@@ -46,16 +43,11 @@ public class ExtendedContrastSDK extends ContrastSDK {
         this.gson = new Gson();
     }
 
-    public ExtendedContrastSDK(String user, String serviceKey, String apiKey) {
-        super(user, serviceKey, apiKey);
-        this.gson = new Gson();
-    }
-
     public EventSummaryResource getEventSummary(String orgUuid, String traceId) throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String eventSummaryUrl = getEventSummaryUrl(orgUuid, traceId);
+            String eventSummaryUrl = String.format(UrlConstants.EVENT_SUMMARY, orgUuid, traceId);
             is = makeRequest(HttpMethod.GET, eventSummaryUrl);
             reader = new InputStreamReader(is);
             EventSummaryResource resource = gson.fromJson(reader, EventSummaryResource.class);
@@ -82,28 +74,19 @@ public class ExtendedContrastSDK extends ContrastSDK {
         }
     }
 
-    public EventDetails getEventDetails(String orgUuid, String traceId, EventResource event)
+    private EventDetails getEventDetails(String orgUuid, String traceId, EventResource event)
             throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String eventDetailsUrl = getEventDetailsUrl(orgUuid, traceId, event);
+            String eventDetailsUrl = String.format(UrlConstants.EVENT_DETAILS, orgUuid, traceId, event.getId());
             is = makeRequest(HttpMethod.GET, eventDetailsUrl);
             reader = new InputStreamReader(is);
-            EventDetails resource = gson.fromJson(reader, EventDetails.class);
-            return resource;
+            return gson.fromJson(reader, EventDetails.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
         }
-    }
-
-    private String getEventDetailsUrl(String orgUuid, String traceId, final EventResource event) {
-        return String.format("/ng/%s/traces/%s/events/%s/details?expand=skip_links", orgUuid, traceId, event.getId());
-    }
-
-    private String getEventSummaryUrl(String orgUuid, String traceId) {
-        return String.format("/ng/%s/traces/%s/events/summary?expand=skip_links", orgUuid, traceId);
     }
 
     public HttpRequestResource getHttpRequest(String orgUuid, String traceId)
@@ -111,26 +94,21 @@ public class ExtendedContrastSDK extends ContrastSDK {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String httpRequestUrl = getHttpRequestUrl(orgUuid, traceId);
+            String httpRequestUrl = String.format(UrlConstants.HTTP_REQUEST, orgUuid, traceId);
             is = makeRequest(HttpMethod.GET, httpRequestUrl);
             reader = new InputStreamReader(is);
-            HttpRequestResource resource = gson.fromJson(reader, HttpRequestResource.class);
-            return resource;
+            return gson.fromJson(reader, HttpRequestResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
         }
     }
 
-    private String getHttpRequestUrl(String orgUuid, String traceId) {
-        return String.format("/ng/%s/traces/%s/httprequest?expand=skip_links", orgUuid, traceId);
-    }
-
     public StoryResource getStory(String orgUuid, String traceId) throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String traceUrl = getTraceUrl(orgUuid, traceId);
+            String traceUrl = String.format(UrlConstants.TRACE, orgUuid, traceId);
             is = makeRequest(HttpMethod.GET, traceUrl);
             reader = new InputStreamReader(is);
 
@@ -183,15 +161,28 @@ public class ExtendedContrastSDK extends ContrastSDK {
         }
     }
 
+    public RecommendationResource getRecommendation(String orgUuid, String traceId) throws IOException, UnauthorizedException {
+        InputStream is = null;
+        InputStreamReader reader = null;
+        try {
+            String recommendationUrl = String.format(UrlConstants.RECOMMENDATION, orgUuid, traceId);
+            is = makeRequest(HttpMethod.GET, recommendationUrl);
+            reader = new InputStreamReader(is);
+            return gson.fromJson(reader, RecommendationResource.class);
+        } finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(reader);
+        }
+    }
+
     public TagsResource getTagsByOrg(String orgUuid) throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String tagsUrl = getTagsUrl(orgUuid);
+            String tagsUrl = String.format(UrlConstants.ORG_TAGS, orgUuid);
             is = makeRequest(HttpMethod.GET, tagsUrl);
             reader = new InputStreamReader(is);
-            TagsResource resource = gson.fromJson(reader, TagsResource.class);
-            return resource;
+            return gson.fromJson(reader, TagsResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -202,11 +193,10 @@ public class ExtendedContrastSDK extends ContrastSDK {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String tagsUrl = getTagsUrl(orgUuid, traceId);
+            String tagsUrl = String.format(UrlConstants.TRACE_TAGS, orgUuid, traceId);
             is = makeRequest(HttpMethod.GET, tagsUrl);
             reader = new InputStreamReader(is);
-            TagsResource resource = gson.fromJson(reader, TagsResource.class);
-            return resource;
+            return gson.fromJson(reader, TagsResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -217,11 +207,10 @@ public class ExtendedContrastSDK extends ContrastSDK {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String tagsUrl = getTagsUrl(orgUuid);
+            String tagsUrl = String.format(UrlConstants.ORG_TAGS, orgUuid);
             is = makeRequest(HttpMethod.PUT, tagsUrl, tagsServersResource);
             reader = new InputStreamReader(is);
-            BaseResponse baseResponse = gson.fromJson(reader, BaseResponse.class);
-            return baseResponse;
+            return gson.fromJson(reader, BaseResponse.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -233,11 +222,10 @@ public class ExtendedContrastSDK extends ContrastSDK {
         InputStreamReader reader = null;
         TagRequest tagRequest = new TagRequest(tag);
         try {
-            String tagsUrl = getTagsUrlForDelete(orgUuid, traceId);
+            String tagsUrl = String.format(UrlConstants.TRACE_TAGS_DELETE, orgUuid, traceId);
             is = makeRequest(HttpMethod.DELETE, tagsUrl, tagRequest);
             reader = new InputStreamReader(is);
-            TagsResource resource = gson.fromJson(reader, TagsResource.class);
-            return resource;
+            return gson.fromJson(reader, TagsResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -248,39 +236,18 @@ public class ExtendedContrastSDK extends ContrastSDK {
         InputStream is = null;
         InputStreamReader reader = null;
         try {
-            String statusUrl = getStatusUrl(orgUuid);
+            String statusUrl = String.format(UrlConstants.STATUS, orgUuid);
             is = makeRequest(HttpMethod.PUT, statusUrl, statusRequest);
             reader = new InputStreamReader(is);
-            BaseResponse baseResponse = gson.fromJson(reader, BaseResponse.class);
-            return baseResponse;
+            return gson.fromJson(reader, BaseResponse.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
         }
     }
 
-    private String getTraceUrl(String orgUuid, String traceId) {
-        return String.format("/ng/%s/traces/%s/story?expand=skip_links", orgUuid, traceId);
-    }
-
-    private String getTagsUrl(String orgUuid) {
-        return String.format("/ng/%s/tags/traces", orgUuid);
-    }
-
-    private String getTagsUrl(String orgUuid, String traceId) {
-        return String.format("/ng/%s/tags/traces/trace/%s", orgUuid, traceId);
-    }
-
-    private String getTagsUrlForDelete(String orgUuid, String traceId) {
-        return String.format("/ng/%s/tags/trace/%s", orgUuid, traceId);
-    }
-
-    private String getStatusUrl(String orgUuid) {
-        return String.format("/ng/%s/orgtraces/mark", orgUuid);
-    }
-
     // ------------------------ Utilities -----------------------------------------------
-    public InputStream makeRequest(HttpMethod method, String path, Object body) throws IOException, UnauthorizedException {
+    private InputStream makeRequest(HttpMethod method, String path, Object body) throws IOException, UnauthorizedException {
         String url = restApiURL + path;
         HttpURLConnection connection = makeConnection(url, method.toString(), body);
 
@@ -293,9 +260,9 @@ public class ExtendedContrastSDK extends ContrastSDK {
         return is;
     }
 
-    public HttpURLConnection makeConnection(String url, String method, Object body) throws IOException {
+    private HttpURLConnection makeConnection(String url, String method, Object body) throws IOException {
 
-        HttpURLConnection connection = makeConnection(url, method.toString());
+        HttpURLConnection connection = makeConnection(url, method);
 
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json");

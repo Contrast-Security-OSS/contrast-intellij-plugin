@@ -32,6 +32,9 @@ public class EventResource extends EventModel {
     private String description;
     private int dupes;
     private String extraDetails;
+    private View codeView;
+    private View probableStartLocationView;
+    private View dataView;
 
     private List<EventResource> collapsedEvents;
 
@@ -93,6 +96,30 @@ public class EventResource extends EventModel {
 
     public void setCollapsedEvents(List<EventResource> collapsedEvents) {
         this.collapsedEvents = collapsedEvents;
+    }
+
+    public View getCodeView() {
+        return codeView;
+    }
+
+    public void setCodeView(View codeView) {
+        this.codeView = codeView;
+    }
+
+    public View getProbableStartLocationView() {
+        return probableStartLocationView;
+    }
+
+    public void setProbableStartLocationView(View probableStartLocationView) {
+        this.probableStartLocationView = probableStartLocationView;
+    }
+
+    public View getDataView() {
+        return dataView;
+    }
+
+    public void setDataView(View dataView) {
+        this.dataView = dataView;
     }
 
     @Override

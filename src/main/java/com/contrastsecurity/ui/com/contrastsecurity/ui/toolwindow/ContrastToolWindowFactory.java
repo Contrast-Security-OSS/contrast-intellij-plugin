@@ -1,17 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2017 Contrast Security.
- * All rights reserved.
- *
- * This program and the accompanying materials are made available under
- * the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License.
- *
- * The terms of the GNU GPL version 3 which accompanies this distribution
- * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Contributors:
- *     Contrast Security - initial API and implementation
- *******************************************************************************/
+/******************************************************************************
+ Copyright (c) 2017 Contrast Security.
+ All rights reserved.
+
+ This program and the accompanying materials are made available under
+ the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 3 of the License.
+
+ The terms of the GNU GPL version 3 which accompanies this distribution
+ and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+
+ Contributors:
+ Contrast Security - initial API and implementation
+ */
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
@@ -41,13 +41,18 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.Gray;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import icons.ContrastPluginIcons;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -57,7 +62,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.*;
 import java.time.LocalDateTime;
@@ -68,10 +76,8 @@ import java.util.List;
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private static final int PAGE_LIMIT = 20;
-    MouseListener treeNodeClickListener;
     private JPanel contrastToolWindowContent;
     private JTable vulnerabilitiesTable;
-    private ToolWindow contrastToolWindow;
     private JPanel cardPanel;
     private JPanel noVulnerabilitiesPanel;
     private JPanel vulnerabilityDetailsPanel;
@@ -79,7 +85,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton externalLinkButton;
     private JButton backToResultsButton;
     private JTabbedPane tabbedPane1;
-    private JTextPane overviewTextPane;
     private JTextPane httpRequestTextPane;
     private JPanel mainCard;
     private JTree eventsTree;
@@ -90,12 +95,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JLabel numOfPagesLabel;
     private JButton firstPageButton;
     private JButton lastPageButton;
-    private JComboBox pagesComboBox;
+    private JComboBox<String> pagesComboBox;
     private JButton nextTraceButton;
     private JButton previousTraceButton;
     private JLabel currentTraceDetailsLabel;
     private JLabel tracesCountLabel;
+    private JPanel recommendationPanel;
     private JButton tagButton;
+    private JPanel overviewPanel;
     private JButton markAsButton;
     private JTextPane traceTitleTextPane;
     private ContrastUtil contrastUtil;
@@ -125,13 +132,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         nextTraceButton.setIcon(ContrastPluginIcons.NEXT_PAGE_ICON);
         tagButton.setIcon(ContrastPluginIcons.TAG_ICON);
 
-        pagesComboBoxActionListener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                goToPage(Integer.valueOf(pagesComboBox.getSelectedItem().toString()), true);
-            }
-        };
+        recommendationPanel.setLayout(new BoxLayout(recommendationPanel, BoxLayout.Y_AXIS));
+        overviewPanel.setLayout(new BoxLayout(overviewPanel, BoxLayout.Y_AXIS));
 
-        treeNodeClickListener = new MouseAdapter() {
+        pagesComboBoxActionListener = e -> goToPage(Integer.valueOf(pagesComboBox.getSelectedItem().toString()), true);
+
+        MouseListener treeNodeClickListener = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 int selRow = eventsTree.getRowForLocation(e.getX(), e.getY());
                 TreePath selPath = eventsTree.getPathForLocation(e.getX(), e.getY());
@@ -151,7 +157,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                                 if (eventItem.getValue().contains(".java")) {
                                     PsiClass[] psiClasses = javaPsiFacade.findClasses(typeName, globalSearchScope);
-                                    if (psiClasses != null && psiClasses.length > 0) {
+                                    if (psiClasses.length > 0) {
                                         for (PsiClass psiClass : psiClasses) {
                                             PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
                                             if (lineNumber != null) {
@@ -168,7 +174,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                                 } else {
                                     PsiFile[] psiFiles = FilenameIndex.getFilesByName(project, typeName, globalSearchScope);
-                                    if (psiFiles != null && psiFiles.length > 0) {
+                                    if (psiFiles.length > 0) {
                                         for (PsiFile psiFile : psiFiles) {
                                             if (lineNumber != null) {
                                                 new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
@@ -182,7 +188,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                     }
                                 }
                             } else {
-                                MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
+                                MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + eventItem.getValue());
                                 messageDialog.setVisible(true);
                             }
                         }
@@ -197,158 +203,79 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
-        backToResultsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                viewDetailsTrace = null;
+        backToResultsButton.addActionListener(e -> {
+            viewDetailsTrace = null;
 
-                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                cardLayout.show(cardPanel, "mainCard");
-            }
+            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+            cardLayout.show(cardPanel, "mainCard");
         });
 
 
-        externalLinkButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openWebpage(viewDetailsTrace);
-            }
-        });
+        externalLinkButton.addActionListener(e -> openWebpage(viewDetailsTrace));
 
-        firstPageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        goToPage(1, false);
-                    }
-                }).start();
-            }
-        });
+        firstPageButton.addActionListener(e -> new Thread(() -> goToPage(1, false)).start());
 
-        lastPageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        lastPageButton.addActionListener(e -> new Thread(() -> goToPage(numOfPages, false)).start());
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        goToPage(numOfPages, false);
-                    }
-                }).start();
-            }
-        });
+        previousPageButton.addActionListener(e -> new Thread(() -> goToPage(Integer.valueOf(pageLabel.getText()) - 1, false)).start());
 
-        previousPageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        nextPageButton.addActionListener(e -> new Thread(() -> goToPage(Integer.valueOf(pageLabel.getText()) + 1, false)).start());
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        goToPage(Integer.valueOf(pageLabel.getText()) - 1, false);
-                    }
-                }).start();
-            }
-        });
-
-        nextPageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        goToPage(Integer.valueOf(pageLabel.getText()) + 1, false);
-                    }
-                }).start();
-            }
-        });
-
-        previousTraceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (selectedTraceRow > 0) {
-                    boolean cont = true;
-                    int currentRow = selectedTraceRow - 1;
-                    while (currentRow >= 0 && cont) {
-                        Trace trace = contrastTableModel.getTraceAtRow(currentRow);
-                        if (contrastUtil.isTraceLicensed(trace)) {
-                            viewDetailsTrace = trace;
-                            cont = false;
-                            selectedTraceRow = currentRow;
-                            populateVulnerabilityDetailsPanel();
-                            vulnerabilitiesTable.setRowSelectionInterval(selectedTraceRow, selectedTraceRow);
-                        } else {
-                            currentRow--;
-                        }
+        previousTraceButton.addActionListener(e -> {
+            if (selectedTraceRow > 0) {
+                boolean cont = true;
+                int currentRow = selectedTraceRow - 1;
+                while (currentRow >= 0 && cont) {
+                    Trace trace = contrastTableModel.getTraceAtRow(currentRow);
+                    if (contrastUtil.isTraceLicensed(trace)) {
+                        viewDetailsTrace = trace;
+                        cont = false;
+                        selectedTraceRow = currentRow;
+                        populateVulnerabilityDetailsPanel();
+                        vulnerabilitiesTable.setRowSelectionInterval(selectedTraceRow, selectedTraceRow);
+                    } else {
+                        currentRow--;
                     }
                 }
             }
         });
 
-        nextTraceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int rowCount = contrastTableModel.getRowCount();
-                if (selectedTraceRow < rowCount) {
-                    boolean cont = true;
-                    int currentRow = selectedTraceRow + 1;
+        nextTraceButton.addActionListener(e -> {
+            int rowCount = contrastTableModel.getRowCount();
+            if (selectedTraceRow < rowCount) {
+                boolean cont = true;
+                int currentRow = selectedTraceRow + 1;
 
-                    while (currentRow < rowCount && cont) {
-                        Trace trace = contrastTableModel.getTraceAtRow(currentRow);
-                        if (contrastUtil.isTraceLicensed(trace)) {
-                            viewDetailsTrace = trace;
-                            cont = false;
-                            selectedTraceRow = currentRow;
-                            populateVulnerabilityDetailsPanel();
-                            vulnerabilitiesTable.setRowSelectionInterval(selectedTraceRow, selectedTraceRow);
-                        } else {
-                            currentRow++;
-                        }
+                while (currentRow < rowCount && cont) {
+                    Trace trace = contrastTableModel.getTraceAtRow(currentRow);
+                    if (contrastUtil.isTraceLicensed(trace)) {
+                        viewDetailsTrace = trace;
+                        cont = false;
+                        selectedTraceRow = currentRow;
+                        populateVulnerabilityDetailsPanel();
+                        vulnerabilitiesTable.setRowSelectionInterval(selectedTraceRow, selectedTraceRow);
+                    } else {
+                        currentRow++;
                     }
                 }
             }
         });
 
-        tagButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (viewDetailsTraceTagsResource != null && orgTagsResource != null) {
-                    TagDialog tagDialog = new TagDialog(viewDetailsTraceTagsResource, orgTagsResource);
-                    tagDialog.setVisible(true);
+        tagButton.addActionListener(e -> {
+            if (viewDetailsTraceTagsResource != null && orgTagsResource != null) {
+                TagDialog tagDialog = new TagDialog(viewDetailsTraceTagsResource, orgTagsResource);
+                tagDialog.setVisible(true);
 
-                    List<String> newTraceTags = tagDialog.getNewTraceTags();
-                    if (newTraceTags != null) {
-                        Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
-                        Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
-                        boolean tagsChanged = false;
+                List<String> newTraceTags = tagDialog.getNewTraceTags();
+                if (newTraceTags != null) {
+                    Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                    Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
+                    boolean tagsChanged = false;
 //                        remove tags if necessary
-                        for (String tag : viewDetailsTraceTagsResource.getTags()) {
-                            if (!newTraceTags.contains(tag)) {
-                                try {
-                                    extendedContrastSDK.deleteTag(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid(), tag);
-                                    if (!tagsChanged) {
-                                        tagsChanged = true;
-                                    }
-                                } catch (IOException | UnauthorizedException e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        }
-//                        add tags if necessary
-                        List<String> tagsToAdd = new ArrayList<>();
-                        for (String tag : newTraceTags) {
-                            if (!viewDetailsTraceTagsResource.getTags().contains(tag)) {
-                                tagsToAdd.add((tag));
-                            }
-                        }
-                        if (!tagsToAdd.isEmpty()) {
-                            List<String> tracesId = new ArrayList<>();
-                            tracesId.add(viewDetailsTrace.getUuid());
-                            TagsServersResource tagsServersResource = new TagsServersResource(tagsToAdd, tracesId);
+                    for (String tag : viewDetailsTraceTagsResource.getTags()) {
+                        if (!newTraceTags.contains(tag)) {
                             try {
-                                BaseResponse baseResponse = extendedContrastSDK.putTags(contrastUtil.getSelectedOrganizationConfig().getUuid(), tagsServersResource);
+                                extendedContrastSDK.deleteTag(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid(), tag);
                                 if (!tagsChanged) {
                                     tagsChanged = true;
                                 }
@@ -356,65 +283,79 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                 e1.printStackTrace();
                             }
                         }
-                        if (tagsChanged) {
-                            contrastCache.getTagsResources().remove(key);
-                            contrastCache.getTagsResources().remove(keyForOrg);
-                            try {
-                                viewDetailsTraceTagsResource = getTags(key);
-                                orgTagsResource = getTags(keyForOrg);
-                            } catch (IOException | UnauthorizedException e1) {
-                                e1.printStackTrace();
-                            }
-
+                    }
+//                        add tags if necessary
+                    List<String> tagsToAdd = new ArrayList<>();
+                    for (String tag : newTraceTags) {
+                        if (!viewDetailsTraceTagsResource.getTags().contains(tag)) {
+                            tagsToAdd.add((tag));
                         }
+                    }
+                    if (!tagsToAdd.isEmpty()) {
+                        List<String> tracesId = new ArrayList<>();
+                        tracesId.add(viewDetailsTrace.getUuid());
+                        TagsServersResource tagsServersResource = new TagsServersResource(tagsToAdd, tracesId);
+                        try {
+                            extendedContrastSDK.putTags(contrastUtil.getSelectedOrganizationConfig().getUuid(), tagsServersResource);
+                            if (!tagsChanged) {
+                                tagsChanged = true;
+                            }
+                        } catch (IOException | UnauthorizedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    if (tagsChanged) {
+                        contrastCache.getTagsResources().remove(key);
+                        contrastCache.getTagsResources().remove(keyForOrg);
+                        try {
+                            viewDetailsTraceTagsResource = getTags(key);
+                            orgTagsResource = getTags(keyForOrg);
+                        } catch (IOException | UnauthorizedException e1) {
+                            e1.printStackTrace();
+                        }
+
                     }
                 }
             }
         });
 
-        markAsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                StatusDialog statusDialog = new StatusDialog();
-                statusDialog.setVisible(true);
-                String status = statusDialog.getStatus();
-                if (status != null) {
-                    StatusRequest statusRequest = new StatusRequest();
+        markAsButton.addActionListener(e -> {
+            StatusDialog statusDialog = new StatusDialog();
+            statusDialog.setVisible(true);
+            String status = statusDialog.getStatus();
+            if (status != null) {
+                StatusRequest statusRequest = new StatusRequest();
 
-                    if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
-                        statusRequest.setStatus(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING);
-                        String reason = statusDialog.getReason();
-                        statusRequest.setSubstatus(reason);
-                        statusRequest.setCommentPreference(false);
-                    } else {
-                        statusRequest.setStatus(status);
-                    }
-
-                    String comment = statusDialog.getComment();
-                    if (!comment.isEmpty()) {
-                        statusRequest.setNote(comment);
-                        if (!status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
-                            statusRequest.setCommentPreference(true);
-                        }
-                    }
-                    List<String> traces = new ArrayList<>();
-                    traces.add(viewDetailsTrace.getUuid());
-                    statusRequest.setTraces(traces);
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                extendedContrastSDK.putStatus(contrastUtil.getSelectedOrganizationConfig().getUuid(), statusRequest);
-                                refreshTraces(false);
-                            } catch (IOException | UnauthorizedException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    }).start();
+                if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
+                    statusRequest.setStatus(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING);
+                    String reason = statusDialog.getReason();
+                    statusRequest.setSubstatus(reason);
+                    statusRequest.setCommentPreference(false);
+                } else {
+                    statusRequest.setStatus(status);
                 }
 
+                String comment = statusDialog.getComment();
+                if (!comment.isEmpty()) {
+                    statusRequest.setNote(comment);
+                    if (!status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_COMBO_BOX_ITEM)) {
+                        statusRequest.setCommentPreference(true);
+                    }
+                }
+                List<String> traces = new ArrayList<>();
+                traces.add(viewDetailsTrace.getUuid());
+                statusRequest.setTraces(traces);
+
+                new Thread(() -> {
+                    try {
+                        extendedContrastSDK.putStatus(contrastUtil.getSelectedOrganizationConfig().getUuid(), statusRequest);
+                        refreshTraces(false);
+                    } catch (IOException | UnauthorizedException e1) {
+                        e1.printStackTrace();
+                    }
+                }).start();
             }
+
         });
 
         refresh();
@@ -443,7 +384,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             String qualifier = stacktrace.substring(0, start);
             start = qualifier.lastIndexOf('.');
             if (start >= 0) {
-                start = new String((String) qualifier.subSequence(0, start)).lastIndexOf('.');
+                start = ((String) qualifier.subSequence(0, start)).lastIndexOf('.');
                 if (start == -1) {
                     start = 0;
                 }
@@ -469,7 +410,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
             try {
                 return Integer.parseInt(numText);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
             }
         }
         return null;
@@ -479,43 +420,30 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         Date lastDetectedFromDate = Date.from(fromDate.atZone(ZoneId.systemDefault()).toInstant());
         Date lastDetectedToDate = Date.from(toDate.atZone(ZoneId.systemDefault()).toInstant());
 
-        if (lastDetectedFromDate.getTime() < lastDetectedToDate.getTime()) {
-            return true;
-        } else {
-            return false;
-        }
+        return lastDetectedFromDate.getTime() < lastDetectedToDate.getTime();
     }
 
     private Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
         if (localDateTime != null) {
-            Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-            return date;
+            return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         } else {
             return null;
         }
     }
 
-    public void refresh() {
+    private void refresh() {
         contrastUtil = new ContrastUtil();
         extendedContrastSDK = contrastUtil.getContrastSDK();
         organizationConfig = contrastUtil.getSelectedOrganizationConfig();
         setupTable();
         traceFilterForm = getTraceFilterFormFromContrastFilterPersistentStateComponent();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                refreshTraces(false);
-                servers = retrieveServers();
-                applications = retrieveApplications();
-            }
+        new Thread(() -> {
+            refreshTraces(false);
+            servers = retrieveServers();
+            applications = retrieveApplications();
         }).start();
         contrastCache = contrastUtil.getContrastCache();
-    }
-
-    private void cleanTable() {
-        contrastTableModel.setData(new Trace[0]);
-        contrastTableModel.fireTableDataChanged();
     }
 
     private void refreshTraces(final boolean userUpdatedPagesComboBoxSelection) {
@@ -593,7 +521,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    public void updatePagesComboBox(final int numOfPages) {
+    private void updatePagesComboBox(final int numOfPages) {
         pagesComboBox.removeAllItems();
         for (int i = 1; i <= numOfPages; i++) {
             pagesComboBox.addItem(String.valueOf(i));
@@ -607,7 +535,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        contrastToolWindow = toolWindow;
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contrastToolWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
@@ -652,71 +579,62 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     int col = vulnerabilitiesTable.columnAtPoint(e.getPoint());
                     String name = vulnerabilitiesTable.getColumnName(col);
 
-                    if (name.equals("Severity")) {
-                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                            traceFilterForm.setSort(Constants.SORT_BY_SEVERITY);
-                        } else {
-                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
-                        }
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
+                    switch (name) {
+                        case "Severity":
+                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                                traceFilterForm.setSort(Constants.SORT_BY_SEVERITY);
+                            } else {
+                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
+                            }
+                            new Thread(() -> {
                                 refreshTraces(false);
                                 contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }).start();
+                            break;
+                        case "Vulnerability":
+                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                                traceFilterForm.setSort(Constants.SORT_BY_TITLE);
+                            } else {
+                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_TITLE);
                             }
-                        }).start();
-                    } else if (name.equals("Vulnerability")) {
-                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                            traceFilterForm.setSort(Constants.SORT_BY_TITLE);
-                        } else {
-                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_TITLE);
-                        }
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
+                            new Thread(() -> {
                                 refreshTraces(false);
                                 contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }).start();
+                            break;
+                        case "Last Detected":
+                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                                traceFilterForm.setSort(Constants.SORT_BY_LAST_TIME_SEEN);
+                            } else {
+                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_LAST_TIME_SEEN);
                             }
-                        }).start();
-                    } else if (name.equals("Last Detected")) {
-                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                            traceFilterForm.setSort(Constants.SORT_BY_LAST_TIME_SEEN);
-                        } else {
-                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_LAST_TIME_SEEN);
-                        }
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
+                            new Thread(() -> {
                                 refreshTraces(false);
                                 contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }).start();
+                            break;
+                        case "Status":
+                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                                traceFilterForm.setSort(Constants.SORT_BY_STATUS);
+                            } else {
+                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_STATUS);
                             }
-                        }).start();
-                    } else if (name.equals("Status")) {
-                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                            traceFilterForm.setSort(Constants.SORT_BY_STATUS);
-                        } else {
-                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_STATUS);
-                        }
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
+                            new Thread(() -> {
                                 refreshTraces(false);
                                 contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
+                            }).start();
+                            break;
+                        case "Application":
+                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
+                                traceFilterForm.setSort(Constants.SORT_BY_APPLICATION_NAME);
+                            } else {
+                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_APPLICATION_NAME);
                             }
-                        }).start();
-                    } else if (name.equals("Application")) {
-                        if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                            traceFilterForm.setSort(Constants.SORT_BY_APPLICATION_NAME);
-                        } else {
-                            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_APPLICATION_NAME);
-                        }
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
+                            new Thread(() -> {
                                 refreshTraces(false);
                                 contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
-                            }
-                        }).start();
+                            }).start();
+                            break;
                     }
                 }
             }
@@ -741,7 +659,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                             cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
                             populateVulnerabilityDetailsPanel();
-                            tabbedPane1.setSelectedIndex(1);
+                            tabbedPane1.setSelectedIndex(2);
                         } else {
                             MessageDialog messageDialog = new MessageDialog(Constants.UNLICENSED_DIALOG_TITLE, Constants.UNLICENSED_DIALOG_MESSAGE);
                             messageDialog.setVisible(true);
@@ -780,69 +698,73 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private void populateVulnerabilityDetailsPanel() {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                resetVulnerabilityDetails();
+        new Thread(() -> {
+            resetVulnerabilityDetails();
 
-                String severity = viewDetailsTrace.getSeverity();
-                if (severity.equals(Constants.SEVERITY_LEVEL_NOTE)) {
+            String severity = viewDetailsTrace.getSeverity();
+            switch (severity) {
+                case Constants.SEVERITY_LEVEL_NOTE:
                     traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_NOTE);
-                } else if (severity.equals(Constants.SEVERITY_LEVEL_LOW)) {
+                    break;
+                case Constants.SEVERITY_LEVEL_LOW:
                     traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_LOW);
-                } else if (severity.equals(Constants.SEVERITY_LEVEL_MEDIUM)) {
+                    break;
+                case Constants.SEVERITY_LEVEL_MEDIUM:
                     traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_MEDIUM);
-                } else if (severity.equals(Constants.SEVERITY_LEVEL_HIGH)) {
+                    break;
+                case Constants.SEVERITY_LEVEL_HIGH:
                     traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_HIGH);
-                } else if (severity.equals(Constants.SEVERITY_LEVEL_CRITICAL)) {
+                    break;
+                case Constants.SEVERITY_LEVEL_CRITICAL:
                     traceSeverityLabel.setIcon(ContrastPluginIcons.SEVERITY_ICON_CRITICAL);
-                }
-
-                String title = viewDetailsTrace.getTitle();
-                int indexOfUnlicensed = title.indexOf(Constants.UNLICENSED);
-                if (indexOfUnlicensed != -1) {
-                    title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
-                }
-                traceTitleTextPane.setText(title);
-
-                try {
-                    Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
-                    Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
-
-                    StoryResource storyResource = getStory(key);
-                    HttpRequestResource httpRequestResource = getHttpRequest(key);
-                    EventSummaryResource eventSummaryResource = getEventSummary(key);
-
-                    viewDetailsTraceTagsResource = getTags(key);
-                    orgTagsResource = getTags(keyForOrg);
-
-                    populateVulnerabilityDetailsOverview(storyResource);
-                    populateVulnerabilityDetailsEvents(eventSummaryResource);
-                    populateVulnerabilityDetailsHttpRequest(httpRequestResource);
-                } catch (IOException | UnauthorizedException e) {
-                    e.printStackTrace();
-                }
-                currentTraceDetailsLabel.setText(String.valueOf(selectedTraceRow + 1));
-                tracesCountLabel.setText(String.valueOf(contrastTableModel.getRowCount()));
+                    break;
             }
+
+            String title = viewDetailsTrace.getTitle();
+            int indexOfUnlicensed = title.indexOf(Constants.UNLICENSED);
+            if (indexOfUnlicensed != -1) {
+                title = "UNLICENSED - " + title.substring(0, indexOfUnlicensed);
+            }
+            traceTitleTextPane.setText(title);
+
+            try {
+                Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
+                Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
+
+                StoryResource storyResource = getStory(key);
+                HttpRequestResource httpRequestResource = getHttpRequest(key);
+                EventSummaryResource eventSummaryResource = getEventSummary(key);
+                RecommendationResource recommendationResource = getRecommendationResource(key);
+
+                viewDetailsTraceTagsResource = getTags(key);
+                orgTagsResource = getTags(keyForOrg);
+
+                populateVulnerabilityDetailsOverview(storyResource);
+                populateVulnerabilityDetailsEvents(eventSummaryResource);
+                populateVulnerabilityDetailsHttpRequest(httpRequestResource);
+                populateVulnerabilityDetailsRecommendation(recommendationResource);
+            } catch (IOException | UnauthorizedException e) {
+                e.printStackTrace();
+            }
+            currentTraceDetailsLabel.setText(String.valueOf(selectedTraceRow + 1));
+            tracesCountLabel.setText(String.valueOf(contrastTableModel.getRowCount()));
         }).start();
     }
 
     private URL getOverviewUrl(String traceId) throws MalformedURLException {
         String teamServerUrl = contrastUtil.getTeamServerUrl();
         teamServerUrl = teamServerUrl.trim();
-        if (teamServerUrl != null && teamServerUrl.endsWith("/api")) {
+        if (teamServerUrl.endsWith("/api")) {
             teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 4);
         }
-        if (teamServerUrl != null && teamServerUrl.endsWith("/api/")) {
+        if (teamServerUrl.endsWith("/api/")) {
             teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 5);
         }
         String urlStr = teamServerUrl + "/static/ng/index.html#/" + contrastUtil.getSelectedOrganizationConfig().getUuid() + "/vulns/" + traceId + "/overview";
-        URL url = new URL(urlStr);
-        return url;
+        return new URL(urlStr);
     }
 
-    public void openWebpage(URI uri) {
+    private void openWebpage(URI uri) {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
             try {
@@ -853,7 +775,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    public void openWebpage(Trace trace) {
+    private void openWebpage(Trace trace) {
         if (trace == null) {
             return;
         }
@@ -861,17 +783,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         try {
             URL url = getOverviewUrl(trace.getUuid());
             openWebpage(url.toURI());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
+        } catch (URISyntaxException | MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
     private LocalDateTime getLocalDateTimeFromMillis(Long millis) {
         Date date = new Date(millis);
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-        return localDateTime;
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
     private StoryResource getStory(Key key) throws IOException, UnauthorizedException {
@@ -919,15 +838,23 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return httpRequestResource;
     }
 
+    private RecommendationResource getRecommendationResource(Key key) throws IOException, UnauthorizedException {
+
+        RecommendationResource recommendationResource = contrastCache.getRecommendationResources().get(key);
+        if (recommendationResource == null) {
+            recommendationResource = extendedContrastSDK.getRecommendation(key.getOrgUuid(), key.getTraceId());
+            contrastCache.getRecommendationResources().put(key, recommendationResource);
+        }
+        return recommendationResource;
+    }
+
     private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
-//            remove previous contents
-            if (!overviewTextPane.getText().isEmpty()) {
-                overviewTextPane.setText("");
-            }
-//
-            insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_CHAPTERS);
+
+            overviewPanel.removeAll();
+
+            insertHeaderTextIntoPanel(Constants.TRACE_STORY_HEADER_CHAPTERS, overviewPanel);
 
             for (Chapter chapter : storyResource.getStory().getChapters()) {
                 String text = chapter.getIntroText() == null ? Constants.BLANK : chapter.getIntroText();
@@ -936,13 +863,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     List<PropertyResource> properties = chapter.getPropertyResources();
                     if (properties != null && properties.size() > 0) {
                         Iterator<PropertyResource> iter = properties.iterator();
+                        StringBuilder areaTextBuilder = new StringBuilder(areaText);
                         while (iter.hasNext()) {
                             PropertyResource property = iter.next();
-                            areaText += property.getName() == null ? Constants.BLANK : property.getName();
+                            areaTextBuilder.append(property.getName() == null ? Constants.BLANK : property.getName());
                             if (iter.hasNext()) {
-                                areaText += "\n";
+                                areaTextBuilder.append("\n");
                             }
                         }
+                        areaText = areaTextBuilder.toString();
                     }
                 }
 
@@ -950,47 +879,44 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (!areaText.isEmpty()) {
                     areaText = parseMustache(areaText);
                 }
-                insertChapterIntoOverviewTextPane(text, areaText);
+                insertChapterIntoPanel(overviewPanel, text, areaText);
             }
             if (storyResource.getStory().getRisk() != null) {
                 Risk risk = storyResource.getStory().getRisk();
                 String riskText = risk.getText() == null ? Constants.BLANK : risk.getText();
 
                 if (!riskText.isEmpty()) {
-                    insertHeaderTextIntoOverviewTextPane(Constants.TRACE_STORY_HEADER_RISK);
+                    insertHeaderTextIntoPanel(Constants.TRACE_STORY_HEADER_RISK, overviewPanel);
                     riskText = parseMustache(riskText);
-                    insertTextIntoOverviewTextPane(riskText);
+                    addTextPaneToPanel(riskText, overviewPanel);
                 }
             }
         }
     }
 
     private String parseMustache(String text) {
-        text = text.replace(Constants.MUSTACHE_NL, Constants.BLANK);
-        text = HtmlEscape.unescapeHtml(text);
         try {
             text = URLDecoder.decode(text, "UTF-8");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
-        text = text.replace("&lt;", "<");
-        text = text.replace("&gt;", ">");
-        // FIXME
-        text = text.replace("{{#code}}", "");
-        text = text.replace("{{/code}}", "");
-        text = text.replace("{{#p}}", "");
-        text = text.replace("{{/p}}", "");
+        text = StringEscapeUtils.unescapeHtml4(text);
+
+        for (String mustache : Constants.MUSTACHE_CONSTANTS) {
+            text = text.replace(mustache, Constants.BLANK);
+        }
+
         return text;
     }
 
     private void resetVulnerabilityDetails() {
-        if (!overviewTextPane.getText().isEmpty()) {
-            overviewTextPane.setText("");
-        }
         if (!httpRequestTextPane.getText().isEmpty()) {
             httpRequestTextPane.setText("");
         }
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+
+        overviewPanel.removeAll();
+        recommendationPanel.removeAll();
         if (root.getChildCount() > 0) {
             root.removeAllChildren();
             model.nodeStructureChanged(root);
@@ -1015,7 +941,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         text = HtmlEscape.unescapeHtml(text);
         try {
             text = URLDecoder.decode(text, "UTF-8");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         if (text.contains(Constants.TAINT) && text.contains(Constants.TAINT_CLOSED)) {
 
@@ -1043,6 +969,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
+
                 DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(eventResource);
                 List<EventResource> collapsedEvents = eventResource.getCollapsedEvents();
                 if (!collapsedEvents.isEmpty()) {
@@ -1064,6 +991,161 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
+    private void populateVulnerabilityDetailsRecommendation(RecommendationResource recommendationResource) {
+        if (recommendationResource != null && recommendationResource.getRecommendation() != null && recommendationResource.getCustomRecommendation() != null
+                && recommendationResource.getRuleReferences() != null && recommendationResource.getCustomRuleReferences() != null) {
+
+            recommendationPanel.removeAll();
+            String formattedRecommendationText = recommendationResource.getRecommendation().getFormattedText();
+            String openTag = null;
+            String closeTag = null;
+
+            if (formattedRecommendationText.contains(Constants.OPEN_TAG_C_SHARP_BLOCK)) {
+                openTag = Constants.OPEN_TAG_C_SHARP_BLOCK;
+                closeTag = Constants.CLOSE_TAG_C_SHARP_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_HTML_BLOCK)) {
+                openTag = Constants.OPEN_TAG_HTML_BLOCK;
+                closeTag = Constants.CLOSE_TAG_HTML_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_JAVA_BLOCK)) {
+                openTag = Constants.OPEN_TAG_JAVA_BLOCK;
+                closeTag = Constants.CLOSE_TAG_JAVA_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_XML_BLOCK)) {
+                openTag = Constants.OPEN_TAG_XML_BLOCK;
+                closeTag = Constants.CLOSE_TAG_XML_BLOCK;
+            } else if (formattedRecommendationText.contains(Constants.OPEN_TAG_JAVASCRIPT_BLOCK)) {
+                openTag = Constants.OPEN_TAG_JAVASCRIPT_BLOCK;
+                closeTag = Constants.CLOSE_TAG_JAVASCRIPT_BLOCK;
+            }
+
+            formattedRecommendationText = formatLinks(formattedRecommendationText);
+
+            String[] codeBlocks = StringUtils.substringsBetween(formattedRecommendationText, openTag, closeTag);
+            String[] textBlocks = StringUtils.substringsBetween(formattedRecommendationText, closeTag, openTag);
+
+            String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
+            String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
+
+            addTextPaneToPanel(textBlockFirst, recommendationPanel);
+
+            for (int i = 0; i < codeBlocks.length; i++) {
+
+                String textToInsert = StringEscapeUtils.unescapeHtml4(codeBlocks[i]);
+                addCodeTextPaneToPanel(textToInsert, recommendationPanel);
+
+                if (i < codeBlocks.length - 1) {
+                    addTextPaneToPanel(textBlocks[i], recommendationPanel);
+                }
+            }
+            addTextPaneToPanel(textBlockLast, recommendationPanel);
+
+
+            JPanel compoundPanel = new JPanel();
+            JPanel headerPanel = new JPanel();
+            headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+            JPanel linksPanel = new JPanel();
+            linksPanel.setLayout(new BoxLayout(linksPanel, BoxLayout.Y_AXIS));
+
+            CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
+            String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK : customRecommendation.getText();
+            if (!customRecommendationText.isEmpty()) {
+                customRecommendationText = parseMustache(customRecommendationText);
+
+                JTextPane customRecommendationLabel = getBaseTextPane(customRecommendationText);
+
+                headerPanel.add(customRecommendationLabel);
+            }
+
+            JTextPane cweHeaderLabel = getBaseTextPane("CWE:");
+
+            JTextPane cweLabel = getBaseTextPane(recommendationResource.getCwe());
+
+            headerPanel.add(cweHeaderLabel);
+            linksPanel.add(cweLabel);
+
+            JTextPane owaspHeaderLabel = getBaseTextPane("OWASP:");
+
+            JTextPane owaspLabel = getBaseTextPane(recommendationResource.getOwasp());
+
+            headerPanel.add(owaspHeaderLabel);
+            linksPanel.add(owaspLabel);
+
+            RuleReferences ruleReferences = recommendationResource.getRuleReferences();
+            String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
+            if (!ruleReferencesText.isEmpty()) {
+                ruleReferencesText = parseMustache(ruleReferencesText);
+
+                JTextPane referencesHeaderLabel = getBaseTextPane("References:");
+
+                JTextPane referencesLabel = getBaseTextPane(ruleReferencesText);
+
+                headerPanel.add(referencesHeaderLabel);
+                linksPanel.add(referencesLabel);
+            }
+            CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
+            if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
+                String customRuleReferencesText = parseMustache(customRuleReferences.getText());
+
+                JTextPane customReferencesLabel = getBaseTextPane(customRuleReferencesText);
+
+                headerPanel.add(customReferencesLabel);
+            }
+
+            compoundPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+            compoundPanel.add(headerPanel);
+            compoundPanel.add(linksPanel);
+
+            recommendationPanel.add(compoundPanel);
+        }
+    }
+
+    private JTextPane getBaseTextPane(String text) {
+        JTextPane jTextPane = new JTextPane();
+        jTextPane.setText(text);
+        jTextPane.setEditable(false);
+        jTextPane.setOpaque(false);
+        return jTextPane;
+    }
+
+    private void addTextPaneToPanel(String text, JPanel jPanel) {
+        JTextPane jTextPane = getBaseTextPane("");
+        insertTextBlockIntoTextPane(jTextPane, text);
+
+        jTextPane.setPreferredSize(new Dimension(100, jTextPane.getPreferredSize().height));
+
+        jPanel.add(jTextPane);
+    }
+
+    private void addCodeTextPaneToPanel(String text, JPanel jPanel) {
+        JTextPane jTextPane = new JTextPane();
+        Border emptyBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        Border lineBorder = BorderFactory.createLineBorder(new JBColor(Gray._204, Gray._24));
+        Border compoundBorder = BorderFactory.createCompoundBorder(lineBorder, emptyBorder);
+        jTextPane.setBorder(compoundBorder);
+
+        jTextPane.setBackground(new JBColor(Gray._238, Gray._58));
+
+        jTextPane.setEditable(false);
+        insertTextBlockIntoTextPane(jTextPane, text);
+
+        jPanel.add(jTextPane);
+    }
+
+    private String formatLinks(String text) {
+
+        String formattedText = text;
+        String[] links = StringUtils.substringsBetween(formattedText, Constants.OPEN_TAG_LINK, Constants.CLOSE_TAG_LINK);
+        if (links != null && links.length > 0) {
+            for (String link : links) {
+                int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
+                String formattedLink = link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + " (" + link.substring(0, indexOfDelimiter) + ")";
+
+                formattedText = formattedText.substring(0, formattedText.indexOf(link)) + formattedLink + formattedText.substring(formattedText.indexOf(link) + link.length());
+            }
+        }
+
+        return formattedText;
+    }
+
     private void addEventItemsToDefaultMutableTreeNode(DefaultMutableTreeNode defaultMutableTreeNode, EventResource eventResource) {
         EventItem[] eventItems = eventResource.getItems();
         for (EventItem eventItem : eventItems) {
@@ -1071,31 +1153,39 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void insertChapterIntoOverviewTextPane(String chapterIntroText, String chapterBody) {
+    private void insertChapterIntoPanel(JPanel jPanel, String chapterIntroText, String chapterBody) {
+        addTextPaneToPanel(chapterIntroText, jPanel);
+        addCodeTextPaneToPanel(chapterBody, jPanel);
+    }
+
+    private void insertColoredTextIntoTextPane(JTextPane jTextPane, String text, Color color) {
         StyleContext styleContext = StyleContext.getDefaultStyleContext();
         Style style = styleContext.addStyle("test", null);
 
-        StyleConstants.setBackground(style, Color.GRAY);
-        StyleConstants.setForeground(style, Color.WHITE);
+        StyleConstants.setForeground(style, color);
 
         try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterIntroText + "\n", null);
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), chapterBody + "\n\n", style);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text, style);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
 
 
-    private void insertTextIntoOverviewTextPane(String text) {
+    private void insertTextIntoTextPane(JTextPane jTextPane, String text) {
         try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), text + "\n", null);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), text, null);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
 
-    private void insertHeaderTextIntoOverviewTextPane(String headerText) {
+    private void insertHeaderTextIntoPanel(String headerText, JPanel jPanel) {
+
+
+        JTextPane jTextPane = new JTextPane();
+        jTextPane.setEditable(false);
+        jTextPane.setOpaque(false);
 
         StyleContext styleContext = StyleContext.getDefaultStyleContext();
         Style style = styleContext.addStyle("test", null);
@@ -1103,9 +1193,40 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         StyleConstants.setBold(style, true);
 
         try {
-            overviewTextPane.getDocument().insertString(overviewTextPane.getDocument().getLength(), headerText + "\n", style);
+            jTextPane.getDocument().insertString(jTextPane.getDocument().getLength(), headerText, style);
         } catch (BadLocationException e) {
             e.printStackTrace();
+        }
+
+        jTextPane.setPreferredSize(new Dimension(100, jTextPane.getPreferredSize().height));
+
+        jPanel.add(jTextPane);
+    }
+
+
+    private void insertTextBlockIntoTextPane(JTextPane jTextPane, String textBlock) {
+        if (textBlock.contains(Constants.OPEN_TAG_GOOD_PARAM)) {
+            int indexOfGoodParamOpenTag = textBlock.indexOf(Constants.OPEN_TAG_GOOD_PARAM);
+            String textBeforeGoodParamOpenTag = textBlock.substring(0, indexOfGoodParamOpenTag);
+            int indexOfGoodParamCloseTag = textBlock.indexOf(Constants.CLOSE_TAG_GOOD_PARAM);
+            String textAfterGoodParamCloseTag = textBlock.substring(indexOfGoodParamCloseTag + Constants.CLOSE_TAG_GOOD_PARAM.length());
+            String goodParam = StringUtils.substringBetween(textBlock, Constants.OPEN_TAG_GOOD_PARAM, Constants.CLOSE_TAG_GOOD_PARAM);
+            insertTextIntoTextPane(jTextPane, parseMustache(textBeforeGoodParamOpenTag));
+            insertColoredTextIntoTextPane(jTextPane, goodParam, Constants.GOOD_PARAM_COLOR);
+            insertTextIntoTextPane(jTextPane, parseMustache(textAfterGoodParamCloseTag));
+
+        } else if (textBlock.contains(Constants.OPEN_TAG_BAD_PARAM)) {
+            int indexOfBadParamOpenTag = textBlock.indexOf(Constants.OPEN_TAG_BAD_PARAM);
+            String textBeforeBadParamOpenTag = textBlock.substring(0, indexOfBadParamOpenTag);
+            int indexOfBadParamCloseTag = textBlock.indexOf(Constants.CLOSE_TAG_BAD_PARAM);
+            String textAfterBadParamCloseTag = textBlock.substring(indexOfBadParamCloseTag + Constants.CLOSE_TAG_BAD_PARAM.length());
+            String badParam = StringUtils.substringBetween(textBlock, Constants.OPEN_TAG_BAD_PARAM, Constants.CLOSE_TAG_BAD_PARAM);
+            insertTextIntoTextPane(jTextPane, parseMustache(textBeforeBadParamOpenTag));
+            insertColoredTextIntoTextPane(jTextPane, badParam, Constants.CREATION_COLOR);
+            insertTextIntoTextPane(jTextPane, parseMustache(textAfterBadParamCloseTag));
+
+        } else {
+            insertTextIntoTextPane(jTextPane, parseMustache(textBlock));
         }
     }
 
@@ -1156,6 +1277,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         if (contrastFilterPersistentStateComponent.getSort() != null) {
             traceFilterForm.setSort(contrastFilterPersistentStateComponent.getSort());
+        } else {
+            traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
         }
         traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
 
@@ -1184,7 +1307,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private Servers retrieveServers() {
-        int count = 0;
         Servers servers = null;
         try {
             ServerFilterForm serverFilterForm = new ServerFilterForm();
@@ -1197,8 +1319,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return servers;
     }
 
-    public List<Application> retrieveApplications() {
-        int count = 0;
+    private List<Application> retrieveApplications() {
         List<Application> applications = null;
 
         try {
