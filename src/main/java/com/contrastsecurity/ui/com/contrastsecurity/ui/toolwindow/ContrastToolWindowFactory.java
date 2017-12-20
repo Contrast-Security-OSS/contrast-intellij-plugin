@@ -296,7 +296,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         tracesId.add(viewDetailsTrace.getUuid());
                         TagsServersResource tagsServersResource = new TagsServersResource(tagsToAdd, tracesId);
                         try {
-                            BaseResponse baseResponse = extendedContrastSDK.putTags(contrastUtil.getSelectedOrganizationConfig().getUuid(), tagsServersResource);
+                            extendedContrastSDK.putTags(contrastUtil.getSelectedOrganizationConfig().getUuid(), tagsServersResource);
                             if (!tagsChanged) {
                                 tagsChanged = true;
                             }
@@ -410,7 +410,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
             try {
                 return Integer.parseInt(numText);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
             }
         }
         return null;
@@ -901,7 +901,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private String parseMustache(String text) {
         try {
             text = URLDecoder.decode(text, "UTF-8");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         text = StringEscapeUtils.unescapeHtml4(text);
 
@@ -945,7 +945,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         text = HtmlEscape.unescapeHtml(text);
         try {
             text = URLDecoder.decode(text, "UTF-8");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         if (text.contains(Constants.TAINT) && text.contains(Constants.TAINT_CLOSED)) {
 

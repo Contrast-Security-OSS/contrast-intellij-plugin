@@ -301,7 +301,7 @@ public class FiltersDialog extends JDialog {
             if (status.equals(Constants.VULNERABILITY_STATUS_SUSPICIOUS)) {
                 statusSuspiciousCheckBox.setSelected(true);
             }
-            if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM)) {
+            if (status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING)) {
                 statusNotAProblemCheckBox.setSelected(true);
             }
             if (status.equals(Constants.VULNERABILITY_STATUS_REMEDIATED)) {
@@ -501,7 +501,7 @@ public class FiltersDialog extends JDialog {
             statuses.add(Constants.VULNERABILITY_STATUS_SUSPICIOUS);
         }
         if (statusNotAProblemCheckBox.isSelected()) {
-            statuses.add(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM);
+            statuses.add(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING);
         }
         if (statusRemediatedCheckBox.isSelected()) {
             statuses.add(Constants.VULNERABILITY_STATUS_REMEDIATED);
