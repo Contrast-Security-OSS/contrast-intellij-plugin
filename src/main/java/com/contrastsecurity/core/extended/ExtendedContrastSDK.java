@@ -1,17 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2017 Contrast Security.
- * All rights reserved. 
- *
- * This program and the accompanying materials are made available under 
- * the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License.
- *
- * The terms of the GNU GPL version 3 which accompanies this distribution
- * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Contributors:
- *     Contrast Security - initial API and implementation
- *******************************************************************************/
+/******************************************************************************
+ Copyright (c) 2017 Contrast Security.
+ All rights reserved.
+
+ This program and the accompanying materials are made available under
+ the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 3 of the License.
+
+ The terms of the GNU GPL version 3 which accompanies this distribution
+ and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+
+ Contributors:
+ Contrast Security - initial API and implementation
+ */
 package com.contrastsecurity.core.extended;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
@@ -35,18 +35,10 @@ public class ExtendedContrastSDK extends ContrastSDK {
     private Gson gson;
     private String restApiURL;
 
-    public ExtendedContrastSDK() {
-    }
-
     public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL)
             throws IllegalArgumentException {
         super(user, serviceKey, apiKey, restApiURL);
         this.restApiURL = restApiURL;
-        this.gson = new Gson();
-    }
-
-    public ExtendedContrastSDK(String user, String serviceKey, String apiKey) {
-        super(user, serviceKey, apiKey);
         this.gson = new Gson();
     }
 
@@ -81,7 +73,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
         }
     }
 
-    public EventDetails getEventDetails(String orgUuid, String traceId, EventResource event)
+    private EventDetails getEventDetails(String orgUuid, String traceId, EventResource event)
             throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
@@ -89,8 +81,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
             String eventDetailsUrl = getEventDetailsUrl(orgUuid, traceId, event);
             is = makeRequest(HttpMethod.GET, eventDetailsUrl);
             reader = new InputStreamReader(is);
-            EventDetails resource = gson.fromJson(reader, EventDetails.class);
-            return resource;
+            return gson.fromJson(reader, EventDetails.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -113,8 +104,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
             String httpRequestUrl = getHttpRequestUrl(orgUuid, traceId);
             is = makeRequest(HttpMethod.GET, httpRequestUrl);
             reader = new InputStreamReader(is);
-            HttpRequestResource resource = gson.fromJson(reader, HttpRequestResource.class);
-            return resource;
+            return gson.fromJson(reader, HttpRequestResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -182,10 +172,6 @@ public class ExtendedContrastSDK extends ContrastSDK {
         }
     }
 
-    private String getTraceUrl(String orgUuid, String traceId) {
-        return String.format("/ng/%s/traces/%s/story?expand=skip_links", orgUuid, traceId);
-    }
-
     public RecommendationResource getRecommendation(String orgUuid, String traceId) throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
@@ -193,8 +179,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
             String recommendationUrl = getRecommendationUrl(orgUuid, traceId);
             is = makeRequest(HttpMethod.GET, recommendationUrl);
             reader = new InputStreamReader(is);
-            RecommendationResource recommendationResource = gson.fromJson(reader, RecommendationResource.class);
-            return recommendationResource;
+            return gson.fromJson(reader, RecommendationResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -212,8 +197,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
             String tagsUrl = getTagsUrl(orgUuid);
             is = makeRequest(HttpMethod.GET, tagsUrl);
             reader = new InputStreamReader(is);
-            TagsResource resource = gson.fromJson(reader, TagsResource.class);
-            return resource;
+            return gson.fromJson(reader, TagsResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -227,8 +211,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
             String tagsUrl = getTagsUrl(orgUuid, traceId);
             is = makeRequest(HttpMethod.GET, tagsUrl);
             reader = new InputStreamReader(is);
-            TagsResource resource = gson.fromJson(reader, TagsResource.class);
-            return resource;
+            return gson.fromJson(reader, TagsResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -242,8 +225,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
             String tagsUrl = getTagsUrl(orgUuid);
             is = makeRequest(HttpMethod.PUT, tagsUrl, tagsServersResource);
             reader = new InputStreamReader(is);
-            BaseResponse baseResponse = gson.fromJson(reader, BaseResponse.class);
-            return baseResponse;
+            return gson.fromJson(reader, BaseResponse.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
@@ -258,12 +240,29 @@ public class ExtendedContrastSDK extends ContrastSDK {
             String tagsUrl = getTagsUrlForDelete(orgUuid, traceId);
             is = makeRequest(HttpMethod.DELETE, tagsUrl, tagRequest);
             reader = new InputStreamReader(is);
-            TagsResource resource = gson.fromJson(reader, TagsResource.class);
-            return resource;
+            return gson.fromJson(reader, TagsResource.class);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(reader);
         }
+    }
+
+    public BaseResponse putStatus(String orgUuid, StatusRequest statusRequest) throws IOException, UnauthorizedException {
+        InputStream is = null;
+        InputStreamReader reader = null;
+        try {
+            String statusUrl = getStatusUrl(orgUuid);
+            is = makeRequest(HttpMethod.PUT, statusUrl, statusRequest);
+            reader = new InputStreamReader(is);
+            return gson.fromJson(reader, BaseResponse.class);
+        } finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(reader);
+        }
+    }
+
+    private String getTraceUrl(String orgUuid, String traceId) {
+        return String.format("/ng/%s/traces/%s/story?expand=skip_links", orgUuid, traceId);
     }
 
     private String getTagsUrl(String orgUuid) {
@@ -278,8 +277,12 @@ public class ExtendedContrastSDK extends ContrastSDK {
         return String.format("/ng/%s/tags/trace/%s", orgUuid, traceId);
     }
 
+    private String getStatusUrl(String orgUuid) {
+        return String.format("/ng/%s/orgtraces/mark", orgUuid);
+    }
+
     // ------------------------ Utilities -----------------------------------------------
-    public InputStream makeRequest(HttpMethod method, String path, Object body) throws IOException, UnauthorizedException {
+    private InputStream makeRequest(HttpMethod method, String path, Object body) throws IOException, UnauthorizedException {
         String url = restApiURL + path;
         HttpURLConnection connection = makeConnection(url, method.toString(), body);
 
@@ -292,9 +295,9 @@ public class ExtendedContrastSDK extends ContrastSDK {
         return is;
     }
 
-    public HttpURLConnection makeConnection(String url, String method, Object body) throws IOException {
+    private HttpURLConnection makeConnection(String url, String method, Object body) throws IOException {
 
-        HttpURLConnection connection = makeConnection(url, method.toString());
+        HttpURLConnection connection = makeConnection(url, method);
 
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json");
