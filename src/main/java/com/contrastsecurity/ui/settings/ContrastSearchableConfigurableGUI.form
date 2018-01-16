@@ -58,7 +58,7 @@
           </grid>
         </constraints>
         <properties>
-          <toolTipText value="Your Service Key and API key are available by logging into your TeamServer using your regular credentials. Go to &quot;My Account&quot;, then &quot;API Key&quot;."/>
+          <toolTipText value="Your Service Key and API Key are available by logging into your TeamServer using your regular credentials and going to &quot;Your Account&quot;, &quot;Profile&quot;, &quot;Your Keys&quot;"/>
         </properties>
       </component>
       <component id="1e97b" class="javax.swing.JLabel" binding="organizationLabel">
