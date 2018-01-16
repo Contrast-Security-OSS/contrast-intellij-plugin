@@ -357,7 +357,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
 
         });
-
+        setupTable();
         refresh();
     }
 
@@ -435,7 +435,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastUtil = new ContrastUtil();
         extendedContrastSDK = contrastUtil.getContrastSDK();
         organizationConfig = contrastUtil.getSelectedOrganizationConfig();
-        setupTable();
         traceFilterForm = getTraceFilterFormFromContrastFilterPersistentStateComponent();
 
         new Thread(() -> {
