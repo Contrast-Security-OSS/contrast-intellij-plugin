@@ -543,10 +543,10 @@ public class FiltersDialog extends JDialog {
         Long serverId = Constants.ALL_SERVERS;
         String appId = Constants.ALL_APPLICATIONS;
 
-        if (serverComboBoxItem.getServer() != null) {
+        if (serverComboBoxItem != null && serverComboBoxItem.getServer() != null) {
             serverId = serverComboBoxItem.getServer().getServerId();
         }
-        if (applicationComboBoxItem.getApplication() != null) {
+        if (applicationComboBoxItem != null && applicationComboBoxItem.getApplication() != null) {
             appId = applicationComboBoxItem.getApplication().getId();
         }
         TraceFilterForm form = null;
