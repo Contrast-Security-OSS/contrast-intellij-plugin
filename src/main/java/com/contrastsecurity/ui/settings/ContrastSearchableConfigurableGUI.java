@@ -37,6 +37,8 @@ import java.util.Map;
 
 public class ContrastSearchableConfigurableGUI {
 
+    //    Other variables
+    private final ContrastPersistentStateComponent contrastPersistentStateComponent;
     //    UI Variables
     private JPanel contrastSettingsPanel;
     private JLabel teamServerLabel;
@@ -62,8 +64,6 @@ public class ContrastSearchableConfigurableGUI {
     private JButton restoreDefaultsButton;
     private JSeparator organizationSettingsSeparator;
     private JLabel testConnectionLabel;
-    //    Other variables
-    private final ContrastPersistentStateComponent contrastPersistentStateComponent;
     private Util util;
     private Map<String, String> organizations = new HashMap<>();
 
@@ -90,7 +90,8 @@ public class ContrastSearchableConfigurableGUI {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ContrastDialog contrastDialog = new ContrastDialog(teamServerTextField.getText(), usernameTextField.getText(), serviceKeyTextField.getText());
+
+                ContrastDialog contrastDialog = new ContrastDialog(getTeamServerUrl(), usernameTextField.getText(), serviceKeyTextField.getText());
                 contrastDialog.setVisible(true);
 
                 Map<String, String> retrievedOrgs = contrastDialog.getOrganization();
@@ -128,7 +129,7 @@ public class ContrastSearchableConfigurableGUI {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        final String url = teamServerTextField.getText();
+                        final String url = getTeamServerUrl();
                         URL u;
                         try {
                             u = new URL(url);
@@ -141,7 +142,7 @@ public class ContrastSearchableConfigurableGUI {
                             return;
                         }
                         ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText(), serviceKeyTextField.getText(),
-                                apiKeyTextField.getText(), teamServerTextField.getText());
+                                apiKeyTextField.getText(), getTeamServerUrl());
                         try {
                             Organizations organizations = extendedContrastSDK.getProfileDefaultOrganizations();
                             Organization organization = organizations.getOrganization();
@@ -161,6 +162,17 @@ public class ContrastSearchableConfigurableGUI {
                 }).start();
             }
         });
+    }
+
+    private String getTeamServerUrl() {
+        String url = teamServerTextField.getText();
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        if (!url.endsWith("/api")) {
+            url += "/api";
+        }
+        return url;
     }
 
     public JPanel getContrastSettingsPanel() {
@@ -215,7 +227,7 @@ public class ContrastSearchableConfigurableGUI {
 
     public boolean isModified() {
         boolean modified = false;
-        modified |= !teamServerTextField.getText().equals(contrastPersistentStateComponent.getTeamServerUrl());
+        modified |= !getTeamServerUrl().equals(contrastPersistentStateComponent.getTeamServerUrl());
         modified |= !usernameTextField.getText().equals(contrastPersistentStateComponent.getUsername());
         modified |= !serviceKeyTextField.getText().equals(contrastPersistentStateComponent.getServiceKey());
 
@@ -228,7 +240,7 @@ public class ContrastSearchableConfigurableGUI {
     }
 
     public void apply() {
-        contrastPersistentStateComponent.setTeamServerUrl(teamServerTextField.getText());
+        contrastPersistentStateComponent.setTeamServerUrl(getTeamServerUrl());
         contrastPersistentStateComponent.setUsername(usernameTextField.getText());
         contrastPersistentStateComponent.setServiceKey(serviceKeyTextField.getText());
         if (organizationComboBox.getSelectedItem() != null) {
