@@ -101,12 +101,12 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                 returnValue = jLabel;
             } else if (userObject instanceof EventResource) {
                 EventResource eventResource = (EventResource) userObject;
-//                EventTypeIcon eventTypeIcon = getIcon(eventResource.getType());
-//                JLabel jLabel = new JLabel(eventResource.toString());
-//                jLabel.setIcon(eventTypeIcon);
-//                returnValue = jLabel;
+                EventTypeIcon eventTypeIcon = getIcon(eventResource.getType());
+                JLabel jLabel = new JLabel(eventResource.toString());
+                jLabel.setIcon(eventTypeIcon);
+                returnValue = jLabel;
 
-                returnValue = getEventResourcePanel(eventResource, selected);
+//                returnValue = getEventResourcePanel(eventResource, selected);
             }
         }
         if (returnValue == null) {
