@@ -312,6 +312,7 @@
                 </constraints>
                 <properties>
                   <editable value="false"/>
+                  <opaque value="false"/>
                 </properties>
               </component>
             </children>

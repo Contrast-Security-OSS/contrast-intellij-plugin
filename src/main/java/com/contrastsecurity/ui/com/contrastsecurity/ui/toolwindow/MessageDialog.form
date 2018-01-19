@@ -58,6 +58,7 @@
             <properties>
               <editable value="false"/>
               <enabled value="true"/>
+              <opaque value="false"/>
             </properties>
           </component>
           <vspacer id="5cd0e">
