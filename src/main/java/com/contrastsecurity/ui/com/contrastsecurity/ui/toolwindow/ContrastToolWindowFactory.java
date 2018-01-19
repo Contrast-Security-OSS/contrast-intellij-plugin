@@ -564,10 +564,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         severityColumn.setMaxWidth(76);
         severityColumn.setMinWidth(76);
 
-        TableColumn viewDetailsColumn = vulnerabilitiesTable.getColumnModel().getColumn(3);
-        viewDetailsColumn.setMaxWidth(120);
-
-        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(4);
+        TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(5);
         openInTeamserverColumn.setMaxWidth(120);
 
         vulnerabilitiesTable.getTableHeader().addMouseListener(new MouseAdapter() {
@@ -651,7 +648,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 if (row >= 0 && col >= 0) {
                     String name = vulnerabilitiesTable.getColumnName(col);
 
-                    if (e.getClickCount() == 2 && !name.equals("Open in Teamserver") && !name.equals("View Details")) {
+                    if (e.getClickCount() == 2 && !name.equals("")) {
                         Trace traceClicked = contrastTableModel.getTraceAtRow(row);
                         if (contrastUtil.isTraceLicensed(traceClicked)) {
                             selectedTraceRow = row;
@@ -675,21 +672,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 if (row >= 0 && col >= 0) {
                     String name = vulnerabilitiesTable.getColumnName(col);
-                    if (name.equals("Open in Teamserver")) {
+                    if (name.equals("")) {
                         Trace traceClicked = contrastTableModel.getTraceAtRow(row);
                         openWebpage(traceClicked);
-                    } else if (name.equals("View Details")) {
-                        Trace traceClicked = contrastTableModel.getTraceAtRow(row);
-                        if (contrastUtil.isTraceLicensed(traceClicked)) {
-                            selectedTraceRow = row;
-                            viewDetailsTrace = traceClicked;
-                            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                            cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
-                            populateVulnerabilityDetailsPanel();
-                        } else {
-                            MessageDialog messageDialog = new MessageDialog(Constants.UNLICENSED_DIALOG_TITLE, Constants.UNLICENSED_DIALOG_MESSAGE);
-                            messageDialog.setVisible(true);
-                        }
                     }
                 }
             }

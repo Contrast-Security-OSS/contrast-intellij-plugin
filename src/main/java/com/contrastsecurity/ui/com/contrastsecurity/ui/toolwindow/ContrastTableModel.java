@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import java.util.Date;
 
 public class ContrastTableModel extends AbstractTableModel {
-    private String[] columnNames = {"Severity", "Vulnerability", "Application", "View Details", "Open in Teamserver", "Last Detected", "Status"};
+    private String[] columnNames = {"Severity", "Vulnerability", "Application", "Last Detected", "Status", ""};
     private Trace[] data = new Trace[0];
     private ContrastUtil contrastUtil = new ContrastUtil();
 
@@ -80,20 +80,13 @@ public class ContrastTableModel extends AbstractTableModel {
                     obj = trace.getApplication().getName();
                     break;
                 case 3:
-                    if (contrastUtil.isTraceLicensed(trace)) {
-                        obj = ContrastPluginIcons.DETAILS_ICON;
-                    } else {
-                        obj = ContrastPluginIcons.UNLICENSED_ICON;
-                    }
-                    break;
-                case 4:
-                    obj = ContrastPluginIcons.EXTERNAL_LINK_ICON;
-                    break;
-                case 5:
                     obj = new Date(trace.getLastTimeSeen());
                     break;
-                case 6:
+                case 4:
                     obj = trace.getStatus();
+                    break;
+                case 5:
+                    obj = ContrastPluginIcons.EXTERNAL_LINK_ICON;
                     break;
                 default:
                     obj = null;
