@@ -24,14 +24,11 @@ buildscript {
     }
     dependencies {
         classpath "gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.2.17"
-        
-        // https://github.com/researchgate/gradle-release
-        classpath 'net.researchgate:gradle-release:2.6.0'
     }
 }
 
 group 'com.contrastsecurity'
-version '1.0.beta3-SNAPSHOT'
+version '1.0.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'net.researchgate.release'
