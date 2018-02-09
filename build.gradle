@@ -24,6 +24,9 @@ buildscript {
     }
     dependencies {
         classpath "gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.2.17"
+        
+        // https://github.com/researchgate/gradle-release
+        classpath 'net.researchgate:gradle-release:2.6.0'
     }
 }
 
@@ -31,6 +34,7 @@ group 'com.contrastsecurity'
 version '1.0.beta3-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'net.researchgate.release'
 
 sourceCompatibility = 1.8
 
@@ -54,4 +58,11 @@ apply plugin: 'java'
 intellij {
     version 'IC-172.4343.14' //IntelliJ IDEA IC-172.4343.14 dependency; for a full list of IntelliJ IDEA releases please see https://www.jetbrains.com/intellij-repository/releases
     intellij.updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
+}
+
+//For gradle release plugin since we release from develop
+release {
+  git { 
+    requireBranch = 'develop'
+  }
 }
