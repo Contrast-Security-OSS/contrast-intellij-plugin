@@ -59,10 +59,3 @@ intellij {
     version 'IC-172.4343.14' //IntelliJ IDEA IC-172.4343.14 dependency; for a full list of IntelliJ IDEA releases please see https://www.jetbrains.com/intellij-repository/releases
     intellij.updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
 }
-
-//For gradle release plugin since we release from develop
-release {
-  git { 
-    requireBranch = 'develop'
-  }
-}
