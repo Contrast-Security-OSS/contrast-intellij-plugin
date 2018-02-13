@@ -58,8 +58,9 @@ intellij {
     intellij.updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
 }
 
-release {
-    failOnCommitNeeded = false
+// GRADLE RELEASE PLUGIN AVAILABLE CONFIGURATION OPTIONS WITH DEFAULT VALUES
+//release {
+//    failOnCommitNeeded = true
 //    failOnPublishNeeded = true
 //    failOnSnapshotDependencies = true
 //    failOnUnversionedFiles = true
@@ -83,19 +84,19 @@ release {
 //            net.researchgate.release.BzrAdapter
 //    ]
 //
-    git {
-        requireBranch = ''
+//    git {
+//        requireBranch = 'master'
 //        pushToRemote = 'origin'
 //        pushToBranchPrefix = ''
 //        commitVersionFileOnly = false
 //        signTag = false
-    }
+//    }
 //
 //    svn {
 //        username = null
 //        password = null
 //        pinExternals = false   // allows to pin the externals when tagging, requires subversion client >= 1.9.0
 //    }
-}
+//}
 
 beforeReleaseBuild.dependsOn buildPlugin
