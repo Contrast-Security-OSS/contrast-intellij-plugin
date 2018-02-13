@@ -59,7 +59,7 @@ intellij {
 }
 
 release {
-//    failOnCommitNeeded = true
+    failOnCommitNeeded = false
 //    failOnPublishNeeded = true
 //    failOnSnapshotDependencies = true
 //    failOnUnversionedFiles = true
@@ -97,3 +97,5 @@ release {
 //        pinExternals = false   // allows to pin the externals when tagging, requires subversion client >= 1.9.0
 //    }
 }
+
+beforeReleaseBuild.dependsOn buildPlugin
