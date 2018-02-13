@@ -98,4 +98,4 @@ release {
 //    }
 }
 
-beforeReleaseBuild.dependsOn buildPlugin
+afterReleaseBuild.dependsOn buildPlugin
