@@ -58,4 +58,12 @@ intellij {
     intellij.updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
 }
 
+release {
+    failOnCommitNeeded = false
+    failOnUnversionedFiles = false
+    git {
+         requireBranch = ''
+    }
+}
+
 beforeReleaseBuild.dependsOn buildPlugin
