@@ -24,7 +24,7 @@ buildscript {
     }
     dependencies {
         classpath "gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.2.17"
-        classpath 'net.researchgate:gradle-release:2.6.0'
+        classpath 'net.researchgate:gradle-release:2.6.0' // https://github.com/researchgate/gradle-release
     }
 }
 
@@ -57,46 +57,5 @@ intellij {
     version 'IC-172.4343.14' //IntelliJ IDEA IC-172.4343.14 dependency; for a full list of IntelliJ IDEA releases please see https://www.jetbrains.com/intellij-repository/releases
     intellij.updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
 }
-
-// GRADLE RELEASE PLUGIN AVAILABLE CONFIGURATION OPTIONS WITH DEFAULT VALUES
-//release {
-//    failOnCommitNeeded = true
-//    failOnPublishNeeded = true
-//    failOnSnapshotDependencies = true
-//    failOnUnversionedFiles = true
-//    failOnUpdateNeeded = true
-//    revertOnFail = true
-//    preCommitText = ''
-//    preTagCommitMessage = '[Gradle Release Plugin] - pre tag commit: '
-//    tagCommitMessage = '[Gradle Release Plugin] - creating tag: '
-//    newVersionCommitMessage = '[Gradle Release Plugin] - new version commit: '
-//    tagTemplate = '${version}'
-//    versionPropertyFile = 'gradle.properties'
-//    versionProperties = []
-//    buildTasks = ['build']
-//    versionPatterns = [
-//            /(\d+)([^\d]*$)/: { Matcher m, Project p -> m.replaceAll("${(m[0][1] as int) + 1}${m[0][2]}") }
-//    ]
-//    scmAdapters = [
-//            net.researchgate.release.GitAdapter,
-//            net.researchgate.release.SvnAdapter,
-//            net.researchgate.release.HgAdapter,
-//            net.researchgate.release.BzrAdapter
-//    ]
-//
-//    git {
-//        requireBranch = 'master'
-//        pushToRemote = 'origin'
-//        pushToBranchPrefix = ''
-//        commitVersionFileOnly = false
-//        signTag = false
-//    }
-//
-//    svn {
-//        username = null
-//        password = null
-//        pinExternals = false   // allows to pin the externals when tagging, requires subversion client >= 1.9.0
-//    }
-//}
 
 beforeReleaseBuild.dependsOn buildPlugin
