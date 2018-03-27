@@ -1,4 +1,4 @@
-/******************************************************************************
+/***************************************************************************
  Copyright (c) 2017 Contrast Security.
  All rights reserved.
 
@@ -53,6 +53,7 @@ import org.unbescape.html.HtmlEscape;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -108,6 +109,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
+    private ContrastTableRowSorter contrastTableRowSorter = new ContrastTableRowSorter(contrastTableModel);
     private OrganizationConfig organizationConfig;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Trace viewDetailsTrace;
@@ -357,6 +359,47 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
 
         });
+        RowSorterListener contrastRowSorterListener = e -> {
+
+            if (contrastTableModel != null && contrastTableModel.getRowCount() > 1 && contrastTableRowSorter.getColumnToSort() != null) {
+                String name = contrastTableRowSorter.getColumnToSort().substring(1);
+                String sortOrder = contrastTableRowSorter.getColumnToSort().substring(0, 1);
+                String sort = "";
+
+                if (sortOrder.equals(Constants.SORT_DESCENDING)) {
+                    sort += Constants.SORT_DESCENDING;
+                }
+
+                switch (name) {
+                    case "Severity":
+                        sort += Constants.SORT_BY_SEVERITY;
+                        break;
+                    case "Vulnerability":
+                        sort += Constants.SORT_BY_TITLE;
+                        break;
+                    case "Last Detected":
+                        sort += Constants.SORT_BY_LAST_TIME_SEEN;
+                        break;
+                    case "Status":
+                        sort += Constants.SORT_BY_STATUS;
+                        break;
+                    case "Application":
+                        sort += Constants.SORT_BY_APPLICATION_NAME;
+                        break;
+                }
+                if (sort.length() > 1) {
+                    String finalSort = sort;
+                    new Thread(() -> {
+                        traceFilterForm.setSort(finalSort);
+                        refreshTraces(false);
+                        contrastFilterPersistentStateComponent.setSort(finalSort);
+
+                    }).start();
+                }
+            }
+        };
+        contrastTableRowSorter.addRowSorterListener(contrastRowSorterListener);
+
         setupTable();
         refresh();
     }
@@ -416,13 +459,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         return null;
     }
 
-    private boolean isFromDateLessThanToDate(LocalDateTime fromDate, LocalDateTime toDate) {
-        Date lastDetectedFromDate = Date.from(fromDate.atZone(ZoneId.systemDefault()).toInstant());
-        Date lastDetectedToDate = Date.from(toDate.atZone(ZoneId.systemDefault()).toInstant());
-
-        return lastDetectedFromDate.getTime() < lastDetectedToDate.getTime();
-    }
-
     private Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
         if (localDateTime != null) {
             return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -437,11 +473,17 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         organizationConfig = contrastUtil.getSelectedOrganizationConfig();
         traceFilterForm = getTraceFilterFormFromContrastFilterPersistentStateComponent();
 
-        new Thread(() -> {
-            refreshTraces(false);
-            servers = retrieveServers();
-            applications = retrieveApplications();
-        }).start();
+        if (organizationConfig != null) {
+            new Thread(() -> {
+                refreshTraces(false);
+                servers = retrieveServers();
+                applications = retrieveApplications();
+            }).start();
+
+        } else {
+            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+            cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+        }
         contrastCache = contrastUtil.getContrastCache();
     }
 
@@ -475,7 +517,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 pageLabel.setText("1");
             }
 
-            numOfPages = getNumOfPages(PAGE_LIMIT, tracesObject.getCount());
+            numOfPages = getNumOfPages(tracesObject.getCount());
             numOfPagesLabel.setText("/" + numOfPages);
             updatePageButtons();
 
@@ -559,82 +601,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private void setupTable() {
         vulnerabilitiesTable.setModel(contrastTableModel);
+        vulnerabilitiesTable.setRowSorter(contrastTableRowSorter);
         TableColumn severityColumn = vulnerabilitiesTable.getColumnModel().getColumn(0);
         severityColumn.setMaxWidth(76);
         severityColumn.setMinWidth(76);
 
         TableColumn openInTeamserverColumn = vulnerabilitiesTable.getColumnModel().getColumn(5);
         openInTeamserverColumn.setMaxWidth(120);
-
-        vulnerabilitiesTable.getTableHeader().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-
-                if (contrastTableModel != null && contrastTableModel.getRowCount() > 1) {
-                    int col = vulnerabilitiesTable.columnAtPoint(e.getPoint());
-                    String name = vulnerabilitiesTable.getColumnName(col);
-
-                    switch (name) {
-                        case "Severity":
-                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                                traceFilterForm.setSort(Constants.SORT_BY_SEVERITY);
-                            } else {
-                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
-                            }
-                            new Thread(() -> {
-                                refreshTraces(false);
-                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
-                            }).start();
-                            break;
-                        case "Vulnerability":
-                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                                traceFilterForm.setSort(Constants.SORT_BY_TITLE);
-                            } else {
-                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_TITLE);
-                            }
-                            new Thread(() -> {
-                                refreshTraces(false);
-                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
-                            }).start();
-                            break;
-                        case "Last Detected":
-                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                                traceFilterForm.setSort(Constants.SORT_BY_LAST_TIME_SEEN);
-                            } else {
-                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_LAST_TIME_SEEN);
-                            }
-                            new Thread(() -> {
-                                refreshTraces(false);
-                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
-                            }).start();
-                            break;
-                        case "Status":
-                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                                traceFilterForm.setSort(Constants.SORT_BY_STATUS);
-                            } else {
-                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_STATUS);
-                            }
-                            new Thread(() -> {
-                                refreshTraces(false);
-                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
-                            }).start();
-                            break;
-                        case "Application":
-                            if (traceFilterForm.getSort().startsWith(Constants.SORT_DESCENDING)) {
-                                traceFilterForm.setSort(Constants.SORT_BY_APPLICATION_NAME);
-                            } else {
-                                traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_APPLICATION_NAME);
-                            }
-                            new Thread(() -> {
-                                refreshTraces(false);
-                                contrastFilterPersistentStateComponent.setSort(traceFilterForm.getSort());
-                            }).start();
-                            break;
-                    }
-                }
-            }
-        });
 
         vulnerabilitiesTable.addMouseListener(new MouseAdapter() {
 
@@ -1360,13 +1333,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         jComponent = toolbar.getComponent();
     }
 
-    private int getNumOfPages(final int pageLimit, final int totalElements) {
+    private int getNumOfPages(final int totalElements) {
         int numOfPages = 1;
-        if (totalElements % pageLimit > 0) {
-            numOfPages = totalElements / pageLimit + 1;
+        if (totalElements % ContrastToolWindowFactory.PAGE_LIMIT > 0) {
+            numOfPages = totalElements / ContrastToolWindowFactory.PAGE_LIMIT + 1;
         } else {
             if (totalElements != 0) {
-                numOfPages = totalElements / pageLimit;
+                numOfPages = totalElements / ContrastToolWindowFactory.PAGE_LIMIT;
             }
         }
         return numOfPages;
