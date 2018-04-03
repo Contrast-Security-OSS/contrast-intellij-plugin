@@ -54,7 +54,7 @@ public class ContrastSearchableConfigurableGUI {
     private JButton testConnectionButton;
     private JLabel selectedOrganizationLabel;
     private JLabel apiKeyLabel;
-    private JTextField apiKeyTextField;
+    private JPasswordField apiKeyTextField;
     private JLabel uuidLabel;
     private JTextField uuidTextField;
     private JSeparator selectedOrganizationSeparator;
