@@ -33,7 +33,7 @@ public class ContrastDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JTextField apiKeyTextField;
+    private JPasswordField apiKeyTextField;
     private JLabel apiKeyLabel;
     private JComboBox organizationNameComboBox;
     private JLabel organizationNameLabel;
@@ -41,7 +41,7 @@ public class ContrastDialog extends JDialog {
     private JLabel organizationUuidLabel;
     private JButton retrieveOrganizationsButton;
 
-//    other variables
+    //    other variables
     private ExtendedContrastSDK extendedContrastSDK;
     private String teamserverUrl;
     private String username;
