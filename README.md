@@ -44,13 +44,13 @@ Releases are done by the gradle-release plugin (https://github.com/researchgate/
 By default, releases are only accepted from the master branch.
 To accept any branch, add the following configuration to the build.gradle file: 
 
-`````` 
- release {
-    git {
+```
+ release { 
+    git { 
         requireBranch = ''
-    }
- }
- ```
+    } 
+ } 
+```
  
  In case you need to release the plugin with uncommitted changes (for testing), add the following configuration:
  
@@ -61,5 +61,8 @@ To accept any branch, add the following configuration to the build.gradle file:
   ```
 
 
-To release the plugin non-interactively: ``` gradle release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=1.0.0 -Prelease.newVersion=1.1.0-SNAPSHOT ```
+To release the plugin non-interactively: 
+
+``` gradle release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=1.0.0 -Prelease.newVersion=1.1.0-SNAPSHOT ```
+
 The command needs the current release version and the new version parameters.
