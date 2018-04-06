@@ -277,12 +277,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     for (String tag : viewDetailsTraceTagsResource.getTags()) {
                         if (!newTraceTags.contains(tag)) {
                             try {
+                                contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                 extendedContrastSDK.deleteTag(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid(), tag);
                                 if (!tagsChanged) {
                                     tagsChanged = true;
                                 }
                             } catch (IOException | UnauthorizedException e1) {
                                 e1.printStackTrace();
+                            } finally {
+                                contrastToolWindowContent.setCursor(Cursor.getDefaultCursor());
                             }
                         }
                     }
@@ -298,12 +301,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         tracesId.add(viewDetailsTrace.getUuid());
                         TagsServersResource tagsServersResource = new TagsServersResource(tagsToAdd, tracesId);
                         try {
+                            contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             extendedContrastSDK.putTags(contrastUtil.getSelectedOrganizationConfig().getUuid(), tagsServersResource);
                             if (!tagsChanged) {
                                 tagsChanged = true;
                             }
                         } catch (IOException | UnauthorizedException e1) {
                             e1.printStackTrace();
+                        } finally {
+                            contrastToolWindowContent.setCursor(Cursor.getDefaultCursor());
                         }
                     }
                     if (tagsChanged) {
@@ -693,6 +699,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 Key key = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), viewDetailsTrace.getUuid());
                 Key keyForOrg = new Key(contrastUtil.getSelectedOrganizationConfig().getUuid(), null);
 
+                contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
                 StoryResource storyResource = getStory(key);
                 HttpRequestResource httpRequestResource = getHttpRequest(key);
                 EventSummaryResource eventSummaryResource = getEventSummary(key);
@@ -707,6 +715,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 populateVulnerabilityDetailsRecommendation(recommendationResource);
             } catch (IOException | UnauthorizedException e) {
                 e.printStackTrace();
+            } finally {
+                contrastToolWindowContent.setCursor(Cursor.getDefaultCursor());
             }
             currentTraceDetailsLabel.setText(String.valueOf(selectedTraceRow + 1));
             tracesCountLabel.setText(String.valueOf(contrastTableModel.getRowCount()));
