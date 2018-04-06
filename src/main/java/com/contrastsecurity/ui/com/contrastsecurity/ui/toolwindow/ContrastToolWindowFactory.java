@@ -393,7 +393,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         traceFilterForm.setSort(finalSort);
                         refreshTraces(false);
                         contrastFilterPersistentStateComponent.setSort(finalSort);
-
                     }).start();
                 }
             }
@@ -489,6 +488,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private void refreshTraces(final boolean userUpdatedPagesComboBoxSelection) {
 
+        contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        vulnerabilitiesTable.getTableHeader().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
         Trace[] traces = new Trace[0];
 
         Long serverId = Constants.ALL_SERVERS;
@@ -541,6 +543,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
         contrastTableModel.setData(traces);
         contrastTableModel.fireTableDataChanged();
+
+        contrastToolWindowContent.setCursor(Cursor.getDefaultCursor());
+        vulnerabilitiesTable.getTableHeader().setCursor(Cursor.getDefaultCursor());
     }
 
     private void updatePageButtons() {
@@ -982,19 +987,25 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
             String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
 
-            addTextPaneToPanel(textBlockFirst, recommendationPanel);
+            if (!textBlockFirst.isEmpty()) {
+                addTextPaneToPanel(textBlockFirst, recommendationPanel);
+            }
 
-            for (int i = 0; i < codeBlocks.length; i++) {
+            if (codeBlocks != null) {
+                for (int i = 0; i < codeBlocks.length; i++) {
 
-                String textToInsert = StringEscapeUtils.unescapeHtml4(codeBlocks[i]);
-                addCodeTextPaneToPanel(textToInsert, recommendationPanel);
+                    String textToInsert = StringEscapeUtils.unescapeHtml4(codeBlocks[i]);
+                    addCodeTextPaneToPanel(textToInsert, recommendationPanel);
 
-                if (i < codeBlocks.length - 1) {
-                    addTextPaneToPanel(textBlocks[i], recommendationPanel);
+                    if (i < codeBlocks.length - 1) {
+                        addTextPaneToPanel(textBlocks[i], recommendationPanel);
+                    }
                 }
             }
-            addTextPaneToPanel(textBlockLast, recommendationPanel);
 
+            if (!textBlockLast.isEmpty()) {
+                addTextPaneToPanel(textBlockLast, recommendationPanel);
+            }
 
             JPanel compoundPanel = new JPanel();
             JPanel headerPanel = new JPanel();
