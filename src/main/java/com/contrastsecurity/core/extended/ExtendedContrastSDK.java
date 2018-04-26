@@ -203,6 +203,20 @@ public class ExtendedContrastSDK extends ContrastSDK {
         }
     }
 
+    public FilterResource getApplicationTraceFiltersByType(String orgUuid, String appId, String filterType) throws IOException, UnauthorizedException {
+        InputStream is = null;
+        InputStreamReader reader = null;
+        try {
+            String filtersUrl = String.format(UrlConstants.APPLICATION_TRACE_FILTERS, orgUuid, appId, filterType);
+            is = makeRequest(HttpMethod.GET, filtersUrl);
+            reader = new InputStreamReader(is);
+            return gson.fromJson(reader, FilterResource.class);
+        } finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(reader);
+        }
+    }
+
     public BaseResponse putTags(String orgUuid, TagsServersResource tagsServersResource) throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;

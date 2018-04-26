@@ -1258,6 +1258,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         } else {
             traceFilterForm.setSort(Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY);
         }
+        if (contrastFilterPersistentStateComponent.getAppVersionTag() != null && !contrastFilterPersistentStateComponent.getAppVersionTag().isEmpty()) {
+            traceFilterForm.setAppVersionTags(Collections.singletonList(contrastFilterPersistentStateComponent.getAppVersionTag()));
+        }
+
         traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
 
         return traceFilterForm;
@@ -1330,7 +1334,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 if (servers != null && applications != null) {
-                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications);
+                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications, extendedContrastSDK, organizationConfig);
                     filtersDialog.setVisible(true);
 
                     TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();

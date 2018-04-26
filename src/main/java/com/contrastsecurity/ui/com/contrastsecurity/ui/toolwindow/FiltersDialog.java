@@ -1,39 +1,42 @@
-/*******************************************************************************
- * Copyright (c) 2017 Contrast Security.
- * All rights reserved.
- *
- * This program and the accompanying materials are made available under
- * the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License.
- *
- * The terms of the GNU GPL version 3 which accompanies this distribution
- * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Contributors:
- *     Contrast Security - initial API and implementation
- *******************************************************************************/
+/******************************************************************************
+ Copyright (c) 2017 Contrast Security.
+ All rights reserved.
+
+ This program and the accompanying materials are made available under
+ the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 3 of the License.
+
+ The terms of the GNU GPL version 3 which accompanies this distribution
+ and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+
+ Contributors:
+ Contrast Security - initial API and implementation
+ */
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
+import com.contrastsecurity.core.extended.ExtendedContrastSDK;
+import com.contrastsecurity.core.extended.Filter;
+import com.contrastsecurity.core.extended.FilterResource;
+import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.Application;
 import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Servers;
 import com.github.lgooddatepicker.components.DateTimePicker;
-import com.github.lgooddatepicker.optionalusertools.DateTimeChangeListener;
-import com.github.lgooddatepicker.zinternaltools.DateTimeChangeEvent;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
+import java.util.*;
 import java.util.List;
 
 public class FiltersDialog extends JDialog {
@@ -61,29 +64,23 @@ public class FiltersDialog extends JDialog {
     private DateTimePicker lastDetectedToDateTimePicker;
     private JComboBox lastDetectedComboBox;
     private JPanel filtersPanel;
+    private JComboBox appVersionTagsComboBox;
+    private JButton refreshAppVersionTagsButton;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Servers servers;
     private List<Application> applications;
-    private int currentOffset = 0;
 
     private TraceFilterForm traceFilterForm;
+    private ExtendedContrastSDK extendedContrastSDK;
 
-    public FiltersDialog(Servers servers, List<Application> applications) {
+    FiltersDialog(Servers servers, List<Application> applications, ExtendedContrastSDK extendedContrastSDK, OrganizationConfig organizationConfig) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -94,11 +91,7 @@ public class FiltersDialog extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         setSize(850, 400);
 
@@ -112,61 +105,56 @@ public class FiltersDialog extends JDialog {
 //        Filters related initialization
         this.servers = servers;
         this.applications = applications;
+        this.extendedContrastSDK = extendedContrastSDK;
 
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
         setupCheckBoxes();
         setupComboBoxes();
 
-        lastDetectedFromDateTimePicker.addDateTimeChangeListener(new DateTimeChangeListener() {
-            @Override
-            public void dateOrTimeChanged(DateTimeChangeEvent event) {
-                if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null) {
+        lastDetectedFromDateTimePicker.addDateTimeChangeListener(event -> {
+            if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null) {
 
-                    if (!isFromDateLessThanToDate(lastDetectedFromDateTimePicker.getDateTimePermissive(), lastDetectedToDateTimePicker.getDateTimePermissive())) {
-                        lastDetectedToDateTimePicker.clear();
-                    }
+                if (!isFromDateLessThanToDate(lastDetectedFromDateTimePicker.getDateTimePermissive(), lastDetectedToDateTimePicker.getDateTimePermissive())) {
+                    lastDetectedToDateTimePicker.clear();
                 }
             }
         });
 
-        lastDetectedToDateTimePicker.addDateTimeChangeListener(new DateTimeChangeListener() {
-            @Override
-            public void dateOrTimeChanged(DateTimeChangeEvent event) {
-                if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null) {
+        lastDetectedToDateTimePicker.addDateTimeChangeListener(event -> {
+            if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null) {
 
-                    if (!isFromDateLessThanToDate(lastDetectedFromDateTimePicker.getDateTimePermissive(), lastDetectedToDateTimePicker.getDateTimePermissive())) {
-                        lastDetectedFromDateTimePicker.clear();
-                    }
+                if (!isFromDateLessThanToDate(lastDetectedFromDateTimePicker.getDateTimePermissive(), lastDetectedToDateTimePicker.getDateTimePermissive())) {
+                    lastDetectedFromDateTimePicker.clear();
                 }
             }
         });
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                refresh();
+        refreshAppVersionTagsButton.addActionListener(e -> new Thread(() -> {
+            ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
+            if (applicationComboBoxItem != null && applicationComboBoxItem.getApplication() != null) {
+                String appId = applicationComboBoxItem.getApplication().getId();
+                FilterResource filterResource = getApplicationTraceFiltersByType(organizationConfig.getUuid(), appId);
+                if (filterResource != null && filterResource.getFilters() != null) {
+                    updateAppVersionTagsComboBox(filterResource.getFilters());
+                }
+            } else {
+                updateAppVersionTagsComboBox(null);
             }
-        }).start();
+        }).start());
+
+        new Thread(this::refresh).start();
     }
 
-    public FiltersDialog() {
+    private FiltersDialog() {
 
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -177,11 +165,7 @@ public class FiltersDialog extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         setSize(700, 400);
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -237,6 +221,9 @@ public class FiltersDialog extends JDialog {
         if (contrastFilterPersistentStateComponent.getStatuses() != null && !contrastFilterPersistentStateComponent.getStatuses().isEmpty()) {
             selectStatusesFromList(contrastFilterPersistentStateComponent.getStatuses());
         }
+        if (contrastFilterPersistentStateComponent.getAppVersionTag() != null && !contrastFilterPersistentStateComponent.getAppVersionTag().isEmpty()) {
+            appVersionTagsComboBox.addItem(contrastFilterPersistentStateComponent.getAppVersionTag());
+        }
     }
 
     private void selectServerByUuid(Long serverUuid) {
@@ -285,8 +272,7 @@ public class FiltersDialog extends JDialog {
 
     private LocalDateTime getLocalDateTimeFromMillis(Long millis) {
         Date date = new Date(millis);
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-        return localDateTime;
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
     private void selectStatusesFromList(List<String> statuses) {
@@ -322,7 +308,7 @@ public class FiltersDialog extends JDialog {
         }
     }
 
-    public void refresh() {
+    private void refresh() {
         updateServersComboBox(servers);
         updateLastDetectedComboBox();
         populateFiltersWithDataFromContrastFilterPersistentStateComponent();
@@ -340,6 +326,15 @@ public class FiltersDialog extends JDialog {
             ServerComboBoxItem allServers = new ServerComboBoxItem("All Servers(" + count + ")");
             serversComboBox.addItem(allServers);
             serversComboBox.setSelectedItem(allServers);
+        }
+    }
+
+    private void updateAppVersionTagsComboBox(List<Filter> filters) {
+        appVersionTagsComboBox.removeAllItems();
+        if (filters != null && !filters.isEmpty()) {
+            for (Filter filter : filters) {
+                appVersionTagsComboBox.addItem(filter);
+            }
         }
     }
 
@@ -381,55 +376,63 @@ public class FiltersDialog extends JDialog {
 
     private void setupComboBoxes() {
 
-        serversComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
-                    updateApplicationsComboBox(serverComboBoxItem.getServer());
-                }
+        serversComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) e.getItem();
+                updateApplicationsComboBox(serverComboBoxItem.getServer());
             }
         });
 
-        lastDetectedComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    lastDetectedToDateTimePicker.clear();
-                    LocalDateTime localDateTime = LocalDateTime.now();
+        applicationsComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                updateAppVersionTagsComboBox(null);
+            }
+        });
 
-                    if (!e.getItem().toString().equals((Constants.LAST_DETECTED_CUSTOM))) {
-                        lastDetectedFromDateTimePicker.setEnabled(false);
-                        lastDetectedToDateTimePicker.setEnabled(false);
-                    }
+        lastDetectedComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                lastDetectedToDateTimePicker.clear();
+                LocalDateTime localDateTime = LocalDateTime.now();
 
-                    if (e.getItem().toString().equals(Constants.LAST_DETECTED_ALL)) {
+                if (!e.getItem().toString().equals((Constants.LAST_DETECTED_CUSTOM))) {
+                    lastDetectedFromDateTimePicker.setEnabled(false);
+                    lastDetectedToDateTimePicker.setEnabled(false);
+                }
+
+                switch (e.getItem().toString()) {
+                    case Constants.LAST_DETECTED_ALL:
                         lastDetectedFromDateTimePicker.clear();
 
-                    } else if (e.getItem().toString().equals(Constants.LAST_DETECTED_HOUR)) {
+                        break;
+                    case Constants.LAST_DETECTED_HOUR:
 
                         lastDetectedFromDateTimePicker.setDateTimeStrict(localDateTime.minusHours(1));
 
-                    } else if (e.getItem().toString().equals(Constants.LAST_DETECTED_DAY)) {
+                        break;
+                    case Constants.LAST_DETECTED_DAY:
 
                         lastDetectedFromDateTimePicker.setDateTimeStrict(localDateTime.minusDays(1));
 
-                    } else if (e.getItem().toString().equals(Constants.LAST_DETECTED_WEEK)) {
+                        break;
+                    case Constants.LAST_DETECTED_WEEK:
 
                         lastDetectedFromDateTimePicker.setDateTimeStrict(localDateTime.minusWeeks(1));
 
-                    } else if (e.getItem().toString().equals(Constants.LAST_DETECTED_MONTH)) {
+                        break;
+                    case Constants.LAST_DETECTED_MONTH:
 
                         lastDetectedFromDateTimePicker.setDateTimeStrict(localDateTime.minusMonths(1));
 
-                    } else if (e.getItem().toString().equals(Constants.LAST_DETECTED_YEAR)) {
+                        break;
+                    case Constants.LAST_DETECTED_YEAR:
 
                         lastDetectedFromDateTimePicker.setDateTimeStrict(localDateTime.minusYears(1));
 
-                    } else if (e.getItem().toString().equals(Constants.LAST_DETECTED_CUSTOM)) {
+                        break;
+                    case Constants.LAST_DETECTED_CUSTOM:
                         lastDetectedFromDateTimePicker.setEnabled(true);
                         lastDetectedToDateTimePicker.setEnabled(true);
-                    }
+                        break;
                 }
             }
         });
@@ -439,17 +442,13 @@ public class FiltersDialog extends JDialog {
         Date lastDetectedFromDate = Date.from(fromDate.atZone(ZoneId.systemDefault()).toInstant());
         Date lastDetectedToDate = Date.from(toDate.atZone(ZoneId.systemDefault()).toInstant());
 
-        if (lastDetectedFromDate.getTime() < lastDetectedToDate.getTime()) {
-            return true;
-        } else {
-            return false;
-        }
+        return lastDetectedFromDate.getTime() < lastDetectedToDate.getTime();
     }
 
-    public void updateApplicationsComboBox(Server server) {
+    private void updateApplicationsComboBox(Server server) {
         applicationsComboBox.removeAllItems();
         int count = 0;
-        List<Application> applications = null;
+        List<Application> applications;
 
         if (server == null) {
             applications = this.applications;
@@ -523,8 +522,7 @@ public class FiltersDialog extends JDialog {
 
     private Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
         if (localDateTime != null) {
-            Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-            return date;
+            return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         } else {
             return null;
         }
@@ -550,6 +548,7 @@ public class FiltersDialog extends JDialog {
             appId = applicationComboBoxItem.getApplication().getId();
         }
         TraceFilterForm form = null;
+        int currentOffset = 0;
         if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
             form = Util.getTraceFilterForm(currentOffset, PAGE_LIMIT);
         } else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
@@ -559,8 +558,19 @@ public class FiltersDialog extends JDialog {
         } else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
             form = Util.getTraceFilterForm(serverId, currentOffset, PAGE_LIMIT);
         }
+
+        if (appVersionTagsComboBox.getSelectedItem() != null) {
+            form.setAppVersionTags(Collections.singletonList(appVersionTagsComboBox.getSelectedItem().toString()));
+        } else {
+            form.setAppVersionTags(null);
+        }
+
         form.setSeverities(severities);
-        form.setStatus(statuses);
+        if (!statuses.isEmpty()) {
+            form.setStatus(statuses);
+        } else {
+            form.setStatus(null);
+        }
         form.setStartDate(fromDate);
         form.setEndDate(toDate);
         form.setOffset(currentOffset);
@@ -612,6 +622,12 @@ public class FiltersDialog extends JDialog {
 
         List<String> selectedStatuses = getSelectedStatuses();
         contrastFilterPersistentStateComponent.setStatuses(selectedStatuses);
+
+        if (appVersionTagsComboBox.getSelectedItem() != null) {
+            contrastFilterPersistentStateComponent.setAppVersionTag(appVersionTagsComboBox.getSelectedItem().toString());
+        } else {
+            contrastFilterPersistentStateComponent.setAppVersionTag(null);
+        }
     }
 
     private List<String> getSelectedSeveritiesAsList() {
@@ -634,7 +650,17 @@ public class FiltersDialog extends JDialog {
         return severities;
     }
 
-    public TraceFilterForm getTraceFilterForm() {
+    TraceFilterForm getTraceFilterForm() {
         return traceFilterForm;
+    }
+
+    private FilterResource getApplicationTraceFiltersByType(String orgUuid, String appId) {
+        FilterResource filterResource = null;
+        try {
+            filterResource = extendedContrastSDK.getApplicationTraceFiltersByType(orgUuid, appId, Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filterResource;
     }
 }
