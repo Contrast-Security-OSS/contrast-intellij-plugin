@@ -66,6 +66,7 @@ public class FiltersDialog extends JDialog {
     private JPanel filtersPanel;
     private JComboBox appVersionTagsComboBox;
     private JButton refreshAppVersionTagsButton;
+    private JButton clearAppVersionTagsButton;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Servers servers;
     private List<Application> applications;
@@ -131,6 +132,7 @@ public class FiltersDialog extends JDialog {
         });
 
         refreshAppVersionTagsButton.addActionListener(e -> new Thread(() -> {
+            contentPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
             if (applicationComboBoxItem != null && applicationComboBoxItem.getApplication() != null) {
                 String appId = applicationComboBoxItem.getApplication().getId();
@@ -141,7 +143,10 @@ public class FiltersDialog extends JDialog {
             } else {
                 updateAppVersionTagsComboBox(null);
             }
+            contentPane.setCursor(Cursor.getDefaultCursor());
         }).start());
+
+        clearAppVersionTagsButton.addActionListener(e -> appVersionTagsComboBox.removeAllItems());
 
         new Thread(this::refresh).start();
     }
