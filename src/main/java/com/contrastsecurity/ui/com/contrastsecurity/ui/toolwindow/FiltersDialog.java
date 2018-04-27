@@ -391,6 +391,16 @@ public class FiltersDialog extends JDialog {
         applicationsComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 updateAppVersionTagsComboBox(null);
+                ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
+                if (applicationComboBoxItem == null || applicationComboBoxItem.getApplication() == null) {
+                    appVersionTagsComboBox.setEnabled(false);
+                    refreshAppVersionTagsButton.setEnabled(false);
+                    clearAppVersionTagsButton.setEnabled(false);
+                } else {
+                    appVersionTagsComboBox.setEnabled(true);
+                    refreshAppVersionTagsButton.setEnabled(true);
+                    clearAppVersionTagsButton.setEnabled(true);
+                }
             }
         });
 

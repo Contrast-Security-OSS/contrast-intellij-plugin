@@ -1334,7 +1334,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 if (servers != null && applications != null) {
-                    FiltersDialog filtersDialog = new FiltersDialog(servers, applications, extendedContrastSDK, organizationConfig);
+                    final FiltersDialog filtersDialog = new FiltersDialog(servers, applications, extendedContrastSDK, organizationConfig);
                     filtersDialog.setVisible(true);
 
                     TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();

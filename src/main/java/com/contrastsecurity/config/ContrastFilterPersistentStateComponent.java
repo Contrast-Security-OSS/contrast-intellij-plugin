@@ -153,7 +153,7 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
         return appVersionTag;
     }
 
-    public void setAppVersionTag(String appVersionTag) {
+    public void setAppVersionTag(final String appVersionTag) {
         this.appVersionTag = appVersionTag;
     }
 }
