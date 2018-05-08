@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @State(
-        name="ContrastFilterPersistentStateComponent",
+        name = "ContrastFilterPersistentStateComponent",
         storages = {
                 @Storage("$APP_CONFIG$/contrast-filter.xml")}
 )
@@ -43,6 +43,7 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
     public Integer page;
     public String sort;
     public int currentOffset = 0;
+    public String appVersionTag;
 
     @Nullable
     @Override
@@ -146,5 +147,13 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
 
     public void setCurrentOffset(int currentOffset) {
         this.currentOffset = currentOffset;
+    }
+
+    public String getAppVersionTag() {
+        return appVersionTag;
+    }
+
+    public void setAppVersionTag(final String appVersionTag) {
+        this.appVersionTag = appVersionTag;
     }
 }
