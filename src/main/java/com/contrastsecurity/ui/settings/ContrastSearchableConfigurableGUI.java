@@ -48,22 +48,17 @@ public class ContrastSearchableConfigurableGUI {
     private JTextField serviceKeyTextField;
     private JLabel serviceKeyLabel;
     private JComboBox organizationComboBox;
-    private JLabel organizationLabel;
     private JButton addButton;
     private JButton deleteButton;
     private JButton testConnectionButton;
-    private JLabel selectedOrganizationLabel;
     private JLabel apiKeyLabel;
     private JPasswordField apiKeyTextField;
     private JLabel uuidLabel;
     private JTextField uuidTextField;
-    private JSeparator selectedOrganizationSeparator;
     private JSeparator generalSettingsSeparator;
     private JLabel generalSettingsLabel;
-    private JLabel organizationSettingsLabel;
-    private JButton restoreDefaultsButton;
-    private JSeparator organizationSettingsSeparator;
     private JLabel testConnectionLabel;
+    private JTable organizationTable;
     private Util util;
     private Map<String, String> organizations = new HashMap<>();
 
@@ -71,12 +66,6 @@ public class ContrastSearchableConfigurableGUI {
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
         util = new Util();
         populateFieldsWithValuesFromContrastPersistentStateComponent();
-
-        restoreDefaultsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ContrastSearchableConfigurableGUI.this.restoreDefaults();
-            }
-        });
 
         organizationComboBox.addItemListener(new ItemListener() {
             @Override
@@ -251,9 +240,5 @@ public class ContrastSearchableConfigurableGUI {
 
     public void reset() {
         populateFieldsWithValuesFromContrastPersistentStateComponent();
-    }
-
-    private void restoreDefaults() {
-        teamServerTextField.setText(Constants.TEAM_SERVER_URL_VALUE);
     }
 }
