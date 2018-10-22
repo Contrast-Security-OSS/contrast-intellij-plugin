@@ -15,59 +15,16 @@
 package com.contrastsecurity.core;
 
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
-import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.TraceFilterForm;
-import com.contrastsecurity.models.Organization;
-import com.contrastsecurity.models.Organizations;
-import com.contrastsecurity.sdk.ContrastSDK;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Util {
 
-    private final static String LIST_DELIMITATOR = ";";
-
-    public static Organization getDefaultOrganization(ContrastSDK sdk) throws IOException, UnauthorizedException {
-        if (sdk == null) {
-            return null;
-        }
-        Organizations organizations = sdk.getProfileDefaultOrganizations();
-        return organizations.getOrganization();
-    }
-
-    public static String[] extractOrganizationNames(List<Organization> orgList) {
-        String[] orgArray = new String[orgList.size()];
-
-        for (int i = 0; i < orgList.size(); i++)
-            orgArray[i] = orgList.get(i).getName();
-
-        return orgArray;
-    }
-
-    public static TraceFilterForm getTraceFilterForm(final int offset, final int limit, String sort) {
-        return getTraceFilterForm(null, offset, limit, sort);
-    }
-
     public static TraceFilterForm getTraceFilterForm(final int offset, final int limit) {
         return getTraceFilterForm(null, offset, limit);
-    }
-
-    public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit, String sort) {
-        final TraceFilterForm form = new TraceFilterForm();
-        if (selectedServerId != null) {
-            final List<Long> serverIds = new ArrayList<>();
-            serverIds.add(selectedServerId);
-            form.setServerIds(serverIds);
-        }
-
-        form.setOffset(offset);
-        form.setLimit(limit);
-        form.setSort(sort);
-
-        return form;
     }
 
     public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit) {
@@ -83,51 +40,23 @@ public class Util {
         return form;
     }
 
-    public static String[] getListFromString(String list) {
-        String[] orgList;
-
-        if (StringUtils.isNotBlank(list))
-            orgList = StringUtils.split(list, LIST_DELIMITATOR);
-        else
-            return new String[0];
-
-        return orgList;
-    }
-
-    public static String getStringFromList(String[] list) {
-        StringBuffer buffer = new StringBuffer();
-
-        int size = list.length;
-        for (int i = 0; i < size; i++) {
-            buffer.append(list[i]);
-
-            if (i < size - 1)
-                buffer.append(LIST_DELIMITATOR);
-        }
-
-        return buffer.toString();
-    }
-
     public static String getStringFromOrganizationConfig(OrganizationConfig organizationConfig, String delimiter) {
-        String organization = organizationConfig.getApiKey() + delimiter + organizationConfig.getUuid();
+        String organization = organizationConfig.getTeamServerUrl() + delimiter +
+                organizationConfig.getUsername() + delimiter +
+                organizationConfig.getServiceKey() + delimiter +
+                organizationConfig.getApiKey() + delimiter + organizationConfig.getUuid();
         return organization;
     }
 
     public static OrganizationConfig getOrganizationConfigFromString(String organization, String delimiter) {
-        OrganizationConfig organizationConfig;
+        OrganizationConfig organizationConfig = null;
 
         if (StringUtils.isNotBlank(organization)) {
             String[] org = StringUtils.split(organization, delimiter);
-            if (org.length != 2) {
-                organizationConfig = null;
-            } else {
-                organizationConfig = new OrganizationConfig(org[0], org[1]);
+            if (org.length == 5) {
+                organizationConfig = new OrganizationConfig(org[0], org[1], org[2], org[3], org[4]);
             }
-        } else {
-            organizationConfig = null;
         }
         return organizationConfig;
     }
-
-
 }

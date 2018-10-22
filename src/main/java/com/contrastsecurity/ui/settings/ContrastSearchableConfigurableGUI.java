@@ -18,17 +18,16 @@ import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
-import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
+import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,84 +36,35 @@ import java.util.Map;
 
 public class ContrastSearchableConfigurableGUI {
 
-    //    Other variables
     private final ContrastPersistentStateComponent contrastPersistentStateComponent;
-    //    UI Variables
     private JPanel contrastSettingsPanel;
-    private JLabel teamServerLabel;
     private JTextField teamServerTextField;
     private JTextField usernameTextField;
-    private JLabel usernameLabel;
     private JTextField serviceKeyTextField;
-    private JLabel serviceKeyLabel;
-    private JComboBox organizationComboBox;
     private JButton addButton;
     private JButton deleteButton;
-    private JButton testConnectionButton;
-    private JLabel apiKeyLabel;
     private JPasswordField apiKeyTextField;
-    private JLabel uuidLabel;
     private JTextField uuidTextField;
-    private JSeparator generalSettingsSeparator;
-    private JLabel generalSettingsLabel;
     private JLabel testConnectionLabel;
     private JTable organizationTable;
     private Util util;
     private Map<String, String> organizations = new HashMap<>();
+    private OrganizationTableModel organizationTableModel = new OrganizationTableModel();
 
     public ContrastSearchableConfigurableGUI() {
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
         util = new Util();
-        populateFieldsWithValuesFromContrastPersistentStateComponent();
 
-        organizationComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == e.SELECTED) {
-                    ContrastSearchableConfigurableGUI.this.setApiKeyAndUuidForSelectedOrganization();
-                }
-            }
-        });
+        organizationTable.setModel(organizationTableModel);
+        organizationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        populateFieldsWithValuesFromContrastPersistentStateComponent();
 
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ContrastDialog contrastDialog = new ContrastDialog(getTeamServerUrl(), usernameTextField.getText(), serviceKeyTextField.getText());
-                contrastDialog.setVisible(true);
-
-                Map<String, String> retrievedOrgs = contrastDialog.getOrganization();
-                if (retrievedOrgs != null) {
-
-                    for (String orgName : retrievedOrgs.keySet()) {
-                        organizations.putIfAbsent(orgName, retrievedOrgs.get(orgName));
-                    }
-                    organizationComboBox.removeAllItems();
-                    // populate organizationComboBox
-                    for (String organizationName : organizations.keySet()) {
-                        organizationComboBox.addItem(organizationName);
-                    }
-                }
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (organizationComboBox.getSelectedItem() != null) {
-                    String selectedItem = organizationComboBox.getSelectedItem().toString();
-                    if (organizations.get(selectedItem) != null) {
-                        organizations.remove(selectedItem);
-                    }
-                    organizationComboBox.removeItem(selectedItem);
-                }
-            }
-        });
-
-        testConnectionButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
+                //
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -132,14 +82,29 @@ public class ContrastSearchableConfigurableGUI {
                         }
                         ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText(), serviceKeyTextField.getText(),
                                 apiKeyTextField.getText(), getTeamServerUrl());
-                        try {
-                            Organizations organizations = extendedContrastSDK.getProfileDefaultOrganizations();
-                            Organization organization = organizations.getOrganization();
 
-                            if (organization == null || organization.getOrgUuid() == null) {
-                                testConnectionLabel.setText("Connection is correct, but no default organizations found.");
-                            } else {
-                                testConnectionLabel.setText("Connection confirmed!");
+                        try {
+                            Organizations orgs = extendedContrastSDK.getProfileOrganizations();
+
+                            if (orgs != null && orgs.getOrganizations() != null && !orgs.getOrganizations().isEmpty()) {
+                                for (Organization organization : orgs.getOrganizations()) {
+                                    if (organization.getOrgUuid().equals(uuidTextField.getText())) {
+
+                                        organizations.putIfAbsent(organization.getName(), teamServerTextField.getText() +
+                                                Constants.DELIMITER + usernameTextField.getText() + Constants.DELIMITER +
+                                                serviceKeyTextField.getText() + Constants.DELIMITER +
+                                                apiKeyTextField.getPassword() + Constants.DELIMITER + uuidTextField.getText());
+
+                                        String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
+                                        organizationTableModel.setData(orgsArray);
+                                        organizationTableModel.fireTableDataChanged();
+
+                                        int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, organization.getName());
+                                        organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
+
+                                        break;
+                                    }
+                                }
                             }
                         } catch (IOException | UnauthorizedException e1) {
                             testConnectionLabel.setText("Connection failed! " + e1.getMessage());
@@ -149,8 +114,40 @@ public class ContrastSearchableConfigurableGUI {
                         }
                     }
                 }).start();
+                //
             }
         });
+
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedOrganization = getSelectedTableValue(organizationTable);
+                if (selectedOrganization != null) {
+                    if (organizations.get(selectedOrganization) != null) {
+                        organizations.remove(selectedOrganization);
+                    }
+
+                    String[] newData = (String[]) ArrayUtils.removeElement(organizationTableModel.getData(), selectedOrganization);
+                    organizationTableModel.setData(newData);
+                    organizationTableModel.fireTableDataChanged();
+                }
+            }
+        });
+
+//        organizationTable.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                int row = organizationTable.rowAtPoint(e.getPoint());
+//                int col = organizationTable.columnAtPoint(e.getPoint());
+//
+//                if (row >= 0 && col >= 0) {
+//                    String name = organizationTable.getColumnName(col);
+//                    if (name.equals("Organization")) {
+//                        String organizationName = (String) organizationTableModel.getValueAt(row, 0);
+//                    }
+//                }
+//            }
+//        });
     }
 
     private String getTeamServerUrl() {
@@ -169,76 +166,54 @@ public class ContrastSearchableConfigurableGUI {
     }
 
     private void populateFieldsWithValuesFromContrastPersistentStateComponent() {
-        teamServerTextField.setText(contrastPersistentStateComponent.getTeamServerUrl());
-        usernameTextField.setText(contrastPersistentStateComponent.getUsername());
-        serviceKeyTextField.setText(contrastPersistentStateComponent.getServiceKey());
-
         Map<String, String> orgs = contrastPersistentStateComponent.getOrganizations();
 
         if (orgs.isEmpty()) {
             organizations = new HashMap<>();
-            organizationComboBox.removeAllItems();
+            organizationTableModel.setData(new String[0]);
+            organizationTableModel.fireTableDataChanged();
         } else if (!orgs.isEmpty()) {
 //            Create a copy of organizations map from ContrastPersistentStateComponent class
 //            It will be compared with the original in isModified() method
             organizations = new HashMap<>();
             organizations.putAll(orgs);
 
-            organizationComboBox.removeAllItems();
-            // populate organizationComboBox
-            for (String organizationName : organizations.keySet()) {
-                organizationComboBox.addItem(organizationName);
-            }
+            String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
+            organizationTableModel.setData(orgsArray);
+            organizationTableModel.fireTableDataChanged();
 
             String selectedOrganization = organizations.get(contrastPersistentStateComponent.getSelectedOrganizationName());
             if (StringUtils.isNotBlank(contrastPersistentStateComponent.getSelectedOrganizationName())
                     && selectedOrganization != null) {
-                // if selectedOrganization is not null, set it as selected in organizationComboBox
-                organizationComboBox.setSelectedItem(contrastPersistentStateComponent.getSelectedOrganizationName());
-                // populate apiKeyTextField and uuidTextField
-                setApiKeyAndUuidForSelectedOrganization();
-            }
-        }
-    }
-
-    private void setApiKeyAndUuidForSelectedOrganization() {
-        if (organizationComboBox.getSelectedItem() != null) {
-            String selectedOrganization = organizations.get(organizationComboBox.getSelectedItem().toString());
-            if (selectedOrganization != null) {
-                OrganizationConfig organizationConfig = util.getOrganizationConfigFromString(selectedOrganization, Constants.DELIMITER);
-                if (organizationConfig != null) {
-                    apiKeyTextField.setText(organizationConfig.getApiKey());
-                    uuidTextField.setText(organizationConfig.getUuid());
-                }
+                // if selectedOrganization is not null, set it as selected in organizationTable
+                String selectedOrgName = contrastPersistentStateComponent.getSelectedOrganizationName();
+                int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, selectedOrgName);
+                organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
             }
         }
     }
 
     public boolean isModified() {
         boolean modified = false;
-        modified |= !getTeamServerUrl().equals(contrastPersistentStateComponent.getTeamServerUrl());
-        modified |= !usernameTextField.getText().equals(contrastPersistentStateComponent.getUsername());
-        modified |= !serviceKeyTextField.getText().equals(contrastPersistentStateComponent.getServiceKey());
-
-        if (organizationComboBox.getSelectedItem() != null) {
-            modified |= !organizationComboBox.getSelectedItem().toString().equals(contrastPersistentStateComponent.getSelectedOrganizationName());
+        if (getSelectedTableValue(organizationTable) != null) {
+            modified |= !getSelectedTableValue(organizationTable).equals(contrastPersistentStateComponent.getSelectedOrganizationName());
         }
-
         modified |= !organizations.equals(contrastPersistentStateComponent.getOrganizations());
         return modified;
     }
 
     public void apply() {
-        contrastPersistentStateComponent.setTeamServerUrl(getTeamServerUrl());
-        contrastPersistentStateComponent.setUsername(usernameTextField.getText());
-        contrastPersistentStateComponent.setServiceKey(serviceKeyTextField.getText());
-        if (organizationComboBox.getSelectedItem() != null) {
-            contrastPersistentStateComponent.setSelectedOrganizationName(organizationComboBox.getSelectedItem().toString());
+        if (getSelectedTableValue(organizationTable) != null) {
+            contrastPersistentStateComponent.setSelectedOrganizationName(getSelectedTableValue(organizationTable));
         }
         contrastPersistentStateComponent.setOrganizations(organizations);
     }
 
     public void reset() {
         populateFieldsWithValuesFromContrastPersistentStateComponent();
+    }
+
+    private String getSelectedTableValue(JTable jTable) {
+        return (String) jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn());
     }
 }

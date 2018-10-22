@@ -724,7 +724,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private URL getOverviewUrl(String traceId) throws MalformedURLException {
-        String teamServerUrl = contrastUtil.getTeamServerUrl();
+        String teamServerUrl = contrastUtil.getSelectedOrganizationConfig().getTeamServerUrl();
         teamServerUrl = teamServerUrl.trim();
         if (teamServerUrl.endsWith("/api")) {
             teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 4);
