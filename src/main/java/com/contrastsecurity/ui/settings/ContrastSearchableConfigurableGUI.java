@@ -105,6 +105,7 @@ public class ContrastSearchableConfigurableGUI {
                                         serviceKeyTextField.setText("");
                                         apiKeyTextField.setText("");
                                         uuidTextField.setText("");
+                                        testConnectionLabel.setText("");
 
                                         break;
                                     }
