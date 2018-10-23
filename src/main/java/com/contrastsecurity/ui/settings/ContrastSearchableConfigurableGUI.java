@@ -63,8 +63,6 @@ public class ContrastSearchableConfigurableGUI {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                //
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -93,7 +91,7 @@ public class ContrastSearchableConfigurableGUI {
                                         organizations.putIfAbsent(organization.getName(), teamServerTextField.getText() +
                                                 Constants.DELIMITER + usernameTextField.getText() + Constants.DELIMITER +
                                                 serviceKeyTextField.getText() + Constants.DELIMITER +
-                                                apiKeyTextField.getPassword() + Constants.DELIMITER + uuidTextField.getText());
+                                                new String(apiKeyTextField.getPassword()) + Constants.DELIMITER + uuidTextField.getText());
 
                                         String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
                                         organizationTableModel.setData(orgsArray);
@@ -101,6 +99,12 @@ public class ContrastSearchableConfigurableGUI {
 
                                         int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, organization.getName());
                                         organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
+
+                                        teamServerTextField.setText("");
+                                        usernameTextField.setText("");
+                                        serviceKeyTextField.setText("");
+                                        apiKeyTextField.setText("");
+                                        uuidTextField.setText("");
 
                                         break;
                                     }
@@ -114,7 +118,6 @@ public class ContrastSearchableConfigurableGUI {
                         }
                     }
                 }).start();
-                //
             }
         });
 
@@ -130,6 +133,10 @@ public class ContrastSearchableConfigurableGUI {
                     String[] newData = (String[]) ArrayUtils.removeElement(organizationTableModel.getData(), selectedOrganization);
                     organizationTableModel.setData(newData);
                     organizationTableModel.fireTableDataChanged();
+
+                    if (newData.length > 0) {
+                        organizationTable.setRowSelectionInterval(0, 0);
+                    }
                 }
             }
         });
@@ -214,6 +221,10 @@ public class ContrastSearchableConfigurableGUI {
     }
 
     private String getSelectedTableValue(JTable jTable) {
-        return (String) jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn());
+        if (jTable.getSelectedRow() == -1) {
+            return null;
+        }
+
+        return (String) jTable.getValueAt(jTable.getSelectedRow(), 0);
     }
 }

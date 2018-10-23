@@ -15,6 +15,7 @@
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
+import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
@@ -406,7 +407,28 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastTableRowSorter.addRowSorterListener(contrastRowSorterListener);
 
         setupTable();
+        updateOrganizationConfig();
         refresh();
+    }
+
+    private void updateOrganizationConfig() {
+        ContrastPersistentStateComponent contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
+        Map<String, String> organizationMap = contrastPersistentStateComponent.getOrganizations();
+        for (Map.Entry<String, String> entry : organizationMap.entrySet()) {
+            String organizationString = entry.getValue();
+
+            String[] org = StringUtils.split(organizationString, Constants.DELIMITER);
+            if (org.length == 2) {
+                String teamServerUrl = contrastPersistentStateComponent.getTeamServerUrl();
+                String username = contrastPersistentStateComponent.getUsername();
+                String serviceKey = contrastPersistentStateComponent.getServiceKey();
+
+                OrganizationConfig organizationConfig = new OrganizationConfig(teamServerUrl, username, serviceKey, org[0], org[1]);
+                String newOrganizationString = Util.getStringFromOrganizationConfig(organizationConfig, Constants.DELIMITER);
+
+                entry.setValue(newOrganizationString);
+            }
+        }
     }
 
     private void goToPage(final int page, final boolean userUpdatedPagesComboBoxSelection) {

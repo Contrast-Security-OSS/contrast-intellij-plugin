@@ -45,7 +45,7 @@ public class ContrastUtil {
         OrganizationConfig organizationConfig = getSelectedOrganizationConfig();
         if (organizationConfig != null) {
             sdk = new ExtendedContrastSDK(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey(), organizationConfig.getTeamServerUrl());
-//        sdk.setReadTimeout(5000);
+//            sdk.setReadTimeout(5000);
         }
         return sdk;
     }
