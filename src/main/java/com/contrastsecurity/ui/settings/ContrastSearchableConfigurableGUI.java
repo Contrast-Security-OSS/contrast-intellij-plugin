@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.contrastsecurity.ui.settings;
 
+import com.contrastsecurity.config.ChangeActionNotifier;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
@@ -22,6 +23,8 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.util.messages.MessageBus;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -141,21 +144,6 @@ public class ContrastSearchableConfigurableGUI {
                 }
             }
         });
-
-//        organizationTable.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                int row = organizationTable.rowAtPoint(e.getPoint());
-//                int col = organizationTable.columnAtPoint(e.getPoint());
-//
-//                if (row >= 0 && col >= 0) {
-//                    String name = organizationTable.getColumnName(col);
-//                    if (name.equals("Organization")) {
-//                        String organizationName = (String) organizationTableModel.getValueAt(row, 0);
-//                    }
-//                }
-//            }
-//        });
     }
 
     private String getTeamServerUrl() {
@@ -211,10 +199,19 @@ public class ContrastSearchableConfigurableGUI {
     }
 
     public void apply() {
-        if (getSelectedTableValue(organizationTable) != null) {
-            contrastPersistentStateComponent.setSelectedOrganizationName(getSelectedTableValue(organizationTable));
-        }
         contrastPersistentStateComponent.setOrganizations(organizations);
+        doChange();
+    }
+
+    private void doChange() {
+        MessageBus bus = ApplicationManager.getApplication().getMessageBus();
+        ChangeActionNotifier publisher = bus.syncPublisher(ChangeActionNotifier.CHANGE_ACTION_TOPIC);
+        publisher.beforeAction();
+        try {
+            contrastPersistentStateComponent.setSelectedOrganizationName(getSelectedTableValue(organizationTable));
+        } finally {
+            publisher.afterAction();
+        }
     }
 
     public void reset() {

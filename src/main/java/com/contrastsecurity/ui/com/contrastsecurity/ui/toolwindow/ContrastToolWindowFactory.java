@@ -14,6 +14,7 @@
  */
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
+import com.contrastsecurity.config.ChangeActionNotifier;
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
@@ -30,6 +31,7 @@ import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.contrastsecurity.ui.settings.ContrastSearchableConfigurable;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
@@ -46,6 +48,7 @@ import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.messages.MessageBus;
 import icons.ContrastPluginIcons;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -408,7 +411,39 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         setupTable();
         updateOrganizationConfig();
+
+        init();
+
         refresh();
+    }
+
+    private void init() {
+        MessageBus bus = ApplicationManager.getApplication().getMessageBus();
+
+        bus.connect().subscribe(ChangeActionNotifier.CHANGE_ACTION_TOPIC, new ChangeActionNotifier() {
+            ContrastPersistentStateComponent contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
+            String selectedOrganizationName;
+
+            @Override
+            public void beforeAction() {
+                selectedOrganizationName = contrastPersistentStateComponent.getSelectedOrganizationName();
+            }
+
+            @Override
+            public void afterAction() {
+                if (selectedOrganizationName != null && !selectedOrganizationName.equals(contrastPersistentStateComponent.getSelectedOrganizationName())) {
+
+                    contrastFilterPersistentStateComponent.setAppVersionTag(null);
+                    contrastFilterPersistentStateComponent.setCurrentOffset(0);
+                    contrastFilterPersistentStateComponent.setPage(1);
+                    contrastFilterPersistentStateComponent.setSelectedApplicationId(null);
+                    contrastFilterPersistentStateComponent.setSelectedApplicationName(null);
+                    contrastFilterPersistentStateComponent.setSelectedServerUuid(null);
+
+                    refresh();
+                }
+            }
+        });
     }
 
     private void updateOrganizationConfig() {
