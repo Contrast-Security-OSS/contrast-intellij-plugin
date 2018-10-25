@@ -439,6 +439,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     contrastFilterPersistentStateComponent.setSelectedApplicationId(null);
                     contrastFilterPersistentStateComponent.setSelectedApplicationName(null);
                     contrastFilterPersistentStateComponent.setSelectedServerUuid(null);
+                    servers = null;
+                    applications = null;
 
                     refresh();
                 }
