@@ -91,7 +91,7 @@ public class ContrastSearchableConfigurableGUI {
                                 for (Organization organization : orgs.getOrganizations()) {
                                     if (organization.getOrgUuid().equals(uuidTextField.getText())) {
 
-                                        organizations.putIfAbsent(organization.getName(), teamServerTextField.getText() +
+                                        organizations.putIfAbsent(organization.getName(), getTeamServerUrl() +
                                                 Constants.DELIMITER + usernameTextField.getText() + Constants.DELIMITER +
                                                 serviceKeyTextField.getText() + Constants.DELIMITER +
                                                 new String(apiKeyTextField.getPassword()) + Constants.DELIMITER + uuidTextField.getText());
@@ -151,7 +151,10 @@ public class ContrastSearchableConfigurableGUI {
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
-        if (!url.endsWith("/api")) {
+        if (!url.endsWith("/Contrast/api")) {
+            if (!url.endsWith("/Contrast")) {
+                url += "/Contrast";
+            }
             url += "/api";
         }
         return url;
