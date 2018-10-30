@@ -147,7 +147,7 @@ public class ContrastSearchableConfigurableGUI {
     }
 
     private String getTeamServerUrl() {
-        String url = teamServerTextField.getText();
+        String url = teamServerTextField.getText().trim();
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
