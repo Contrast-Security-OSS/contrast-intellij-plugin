@@ -32,7 +32,8 @@ public class UtilTest {
     public void getStringFromOrganizationConfigTest() {
         OrganizationConfig organizationConfig = new OrganizationConfig(TEAMSERVER_URL, USERNAME, SERVICE_KEY, API_KEY, UUID);
         String organizationConfigString = Util.getStringFromOrganizationConfig(organizationConfig, DELIMITER);
-        assertEquals(organizationConfigString, API_KEY + DELIMITER + UUID);
+        assertEquals(organizationConfigString, TEAMSERVER_URL + DELIMITER + USERNAME + DELIMITER +
+                SERVICE_KEY + DELIMITER + API_KEY + DELIMITER + UUID );
     }
 
     @Test
