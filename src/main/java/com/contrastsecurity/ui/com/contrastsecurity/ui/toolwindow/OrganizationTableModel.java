@@ -18,7 +18,7 @@ import javax.swing.table.AbstractTableModel;
 
 public class OrganizationTableModel extends AbstractTableModel {
 
-    private String[] columnNames = {"Organization"};
+    private String[] columnNames = {"Organizations"};
     private String[] data = new String[0];
 
     @Override
