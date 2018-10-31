@@ -110,6 +110,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JPanel overviewPanel;
     private JButton markAsButton;
     private JTextPane traceTitleTextPane;
+    private JLabel noVulnerabilitiesLabel;
     private ContrastUtil contrastUtil;
     private ExtendedContrastSDK extendedContrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
@@ -546,6 +547,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         } else {
             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+            noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_NO_ORGS);
             cardLayout.show(cardPanel, "noVulnerabilitiesCard");
         }
         contrastCache = contrastUtil.getContrastCache();
@@ -603,6 +605,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             exception.printStackTrace();
             if (!noVulnerabilitiesPanel.isVisible()) {
                 CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_ERROR);
                 cardLayout.show(cardPanel, "noVulnerabilitiesCard");
             }
         }
