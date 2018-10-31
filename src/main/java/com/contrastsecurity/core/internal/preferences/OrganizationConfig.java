@@ -15,13 +15,43 @@
 package com.contrastsecurity.core.internal.preferences;
 
 public class OrganizationConfig {
-	
-	private String apiKey;
-	private String uuid;
 
-    public OrganizationConfig(String apiKey, String uuid) {
+    private String teamServerUrl;
+    private String username;
+    private String serviceKey;
+    private String apiKey;
+    private String uuid;
+
+    public OrganizationConfig(String teamServerUrl, String username, String serviceKey, String apiKey, String uuid) {
+        this.teamServerUrl = teamServerUrl;
+        this.username = username;
+        this.serviceKey = serviceKey;
         this.apiKey = apiKey;
         this.uuid = uuid;
+    }
+
+    public String getTeamServerUrl() {
+        return teamServerUrl;
+    }
+
+    public void setTeamServerUrl(String teamServerUrl) {
+        this.teamServerUrl = teamServerUrl;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getServiceKey() {
+        return serviceKey;
+    }
+
+    public void setServiceKey(String serviceKey) {
+        this.serviceKey = serviceKey;
     }
 
     public String getApiKey() {

@@ -14,7 +14,9 @@
  */
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
+import com.contrastsecurity.config.ChangeActionNotifier;
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
+import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
@@ -29,6 +31,7 @@ import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.contrastsecurity.ui.settings.ContrastSearchableConfigurable;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
@@ -45,6 +48,7 @@ import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.messages.MessageBus;
 import icons.ContrastPluginIcons;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -406,7 +410,62 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastTableRowSorter.addRowSorterListener(contrastRowSorterListener);
 
         setupTable();
+        updateOrganizationConfig();
+
+        init();
+
         refresh();
+    }
+
+    private void init() {
+        MessageBus bus = ApplicationManager.getApplication().getMessageBus();
+
+        bus.connect().subscribe(ChangeActionNotifier.CHANGE_ACTION_TOPIC, new ChangeActionNotifier() {
+            ContrastPersistentStateComponent contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
+            String selectedOrganizationName;
+
+            @Override
+            public void beforeAction() {
+                selectedOrganizationName = contrastPersistentStateComponent.getSelectedOrganizationName();
+            }
+
+            @Override
+            public void afterAction() {
+                if (selectedOrganizationName != null && !selectedOrganizationName.equals(contrastPersistentStateComponent.getSelectedOrganizationName())) {
+
+                    contrastFilterPersistentStateComponent.setAppVersionTag(null);
+                    contrastFilterPersistentStateComponent.setCurrentOffset(0);
+                    contrastFilterPersistentStateComponent.setPage(1);
+                    contrastFilterPersistentStateComponent.setSelectedApplicationId(null);
+                    contrastFilterPersistentStateComponent.setSelectedApplicationName(null);
+                    contrastFilterPersistentStateComponent.setSelectedServerUuid(null);
+                    servers = null;
+                    applications = null;
+
+                    refresh();
+                }
+            }
+        });
+    }
+
+    private void updateOrganizationConfig() {
+        ContrastPersistentStateComponent contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
+        Map<String, String> organizationMap = contrastPersistentStateComponent.getOrganizations();
+        for (Map.Entry<String, String> entry : organizationMap.entrySet()) {
+            String organizationString = entry.getValue();
+
+            String[] org = StringUtils.split(organizationString, Constants.DELIMITER);
+            if (org.length == 2) {
+                String teamServerUrl = contrastPersistentStateComponent.getTeamServerUrl();
+                String username = contrastPersistentStateComponent.getUsername();
+                String serviceKey = contrastPersistentStateComponent.getServiceKey();
+
+                OrganizationConfig organizationConfig = new OrganizationConfig(teamServerUrl, username, serviceKey, org[0], org[1]);
+                String newOrganizationString = Util.getStringFromOrganizationConfig(organizationConfig, Constants.DELIMITER);
+
+                entry.setValue(newOrganizationString);
+            }
+        }
     }
 
     private void goToPage(final int page, final boolean userUpdatedPagesComboBoxSelection) {
@@ -724,7 +783,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private URL getOverviewUrl(String traceId) throws MalformedURLException {
-        String teamServerUrl = contrastUtil.getTeamServerUrl();
+        String teamServerUrl = contrastUtil.getSelectedOrganizationConfig().getTeamServerUrl();
         teamServerUrl = teamServerUrl.trim();
         if (teamServerUrl.endsWith("/api")) {
             teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 4);

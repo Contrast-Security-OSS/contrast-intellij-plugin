@@ -3,3 +3,5 @@
 build/
 lib/
 out/
+local.properties
+contrast-intellij-plugin.iml

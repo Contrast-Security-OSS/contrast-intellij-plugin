@@ -207,7 +207,8 @@ public class FiltersDialog extends JDialog {
             selectServerByUuid(contrastFilterPersistentStateComponent.getSelectedServerUuid());
         }
 
-        if (!contrastFilterPersistentStateComponent.getSelectedApplicationName().equals("")) {
+        if (contrastFilterPersistentStateComponent.getSelectedApplicationName() != null &&
+                !contrastFilterPersistentStateComponent.getSelectedApplicationName().isEmpty()) {
             selectApplicationByName(contrastFilterPersistentStateComponent.getSelectedApplicationName());
         }
         if (contrastFilterPersistentStateComponent.getSeverities() != null && !contrastFilterPersistentStateComponent.getSeverities().isEmpty()) {

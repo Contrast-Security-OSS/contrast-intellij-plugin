@@ -54,24 +54,12 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
         return teamServerUrl;
     }
 
-    public void setTeamServerUrl(String teamServerUrl) {
-        this.teamServerUrl = teamServerUrl;
-    }
-
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getServiceKey() {
         return serviceKey;
-    }
-
-    public void setServiceKey(String serviceKey) {
-        this.serviceKey = serviceKey;
     }
 
     public Map<String, String> getOrganizations() {
