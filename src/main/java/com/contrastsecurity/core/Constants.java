@@ -218,4 +218,7 @@ public final class Constants {
             REASON_GOES_THROUGH_AN_INTERNAL_SECURITY_CONTROL, REASON_ATTACK_IS_DEFENDED_BY_AN_EXTERNAL_CONTROL, REASON_OTHER};
 
     public static final String TRACE_FILTER_TYPE_APP_VERSION_TAGS = "appversiontags";
+
+    public static final String NO_VULNERABILITIES_ERROR = "Could not connect to the server. Please check your connection settings.";
+    public static final String NO_VULNERABILITIES_NO_ORGS = "Click the gear icon to add details about your Contrast organization.";
 }
