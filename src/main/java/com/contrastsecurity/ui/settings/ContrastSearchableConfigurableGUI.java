@@ -103,7 +103,7 @@ public class ContrastSearchableConfigurableGUI {
                                         int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, organization.getName());
                                         organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
 
-                                        teamServerTextField.setText("");
+                                        teamServerTextField.setText(Constants.TEAM_SERVER_URL_VALUE);
                                         usernameTextField.setText("");
                                         serviceKeyTextField.setText("");
                                         apiKeyTextField.setText("");
@@ -144,6 +144,8 @@ public class ContrastSearchableConfigurableGUI {
                 }
             }
         });
+
+        teamServerTextField.setText(Constants.TEAM_SERVER_URL_VALUE);
     }
 
     private String getTeamServerUrl() {
