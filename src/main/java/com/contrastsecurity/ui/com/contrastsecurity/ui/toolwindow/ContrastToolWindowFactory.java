@@ -745,6 +745,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 text = ContrastUtil.parseMustache(text);
                 if (!areaText.isEmpty()) {
+                    areaText = ContrastUtil.filterHeaders(areaText, "\n");
                     areaText = ContrastUtil.parseMustache(areaText);
                 }
                 insertChapterIntoPanel(overviewPanel, text, areaText);
@@ -778,16 +779,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
-//        clear previous contents
-        if (!httpRequestTextPane.getText().isEmpty()) {
-            httpRequestTextPane.setText("");
-        }
-//
         httpRequestTextPane.setText(Constants.BLANK);
-        if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
-                && httpRequestResource.getHttpRequest().getFormattedText() != null) {
 
-            httpRequestTextPane.setText(httpRequestResource.getHttpRequest().getText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
+        if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
+                && httpRequestResource.getHttpRequest().getText() != null) {
+            httpRequestTextPane.setText(ContrastUtil.filterHeaders(httpRequestResource.getHttpRequest().getText(), "\n"));
+
         } else if (httpRequestResource != null && httpRequestResource.getReason() != null) {
             httpRequestTextPane.setText(httpRequestResource.getReason());
         }

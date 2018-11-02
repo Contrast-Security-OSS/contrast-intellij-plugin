@@ -73,6 +73,27 @@ public class ContrastUtil {
         return licensed;
     }
 
+    public static String filterHeaders(String data, String separator) {
+        String[] lines = data.split(separator);
+
+        String[] filtered = Arrays.stream(lines).filter(line -> {
+
+            if (line.toLowerCase().contains("authorization:")) {
+                return false;
+            } else if (line.toLowerCase().contains("intuit_tid:")) {
+                return false;
+            } else if (line.toLowerCase().contains(":")) {
+                if (line.split(":")[0].toLowerCase().contains("token")) {
+                    return false;
+                }
+            }
+            return true;
+
+        }).toArray(String[]::new);
+
+        return String.join(separator, filtered);
+    }
+
     public static TraceFilterForm getTraceFilterFormFromContrastFilterPersistentStateComponent() {
 
         ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
