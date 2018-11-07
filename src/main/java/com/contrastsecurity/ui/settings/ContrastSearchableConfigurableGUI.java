@@ -89,12 +89,12 @@ public class ContrastSearchableConfigurableGUI {
 
                             if (orgs != null && orgs.getOrganizations() != null && !orgs.getOrganizations().isEmpty()) {
                                 for (Organization organization : orgs.getOrganizations()) {
-                                    if (organization.getOrgUuid().equals(uuidTextField.getText())) {
+                                    if (organization.getOrgUuid().equalsIgnoreCase(uuidTextField.getText())) {
 
                                         organizations.putIfAbsent(organization.getName(), getTeamServerUrl() +
                                                 Constants.DELIMITER + usernameTextField.getText() + Constants.DELIMITER +
                                                 serviceKeyTextField.getText() + Constants.DELIMITER +
-                                                new String(apiKeyTextField.getPassword()) + Constants.DELIMITER + uuidTextField.getText());
+                                                new String(apiKeyTextField.getPassword()) + Constants.DELIMITER + organization.getOrgUuid());
 
                                         String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
                                         organizationTableModel.setData(orgsArray);
