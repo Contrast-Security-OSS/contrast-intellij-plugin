@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class ContrastSearchableConfigurableGUI {
 
-    private final ContrastPersistentStateComponent contrastPersistentStateComponent;
+    private ContrastPersistentStateComponent contrastPersistentStateComponent;
     private JPanel contrastSettingsPanel;
     private JTextField teamServerTextField;
     private JTextField usernameTextField;
@@ -51,6 +51,7 @@ public class ContrastSearchableConfigurableGUI {
     private OrganizationTableModel organizationTableModel = new OrganizationTableModel();
 
     public ContrastSearchableConfigurableGUI() {
+
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
 
         organizationTable.setModel(organizationTableModel);
@@ -60,6 +61,11 @@ public class ContrastSearchableConfigurableGUI {
 
         addButton.addActionListener(e -> new Thread(() -> {
             final String url = getTeamServerUrl();
+            final String username = usernameTextField.getText().trim();
+            final String serviceKey = serviceKeyTextField.getText().trim();
+            final String apiKey = new String(apiKeyTextField.getPassword()).trim();
+            final String uuid = uuidTextField.getText().trim();
+
             URL u;
             try {
                 u = new URL(url);
@@ -71,20 +77,20 @@ public class ContrastSearchableConfigurableGUI {
                 testConnectionLabel.setText("Connection failed!");
                 return;
             }
-            ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText().trim(), serviceKeyTextField.getText().trim(),
-                    new String(apiKeyTextField.getPassword()).trim(), getTeamServerUrl());
+
+            ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(username, serviceKey,
+                    apiKey, url);
 
             try {
                 Organizations orgs = extendedContrastSDK.getProfileOrganizations();
 
                 if (orgs != null && orgs.getOrganizations() != null && !orgs.getOrganizations().isEmpty()) {
                     for (Organization organization : orgs.getOrganizations()) {
-                        if (organization.getOrgUuid().equals(uuidTextField.getText().trim())) {
+                        if (organization.getOrgUuid().equalsIgnoreCase(uuid)) {
 
-                            organizations.putIfAbsent(organization.getName(), getTeamServerUrl() +
-                                    Constants.DELIMITER + usernameTextField.getText().trim() + Constants.DELIMITER +
-                                    serviceKeyTextField.getText().trim() + Constants.DELIMITER +
-                                    new String(apiKeyTextField.getPassword()).trim() + Constants.DELIMITER + uuidTextField.getText().trim());
+                            organizations.putIfAbsent(organization.getName(), url + Constants.DELIMITER + username +
+                                    Constants.DELIMITER + serviceKey + Constants.DELIMITER + apiKey +
+                                    Constants.DELIMITER + uuid);
 
                             String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
                             organizationTableModel.setData(orgsArray);
@@ -93,7 +99,7 @@ public class ContrastSearchableConfigurableGUI {
                             int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, organization.getName());
                             organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
 
-                            teamServerTextField.setText("");
+                            teamServerTextField.setText(Constants.TEAM_SERVER_URL_VALUE);
                             usernameTextField.setText("");
                             serviceKeyTextField.setText("");
                             apiKeyTextField.setText("");
@@ -127,6 +133,8 @@ public class ContrastSearchableConfigurableGUI {
                 }
             }
         });
+
+        teamServerTextField.setText(Constants.TEAM_SERVER_URL_VALUE);
     }
 
     private String getTeamServerUrl() {
