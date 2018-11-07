@@ -19,7 +19,8 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        UtilTest.class
+        UtilTest.class,
+        ContrastUtilTest.class
 })
 public class UnitTestSuite {
 }
