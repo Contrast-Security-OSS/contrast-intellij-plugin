@@ -19,6 +19,7 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +29,7 @@ import java.util.List;
 @State(
         name = "ContrastFilterPersistentStateComponent",
         storages = {
-                @Storage("$APP_CONFIG$/contrast-filter.xml")}
+                @Storage("contrast-filter.xml")}
 )
 public class ContrastFilterPersistentStateComponent implements PersistentStateComponent<ContrastFilterPersistentStateComponent> {
 
@@ -57,8 +58,8 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
     }
 
     @Nullable
-    public static ContrastFilterPersistentStateComponent getInstance() {
-        return ServiceManager.getService(ContrastFilterPersistentStateComponent.class);
+    public static ContrastFilterPersistentStateComponent getInstance(Project project) {
+        return ServiceManager.getService(project, ContrastFilterPersistentStateComponent.class);
     }
 
     public String getSelectedApplicationName() {

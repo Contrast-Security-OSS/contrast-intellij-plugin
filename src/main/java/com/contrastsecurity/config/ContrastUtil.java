@@ -25,6 +25,7 @@ import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
+import com.intellij.openapi.project.Project;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -94,9 +95,9 @@ public class ContrastUtil {
         return String.join(separator, filtered);
     }
 
-    public static TraceFilterForm getTraceFilterFormFromContrastFilterPersistentStateComponent() {
+    public static TraceFilterForm getTraceFilterFormFromContrastFilterPersistentStateComponent(Project project) {
 
-        ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
+        ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
 
         Long serverId = Constants.ALL_SERVERS;
         if (contrastFilterPersistentStateComponent.getSelectedServerUuid() != null) {

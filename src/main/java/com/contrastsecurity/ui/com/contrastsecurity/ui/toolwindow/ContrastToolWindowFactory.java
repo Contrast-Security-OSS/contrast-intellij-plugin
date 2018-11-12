@@ -114,7 +114,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
     private ContrastTableRowSorter contrastTableRowSorter = new ContrastTableRowSorter(contrastTableModel);
     private OrganizationConfig organizationConfig;
-    private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private Trace viewDetailsTrace;
     private TagsResource viewDetailsTraceTagsResource;
     private TagsResource orgTagsResource;
@@ -126,6 +125,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private ActionListener pagesComboBoxActionListener;
     private int selectedTraceRow;
+
+    Project project;
 
     public ContrastToolWindowFactory() {
         externalLinkButton.setIcon(ContrastPluginIcons.EXTERNAL_LINK_ICON);
@@ -209,8 +210,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         EventTreeCellRenderer eventTreeCellRenderer = new EventTreeCellRenderer();
         eventsTree.setCellRenderer(eventTreeCellRenderer);
         eventsTree.addMouseListener(treeNodeClickListener);
-
-        contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
 
         backToResultsButton.addActionListener(e -> {
             viewDetailsTrace = null;
@@ -405,6 +404,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     new Thread(() -> {
                         traceFilterForm.setSort(finalSort);
                         refreshTraces(false);
+                        ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                                = ContrastFilterPersistentStateComponent.getInstance(project);
                         contrastFilterPersistentStateComponent.setSort(finalSort);
                     }).start();
                 }
@@ -414,10 +415,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         setupTable();
         ContrastUtil.updateOrganizationConfig();
+    }
 
-        init();
-
-        refresh();
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     private void init() {
@@ -436,6 +437,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             public void afterAction() {
                 if (selectedOrganizationName != null && !selectedOrganizationName.equals(contrastPersistentStateComponent.getSelectedOrganizationName())) {
 
+                    ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                            = ContrastFilterPersistentStateComponent.getInstance(project);
                     contrastFilterPersistentStateComponent.setAppVersionTag(null);
                     contrastFilterPersistentStateComponent.setCurrentOffset(0);
                     contrastFilterPersistentStateComponent.setPage(1);
@@ -449,6 +452,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 }
             }
         });
+        refresh();
     }
 
 
@@ -456,6 +460,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         int currentOffset = ContrastUtil.PAGE_LIMIT * (page - 1);
         traceFilterForm.setOffset(currentOffset);
 
+        ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                = ContrastFilterPersistentStateComponent.getInstance(project);
         contrastFilterPersistentStateComponent.setPage(page);
         contrastFilterPersistentStateComponent.setCurrentOffset(currentOffset);
 
@@ -465,7 +471,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private void refresh() {
         extendedContrastSDK = ContrastUtil.getContrastSDK();
         organizationConfig = ContrastUtil.getSelectedOrganizationConfig();
-        traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent();
+        traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
 
         if (organizationConfig != null) {
             new Thread(() -> {
@@ -490,6 +496,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         Trace[] traces = new Trace[0];
 
         String appId = Constants.ALL_APPLICATIONS;
+
+        ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                = ContrastFilterPersistentStateComponent.getInstance(project);
 
         if (contrastFilterPersistentStateComponent.getSelectedApplicationId() != null) {
             appId = contrastFilterPersistentStateComponent.getSelectedApplicationId();
@@ -574,9 +583,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+
+        ContrastToolWindowFactory contrastToolWindowFactory = new ContrastToolWindowFactory();
+
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(contrastToolWindowContent, "", false);
+        Content content = contentFactory.createContent(contrastToolWindowFactory.contrastToolWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
+        contrastToolWindowFactory.setProject(project);
+        contrastToolWindowFactory.init();
     }
 
     private void setupTable() {
@@ -1089,11 +1103,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 if (servers != null && applications != null) {
-                    final FiltersDialog filtersDialog = new FiltersDialog(servers, applications, extendedContrastSDK, organizationConfig);
+                    final FiltersDialog filtersDialog = new FiltersDialog(servers, applications, extendedContrastSDK, organizationConfig, project);
                     filtersDialog.setVisible(true);
 
                     TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
                     if (dialogTraceFilterForm != null) {
+                        ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                                = ContrastFilterPersistentStateComponent.getInstance(project);
                         dialogTraceFilterForm.setSort(traceFilterForm.getSort());
                         traceFilterForm = dialogTraceFilterForm;
                         traceFilterForm.setOffset(0);
