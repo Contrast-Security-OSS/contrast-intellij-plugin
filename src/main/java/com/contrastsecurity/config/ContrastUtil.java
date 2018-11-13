@@ -44,10 +44,10 @@ public class ContrastUtil {
     public ContrastUtil() {
     }
 
-    public static ExtendedContrastSDK getContrastSDK() {
+    public static ExtendedContrastSDK getContrastSDK(Project project) {
 
         ExtendedContrastSDK sdk = null;
-        OrganizationConfig organizationConfig = getSelectedOrganizationConfig();
+        OrganizationConfig organizationConfig = getSelectedOrganizationConfig(project);
         if (organizationConfig != null) {
             sdk = new ExtendedContrastSDK(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey(), organizationConfig.getTeamServerUrl());
 //            sdk.setReadTimeout(5000);
@@ -55,10 +55,17 @@ public class ContrastUtil {
         return sdk;
     }
 
-    public static OrganizationConfig getSelectedOrganizationConfig() {
+    public static OrganizationConfig getSelectedOrganizationConfig(Project project) {
         ContrastPersistentStateComponent contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
         Map<String, String> organizations = contrastPersistentStateComponent.getOrganizations();
-        String selectedOrganizationName = contrastPersistentStateComponent.getSelectedOrganizationName();
+
+        ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
+
+        String selectedOrganizationName = contrastFilterPersistentStateComponent.getSelectedOrganizationName();
+        if (selectedOrganizationName == null || selectedOrganizationName.isEmpty()) {
+            selectedOrganizationName = contrastPersistentStateComponent.getSelectedOrganizationName();
+            contrastFilterPersistentStateComponent.setSelectedOrganizationName(selectedOrganizationName);
+        }
 
         return Util.getOrganizationConfigFromString(organizations.get(selectedOrganizationName), Constants.DELIMITER);
     }
@@ -385,8 +392,8 @@ public class ContrastUtil {
         return recommendationResource;
     }
 
-    public static URL getOverviewUrl(String traceId) throws MalformedURLException {
-        String teamServerUrl = ContrastUtil.getSelectedOrganizationConfig().getTeamServerUrl();
+    public static URL getOverviewUrl(String traceId, Project project) throws MalformedURLException {
+        String teamServerUrl = ContrastUtil.getSelectedOrganizationConfig(project).getTeamServerUrl();
         teamServerUrl = teamServerUrl.trim();
         if (teamServerUrl.endsWith("/api")) {
             teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 4);
@@ -394,7 +401,7 @@ public class ContrastUtil {
         if (teamServerUrl.endsWith("/api/")) {
             teamServerUrl = teamServerUrl.substring(0, teamServerUrl.length() - 5);
         }
-        String urlStr = teamServerUrl + "/static/ng/index.html#/" + ContrastUtil.getSelectedOrganizationConfig().getUuid() + "/vulns/" + traceId + "/overview";
+        String urlStr = teamServerUrl + "/static/ng/index.html#/" + ContrastUtil.getSelectedOrganizationConfig(project).getUuid() + "/vulns/" + traceId + "/overview";
         return new URL(urlStr);
     }
 }

@@ -46,6 +46,8 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
     public int currentOffset = 0;
     public String appVersionTag;
 
+    public String selectedOrganizationName = "";
+
     @Nullable
     @Override
     public ContrastFilterPersistentStateComponent getState() {
@@ -156,5 +158,13 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
 
     public void setAppVersionTag(final String appVersionTag) {
         this.appVersionTag = appVersionTag;
+    }
+
+    public String getSelectedOrganizationName() {
+        return selectedOrganizationName;
+    }
+
+    public void setSelectedOrganizationName(String selectedOrganizationName) {
+        this.selectedOrganizationName = selectedOrganizationName;
     }
 }
