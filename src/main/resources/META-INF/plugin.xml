@@ -40,7 +40,7 @@
 
         <applicationService serviceInterface="com.contrastsecurity.config.ContrastPersistentStateComponent"
                             serviceImplementation="com.contrastsecurity.config.ContrastPersistentStateComponent"/>
-        <applicationService serviceInterface="com.contrastsecurity.config.ContrastFilterPersistentStateComponent"
+        <projectService serviceInterface="com.contrastsecurity.config.ContrastFilterPersistentStateComponent"
                             serviceImplementation="com.contrastsecurity.config.ContrastFilterPersistentStateComponent"/>
     </extensions>
 
