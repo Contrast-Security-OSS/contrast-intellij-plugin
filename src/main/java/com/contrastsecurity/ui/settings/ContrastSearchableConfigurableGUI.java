@@ -15,6 +15,7 @@
 package com.contrastsecurity.ui.settings;
 
 import com.contrastsecurity.config.ChangeActionNotifier;
+import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
@@ -22,7 +23,11 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,7 +41,8 @@ import java.util.Map;
 
 public class ContrastSearchableConfigurableGUI {
 
-    private ContrastPersistentStateComponent contrastPersistentStateComponent;
+    private final ContrastPersistentStateComponent contrastPersistentStateComponent;
+    private final ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
     private JPanel contrastSettingsPanel;
     private JTextField teamServerTextField;
     private JTextField usernameTextField;
@@ -52,6 +58,9 @@ public class ContrastSearchableConfigurableGUI {
 
     public ContrastSearchableConfigurableGUI() {
 
+        DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResult();
+        Project project = DataKeys.PROJECT.getData(dataContext);
+        contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
 
         organizationTable.setModel(organizationTableModel);
@@ -172,11 +181,11 @@ public class ContrastSearchableConfigurableGUI {
             organizationTableModel.setData(orgsArray);
             organizationTableModel.fireTableDataChanged();
 
-            String selectedOrganization = organizations.get(contrastPersistentStateComponent.getSelectedOrganizationName());
-            if (StringUtils.isNotBlank(contrastPersistentStateComponent.getSelectedOrganizationName())
+            String selectedOrganization = organizations.get(contrastFilterPersistentStateComponent.getSelectedOrganizationName());
+            if (StringUtils.isNotBlank(contrastFilterPersistentStateComponent.getSelectedOrganizationName())
                     && selectedOrganization != null) {
                 // if selectedOrganization is not null, set it as selected in organizationTable
-                String selectedOrgName = contrastPersistentStateComponent.getSelectedOrganizationName();
+                String selectedOrgName = contrastFilterPersistentStateComponent.getSelectedOrganizationName();
                 int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, selectedOrgName);
                 organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
             }
@@ -186,7 +195,7 @@ public class ContrastSearchableConfigurableGUI {
     public boolean isModified() {
         boolean modified = false;
         if (getSelectedTableValue(organizationTable) != null) {
-            modified |= !getSelectedTableValue(organizationTable).equals(contrastPersistentStateComponent.getSelectedOrganizationName());
+            modified |= !getSelectedTableValue(organizationTable).equals(contrastFilterPersistentStateComponent.getSelectedOrganizationName());
         }
         modified |= !organizations.equals(contrastPersistentStateComponent.getOrganizations());
         return modified;
@@ -202,7 +211,7 @@ public class ContrastSearchableConfigurableGUI {
         ChangeActionNotifier publisher = bus.syncPublisher(ChangeActionNotifier.CHANGE_ACTION_TOPIC);
         publisher.beforeAction();
         try {
-            contrastPersistentStateComponent.setSelectedOrganizationName(getSelectedTableValue(organizationTable));
+            contrastFilterPersistentStateComponent.setSelectedOrganizationName(getSelectedTableValue(organizationTable));
         } finally {
             publisher.afterAction();
         }

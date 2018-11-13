@@ -35,9 +35,9 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
     public String teamServerUrl = Constants.TEAM_SERVER_URL_VALUE;
     public String username = "";
     public String serviceKey = "";
-    public String selectedOrganizationName = "";
 //    Key = organization name, Value = Organization (API key;UUID) represented as a String
     public Map<String, String> organizations;
+    public String selectedOrganizationName = "";
 
     @Nullable
     @Override
@@ -73,16 +73,12 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
         this.organizations = new HashMap<>(organizations);
     }
 
-    public String getSelectedOrganizationName() {
-        return selectedOrganizationName;
-    }
-
-    public void setSelectedOrganizationName(String selectedOrganizationName) {
-        this.selectedOrganizationName = selectedOrganizationName;
-    }
-
     @Nullable
     public static ContrastPersistentStateComponent getInstance() {
         return ServiceManager.getService(ContrastPersistentStateComponent.class);
+    }
+
+    public String getSelectedOrganizationName() {
+        return selectedOrganizationName;
     }
 }

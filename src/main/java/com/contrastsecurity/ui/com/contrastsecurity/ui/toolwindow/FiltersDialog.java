@@ -27,6 +27,7 @@ import com.contrastsecurity.models.Application;
 import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Servers;
 import com.github.lgooddatepicker.components.DateTimePicker;
+import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
 import java.awt.*;
@@ -74,7 +75,7 @@ public class FiltersDialog extends JDialog {
     private TraceFilterForm traceFilterForm;
     private ExtendedContrastSDK extendedContrastSDK;
 
-    FiltersDialog(Servers servers, List<Application> applications, ExtendedContrastSDK extendedContrastSDK, OrganizationConfig organizationConfig) {
+    FiltersDialog(Servers servers, List<Application> applications, ExtendedContrastSDK extendedContrastSDK, OrganizationConfig organizationConfig, Project project) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -108,7 +109,7 @@ public class FiltersDialog extends JDialog {
         this.applications = applications;
         this.extendedContrastSDK = extendedContrastSDK;
 
-        contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance();
+        contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
 
         setupCheckBoxes();
         setupComboBoxes();
