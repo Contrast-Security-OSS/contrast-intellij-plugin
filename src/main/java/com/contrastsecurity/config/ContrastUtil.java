@@ -85,23 +85,18 @@ public class ContrastUtil {
         String[] lines = data.split(separator);
         String[] headers = {"authorization:", "intuit_tid:", ":"};
 
-        String[] filtered = Arrays.stream(lines).filter(line -> {
-
-            for (int i = 0; i < headers.length; i++) {
-                if (line.toLowerCase().contains(headers[i])) {
-                    if (i != 2) {
-                        return false;
-                    } else {
-                        if (line.split(":")[0].toLowerCase().contains("token")) {
-                            return false;
-                        }
+        String[] filtered = Arrays.stream(lines).filter(line -> !Arrays.stream(headers).anyMatch(header -> {
+            if (line.toLowerCase().contains(header)) {
+                if (!header.equals(":")) {
+                    return true;
+                } else {
+                    if (line.split(":")[0].toLowerCase().contains("token")) {
+                        return true;
                     }
-
                 }
             }
-            return true;
-
-        }).toArray(String[]::new);
+            return false;
+        })).toArray(String[]::new);
 
         return String.join(separator, filtered);
     }
