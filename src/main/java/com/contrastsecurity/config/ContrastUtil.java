@@ -26,13 +26,15 @@ import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.proxy.CommonProxy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.net.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -53,6 +55,20 @@ public class ContrastUtil {
 //            sdk.setReadTimeout(5000);
         }
         return sdk;
+    }
+
+    @Nullable
+    public static Proxy getIdeaDefinedProxy(@NotNull String url) {
+
+        final List<Proxy> proxies = CommonProxy.getInstance().select(URI.create(url));
+        if (proxies != null && !proxies.isEmpty()) {
+            for (Proxy proxy : proxies) {
+                if (HttpConfigurable.isRealProxy(proxy) && Proxy.Type.HTTP.equals(proxy.type())) {
+                    return proxy;
+                }
+            }
+        }
+        return null;
     }
 
     public static OrganizationConfig getSelectedOrganizationConfig(Project project) {
