@@ -51,8 +51,11 @@ public class ContrastUtil {
         ExtendedContrastSDK sdk = null;
         OrganizationConfig organizationConfig = getSelectedOrganizationConfig(project);
         if (organizationConfig != null) {
-            sdk = new ExtendedContrastSDK(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey(), organizationConfig.getTeamServerUrl());
-//            sdk.setReadTimeout(5000);
+            Proxy proxy = getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) != null
+                    ? getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) : Proxy.NO_PROXY;
+
+            sdk = new ExtendedContrastSDK(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey(), organizationConfig.getTeamServerUrl(), proxy);
+            sdk.setReadTimeout(5000);
         }
         return sdk;
     }

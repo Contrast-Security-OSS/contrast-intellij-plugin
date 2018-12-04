@@ -17,6 +17,7 @@ package com.contrastsecurity.ui.settings;
 import com.contrastsecurity.config.ChangeActionNotifier;
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
+import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.exceptions.UnauthorizedException;
@@ -37,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,8 +91,11 @@ public class ContrastSearchableConfigurableGUI {
                             testConnectionLabel.setText("Connection failed!");
                             return;
                         }
+                        Proxy proxy = ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) != null
+                                ? ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) : Proxy.NO_PROXY;
+
                         ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText(), serviceKeyTextField.getText(),
-                                apiKeyTextField.getText(), getTeamServerUrl());
+                                apiKeyTextField.getText(), getTeamServerUrl(), proxy);
 
                         try {
                             Organizations orgs = extendedContrastSDK.getProfileOrganizations();
