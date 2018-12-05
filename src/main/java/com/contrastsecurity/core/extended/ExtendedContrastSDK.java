@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,13 @@ public class ExtendedContrastSDK extends ContrastSDK {
     public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL)
             throws IllegalArgumentException {
         super(user, serviceKey, apiKey, restApiURL);
+        this.restApiURL = restApiURL;
+        this.gson = new Gson();
+    }
+
+    public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL, Proxy proxy)
+            throws IllegalArgumentException {
+        super(user, serviceKey, apiKey, restApiURL, proxy);
         this.restApiURL = restApiURL;
         this.gson = new Gson();
     }
