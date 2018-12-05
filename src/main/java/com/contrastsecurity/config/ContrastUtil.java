@@ -102,21 +102,20 @@ public class ContrastUtil {
 
     public static String filterHeaders(String data, String separator) {
         String[] lines = data.split(separator);
+        String[] headers = {"authorization:", "intuit_tid:", ":"};
 
-        String[] filtered = Arrays.stream(lines).filter(line -> {
-
-            if (line.toLowerCase().contains("authorization:")) {
-                return false;
-            } else if (line.toLowerCase().contains("intuit_tid:")) {
-                return false;
-            } else if (line.toLowerCase().contains(":")) {
-                if (line.split(":")[0].toLowerCase().contains("token")) {
-                    return false;
+        String[] filtered = Arrays.stream(lines).filter(line -> !Arrays.stream(headers).anyMatch(header -> {
+            if (line.toLowerCase().contains(header)) {
+                if (!header.equals(":")) {
+                    return true;
+                } else {
+                    if (line.split(":")[0].toLowerCase().contains("token")) {
+                        return true;
+                    }
                 }
             }
-            return true;
-
-        }).toArray(String[]::new);
+            return false;
+        })).toArray(String[]::new);
 
         return String.join(separator, filtered);
     }
