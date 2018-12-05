@@ -164,7 +164,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                 JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
                                 GlobalSearchScope globalSearchScope = GlobalSearchScope.allScope(project);
 
-                                if (eventItem.getValue().contains(".java")) {
+                                if (eventItem.getValue().contains(".java") || !eventItem.getValue().contains(":") ) {
                                     PsiClass[] psiClasses = javaPsiFacade.findClasses(typeName, globalSearchScope);
                                     if (psiClasses.length > 0) {
                                         for (PsiClass psiClass : psiClasses) {
@@ -172,7 +172,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                             if (lineNumber != null) {
                                                 new OpenFileDescriptor(project, javaFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
                                             } else {
-                                                new OpenFileDescriptor(project, javaFile.getVirtualFile(), 0, 0).navigate(true);
+                                                new OpenFileDescriptor(project, javaFile.getVirtualFile()).navigate(true);
                                             }
                                         }
                                     } else {
@@ -188,7 +188,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                             if (lineNumber != null) {
                                                 new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
                                             } else {
-                                                new OpenFileDescriptor(project, psiFile.getVirtualFile(), 0, 0).navigate(true);
+                                                new OpenFileDescriptor(project, psiFile.getVirtualFile()).navigate(true);
                                             }
                                         }
                                     } else {

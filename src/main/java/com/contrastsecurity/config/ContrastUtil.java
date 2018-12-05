@@ -319,6 +319,15 @@ public class ContrastUtil {
                 typeName = qualifier + "." + typeName;
             }
             return typeName;
+        } else if (start >= 0) {
+            String qualifier = stacktrace.substring(0, start);
+            start = qualifier.lastIndexOf('.');
+            if (start >= 0) {
+                qualifier = qualifier.substring(0, start);
+            }
+            if (qualifier.length() > 0) {
+                return qualifier;
+            }
         }
         return null;
     }
