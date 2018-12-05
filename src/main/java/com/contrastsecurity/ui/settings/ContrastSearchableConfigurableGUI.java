@@ -17,6 +17,7 @@ package com.contrastsecurity.ui.settings;
 import com.contrastsecurity.config.ChangeActionNotifier;
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
+import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.exceptions.UnauthorizedException;
@@ -35,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,8 +89,11 @@ public class ContrastSearchableConfigurableGUI {
                 return;
             }
 
+            Proxy proxy = ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) != null
+                    ? ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) : Proxy.NO_PROXY;
+
             ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(username, serviceKey,
-                    apiKey, url);
+                    apiKey, url, proxy);
 
             try {
                 Organizations orgs = extendedContrastSDK.getProfileOrganizations();
