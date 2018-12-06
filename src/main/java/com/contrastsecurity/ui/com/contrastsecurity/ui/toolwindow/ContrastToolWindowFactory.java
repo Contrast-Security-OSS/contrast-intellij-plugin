@@ -34,7 +34,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.JavaPsiFacade;
@@ -160,11 +159,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                             if (typeName != null) {
 
-                                Project project = ProjectManager.getInstance().getOpenProjects()[0];
                                 JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
                                 GlobalSearchScope globalSearchScope = GlobalSearchScope.allScope(project);
 
-                                if (eventItem.getValue().contains(".java") || !eventItem.getValue().contains(":") ) {
+                                if (eventItem.getValue().contains(".java") || !eventItem.getValue().contains(":")) {
                                     PsiClass[] psiClasses = javaPsiFacade.findClasses(typeName, globalSearchScope);
                                     if (psiClasses.length > 0) {
                                         for (PsiClass psiClass : psiClasses) {
