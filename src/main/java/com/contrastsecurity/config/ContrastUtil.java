@@ -26,9 +26,10 @@ import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.intellij.openapi.project.Project;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -302,21 +303,20 @@ public class ContrastUtil {
             int indexOfExtension = typeName.indexOf(".java");
             if (indexOfExtension > 0) {
                 typeName = typeName.substring(0, indexOfExtension);
-            }
-
-            String qualifier = stacktrace.substring(0, start);
-            start = qualifier.lastIndexOf('.');
-            if (start >= 0) {
-                start = ((String) qualifier.subSequence(0, start)).lastIndexOf('.');
-                if (start == -1) {
-                    start = 0;
+                String qualifier = stacktrace.substring(0, start);
+                start = qualifier.lastIndexOf('.');
+                if (start >= 0) {
+                    start = ((String) qualifier.subSequence(0, start)).lastIndexOf('.');
+                    if (start == -1) {
+                        start = 0;
+                    }
                 }
-            }
-            if (start >= 0) {
-                qualifier = qualifier.substring(0, start);
-            }
-            if (qualifier.length() > 0) {
-                typeName = qualifier + "." + typeName;
+                if (start >= 0) {
+                    qualifier = qualifier.substring(0, start);
+                }
+                if (qualifier.length() > 0) {
+                    typeName = qualifier + "." + typeName;
+                }
             }
             return typeName;
         } else if (start >= 0) {
@@ -328,6 +328,16 @@ public class ContrastUtil {
             if (qualifier.length() > 0) {
                 return qualifier;
             }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static String getFilePath(String projectName, String typeName, String delimiter) {
+        int start = typeName.indexOf(projectName) > -1 ? typeName.indexOf(projectName) + projectName.length() + delimiter.length() : 0;
+        if (start >= 0) {
+            String filePathString = typeName.substring(start);
+            return filePathString;
         }
         return null;
     }

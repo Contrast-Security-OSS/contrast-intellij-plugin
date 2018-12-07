@@ -34,6 +34,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.JavaPsiFacade;
@@ -180,16 +181,35 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                     }
 
                                 } else {
-                                    PsiFile[] psiFiles = FilenameIndex.getFilesByName(project, typeName, globalSearchScope);
-                                    if (psiFiles.length > 0) {
-                                        for (PsiFile psiFile : psiFiles) {
-                                            if (lineNumber != null) {
-                                                new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
-                                            } else {
-                                                new OpenFileDescriptor(project, psiFile.getVirtualFile()).navigate(true);
+                                    String delimiter = "/";
+                                    boolean fileFound = false;
+                                    if (typeName.contains(delimiter)) {
+                                        String filePath = ContrastUtil.getFilePath(project.getName(), typeName, delimiter);
+                                        if (filePath != null) {
+                                            VirtualFile virtualFile = project.getBaseDir().findFileByRelativePath(filePath);
+                                            if (virtualFile != null) {
+                                                fileFound = true;
+                                                if (lineNumber != null) {
+                                                    new OpenFileDescriptor(project, virtualFile, lineNumber - 1, 0).navigate(true);
+                                                } else {
+                                                    new OpenFileDescriptor(project, virtualFile).navigate(true);
+                                                }
                                             }
                                         }
                                     } else {
+                                        PsiFile[] psiFiles = FilenameIndex.getFilesByName(project, typeName, globalSearchScope);
+                                        if (psiFiles.length > 0) {
+                                            fileFound = true;
+                                            for (PsiFile psiFile : psiFiles) {
+                                                if (lineNumber != null) {
+                                                    new OpenFileDescriptor(project, psiFile.getVirtualFile(), lineNumber - 1, 0).navigate(true);
+                                                } else {
+                                                    new OpenFileDescriptor(project, psiFile.getVirtualFile()).navigate(true);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (!fileFound) {
                                         MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
                                         messageDialog.setVisible(true);
                                     }
