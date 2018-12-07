@@ -26,14 +26,15 @@ import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.proxy.CommonProxy;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.net.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -50,10 +51,27 @@ public class ContrastUtil {
         ExtendedContrastSDK sdk = null;
         OrganizationConfig organizationConfig = getSelectedOrganizationConfig(project);
         if (organizationConfig != null) {
-            sdk = new ExtendedContrastSDK(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey(), organizationConfig.getTeamServerUrl());
-//            sdk.setReadTimeout(5000);
+            Proxy proxy = getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) != null
+                    ? getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) : Proxy.NO_PROXY;
+
+            sdk = new ExtendedContrastSDK(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey(), organizationConfig.getTeamServerUrl(), proxy);
+            sdk.setReadTimeout(5000);
         }
         return sdk;
+    }
+
+    @Nullable
+    public static Proxy getIdeaDefinedProxy(@NotNull String url) {
+
+        final List<Proxy> proxies = CommonProxy.getInstance().select(URI.create(url));
+        if (proxies != null && !proxies.isEmpty()) {
+            for (Proxy proxy : proxies) {
+                if (HttpConfigurable.isRealProxy(proxy) && Proxy.Type.HTTP.equals(proxy.type())) {
+                    return proxy;
+                }
+            }
+        }
+        return null;
     }
 
     public static OrganizationConfig getSelectedOrganizationConfig(Project project) {
@@ -84,21 +102,20 @@ public class ContrastUtil {
 
     public static String filterHeaders(String data, String separator) {
         String[] lines = data.split(separator);
+        String[] headers = {"authorization:", "intuit_tid:", ":"};
 
-        String[] filtered = Arrays.stream(lines).filter(line -> {
-
-            if (line.toLowerCase().contains("authorization:")) {
-                return false;
-            } else if (line.toLowerCase().contains("intuit_tid:")) {
-                return false;
-            } else if (line.toLowerCase().contains(":")) {
-                if (line.split(":")[0].toLowerCase().contains("token")) {
-                    return false;
+        String[] filtered = Arrays.stream(lines).filter(line -> !Arrays.stream(headers).anyMatch(header -> {
+            if (line.toLowerCase().contains(header)) {
+                if (!header.equals(":")) {
+                    return true;
+                } else {
+                    if (line.split(":")[0].toLowerCase().contains("token")) {
+                        return true;
+                    }
                 }
             }
-            return true;
-
-        }).toArray(String[]::new);
+            return false;
+        })).toArray(String[]::new);
 
         return String.join(separator, filtered);
     }
