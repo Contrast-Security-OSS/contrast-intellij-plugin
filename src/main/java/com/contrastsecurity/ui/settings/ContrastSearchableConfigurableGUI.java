@@ -34,8 +34,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.Proxy;
@@ -65,7 +63,6 @@ public class ContrastSearchableConfigurableGUI {
         DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResult();
         Project project = DataKeys.PROJECT.getData(dataContext);
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
-
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
 
         organizationTable.setModel(organizationTableModel);
@@ -73,87 +70,80 @@ public class ContrastSearchableConfigurableGUI {
 
         populateFieldsWithValuesFromContrastPersistentStateComponent();
 
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final String url = getTeamServerUrl();
-                        URL u;
-                        try {
-                            u = new URL(url);
-                        } catch (MalformedURLException e1) {
-                            testConnectionLabel.setText("Connection failed!");
-                            return;
-                        }
-                        if (!u.getProtocol().startsWith("http")) {
-                            testConnectionLabel.setText("Connection failed!");
-                            return;
-                        }
-                        Proxy proxy = ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) != null
-                                ? ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) : Proxy.NO_PROXY;
+        addButton.addActionListener(e -> new Thread(() -> {
+            final String url = getTeamServerUrl();
+            final String username = usernameTextField.getText().trim();
+            final String serviceKey = serviceKeyTextField.getText().trim();
+            final String apiKey = new String(apiKeyTextField.getPassword()).trim();
+            final String uuid = uuidTextField.getText().trim();
 
-                        ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(usernameTextField.getText(), serviceKeyTextField.getText(),
-                                apiKeyTextField.getText(), getTeamServerUrl(), proxy);
-
-                        try {
-                            Organizations orgs = extendedContrastSDK.getProfileOrganizations();
-
-                            if (orgs != null && orgs.getOrganizations() != null && !orgs.getOrganizations().isEmpty()) {
-                                for (Organization organization : orgs.getOrganizations()) {
-                                    if (organization.getOrgUuid().equalsIgnoreCase(uuidTextField.getText())) {
-
-                                        organizations.putIfAbsent(organization.getName(), getTeamServerUrl() +
-                                                Constants.DELIMITER + usernameTextField.getText() + Constants.DELIMITER +
-                                                serviceKeyTextField.getText() + Constants.DELIMITER +
-                                                new String(apiKeyTextField.getPassword()) + Constants.DELIMITER + organization.getOrgUuid());
-
-                                        String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
-                                        organizationTableModel.setData(orgsArray);
-                                        organizationTableModel.fireTableDataChanged();
-
-                                        int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, organization.getName());
-                                        organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
-
-                                        teamServerTextField.setText(Constants.TEAM_SERVER_URL_VALUE);
-                                        usernameTextField.setText("");
-                                        serviceKeyTextField.setText("");
-                                        apiKeyTextField.setText("");
-                                        uuidTextField.setText("");
-                                        testConnectionLabel.setText("");
-
-                                        break;
-                                    }
-                                }
-                            }
-                        } catch (IOException | UnauthorizedException e1) {
-                            testConnectionLabel.setText("Connection failed! " + e1.getMessage());
-                        } catch (Exception e1) {
-                            testConnectionLabel.setText("Connection failed! Check Team Server URL.");
-                        } finally {
-                        }
-                    }
-                }).start();
+            URL u;
+            try {
+                u = new URL(url);
+            } catch (MalformedURLException e1) {
+                testConnectionLabel.setText("Connection failed!");
+                return;
             }
-        });
+            if (!u.getProtocol().startsWith("http")) {
+                testConnectionLabel.setText("Connection failed!");
+                return;
+            }
 
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedOrganization = getSelectedTableValue(organizationTable);
-                if (selectedOrganization != null) {
-                    if (organizations.get(selectedOrganization) != null) {
-                        organizations.remove(selectedOrganization);
+            Proxy proxy = ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) != null
+                    ? ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) : Proxy.NO_PROXY;
+
+            ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(username, serviceKey,
+                    apiKey, url, proxy);
+
+            try {
+                Organizations orgs = extendedContrastSDK.getProfileOrganizations();
+
+                if (orgs != null && orgs.getOrganizations() != null && !orgs.getOrganizations().isEmpty()) {
+                    for (Organization organization : orgs.getOrganizations()) {
+                        if (organization.getOrgUuid().equalsIgnoreCase(uuid)) {
+
+                            organizations.putIfAbsent(organization.getName(), url + Constants.DELIMITER + username +
+                                    Constants.DELIMITER + serviceKey + Constants.DELIMITER + apiKey +
+                                    Constants.DELIMITER + uuid);
+
+                            String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
+                            organizationTableModel.setData(orgsArray);
+                            organizationTableModel.fireTableDataChanged();
+
+                            int indexOfSelectedOrgName = ArrayUtils.indexOf(orgsArray, organization.getName());
+                            organizationTable.setRowSelectionInterval(indexOfSelectedOrgName, indexOfSelectedOrgName);
+
+                            teamServerTextField.setText(Constants.TEAM_SERVER_URL_VALUE);
+                            usernameTextField.setText("");
+                            serviceKeyTextField.setText("");
+                            apiKeyTextField.setText("");
+                            uuidTextField.setText("");
+                            testConnectionLabel.setText("");
+
+                            break;
+                        }
                     }
+                }
+            } catch (IOException | UnauthorizedException e1) {
+                testConnectionLabel.setText("Connection failed! " + e1.getMessage());
+            } catch (Exception e1) {
+                testConnectionLabel.setText("Connection failed! Check Team Server URL.");
+            }
+        }).start());
 
-                    String[] newData = (String[]) ArrayUtils.removeElement(organizationTableModel.getData(), selectedOrganization);
-                    organizationTableModel.setData(newData);
-                    organizationTableModel.fireTableDataChanged();
+        deleteButton.addActionListener(e -> {
+            String selectedOrganization = getSelectedTableValue(organizationTable);
+            if (selectedOrganization != null) {
+                if (organizations.get(selectedOrganization) != null) {
+                    organizations.remove(selectedOrganization);
+                }
 
-                    if (newData.length > 0) {
-                        organizationTable.setRowSelectionInterval(0, 0);
-                    }
+                String[] newData = (String[]) ArrayUtils.removeElement(organizationTableModel.getData(), selectedOrganization);
+                organizationTableModel.setData(newData);
+                organizationTableModel.fireTableDataChanged();
+
+                if (newData.length > 0) {
+                    organizationTable.setRowSelectionInterval(0, 0);
                 }
             }
         });
@@ -186,7 +176,7 @@ public class ContrastSearchableConfigurableGUI {
             organizations = new HashMap<>();
             organizationTableModel.setData(new String[0]);
             organizationTableModel.fireTableDataChanged();
-        } else if (!orgs.isEmpty()) {
+        } else {
 //            Create a copy of organizations map from ContrastPersistentStateComponent class
 //            It will be compared with the original in isModified() method
             organizations = new HashMap<>();
