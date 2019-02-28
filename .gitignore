@@ -5,3 +5,7 @@ lib/
 out/
 local.properties
 contrast-intellij-plugin.iml
+
+\.idea/
+
+package-lock\.json
