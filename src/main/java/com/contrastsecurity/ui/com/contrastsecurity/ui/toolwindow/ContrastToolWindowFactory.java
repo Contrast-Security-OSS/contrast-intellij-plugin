@@ -494,7 +494,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (organizationConfig != null) {
             new Thread(() -> {
                 refreshTraces(false);
-                servers = new LinkedList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
+                servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
                 applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
             }).start();
 

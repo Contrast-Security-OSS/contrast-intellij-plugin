@@ -65,15 +65,6 @@
               <text value="Server"/>
             </properties>
           </component>
-          <component id="db84d" class="javax.swing.JComboBox" binding="serversComboBox">
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <model/>
-            </properties>
-          </component>
           <component id="4d15a" class="javax.swing.JLabel">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -308,6 +299,15 @@
               </component>
             </children>
           </grid>
+          <component id="db84d" class="javax.swing.JComboBox" binding="serversComboBox">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <editable value="false"/>
+              <model/>
+            </properties>
+          </component>
         </children>
       </grid>
       <vspacer id="2c5dc">

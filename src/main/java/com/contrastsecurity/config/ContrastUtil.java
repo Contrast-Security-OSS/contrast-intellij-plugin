@@ -218,7 +218,7 @@ public class ContrastUtil {
     }
 
     public static List<Server> retrieveServers(ExtendedContrastSDK extendedContrastSDK, String orgUuid) {
-        List<Server> servers = new LinkedList<>();
+        List<Server> servers = new ArrayList<>();
         List<Server> serverSubList;
 
         ServerFilterForm serverFilter = new ServerFilterForm();
