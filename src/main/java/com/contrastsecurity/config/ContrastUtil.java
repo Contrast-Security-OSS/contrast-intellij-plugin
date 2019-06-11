@@ -230,7 +230,7 @@ public class ContrastUtil {
                 serverSubList = extendedContrastSDK.getServersWithFilter(orgUuid, serverFilter).getServers();
                 servers.addAll(serverSubList);
                 serverFilter.setOffset(serverFilter.getOffset() + SERVER_REQUEST_LIMIT);
-                Thread.sleep((long) .05);
+                Thread.sleep(50);
             } while(serverSubList.size() == SERVER_REQUEST_LIMIT);
 
         } catch (Exception e) {
