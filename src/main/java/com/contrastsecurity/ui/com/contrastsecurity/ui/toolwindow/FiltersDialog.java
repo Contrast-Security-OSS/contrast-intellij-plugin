@@ -21,20 +21,21 @@ import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.core.extended.Filter;
 import com.contrastsecurity.core.extended.FilterResource;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
+import com.contrastsecurity.http.FilterForm;
 import com.contrastsecurity.http.RuleSeverity;
+import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.Application;
 import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Servers;
 import com.github.lgooddatepicker.components.DateTimePicker;
 import com.intellij.openapi.project.Project;
+import com.sun.scenario.effect.Offset;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -69,13 +70,13 @@ public class FiltersDialog extends JDialog {
     private JButton refreshAppVersionTagsButton;
     private JButton clearAppVersionTagsButton;
     private ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent;
-    private Servers servers;
+    private List<Server> servers;
     private List<Application> applications;
 
     private TraceFilterForm traceFilterForm;
     private ExtendedContrastSDK extendedContrastSDK;
 
-    FiltersDialog(Servers servers, List<Application> applications, ExtendedContrastSDK extendedContrastSDK, OrganizationConfig organizationConfig, Project project) {
+    FiltersDialog(List<Server> servers, List<Application> applications, ExtendedContrastSDK extendedContrastSDK, OrganizationConfig organizationConfig, Project project) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -321,11 +322,12 @@ public class FiltersDialog extends JDialog {
         populateFiltersWithDataFromContrastFilterPersistentStateComponent();
     }
 
-    private void updateServersComboBox(Servers servers) {
+    private void updateServersComboBox(List<Server> servers) {
         serversComboBox.removeAllItems();
+        AutoCompleteDecorator.decorate(serversComboBox);
         int count = 0;
-        if (servers != null && servers.getServers() != null && !servers.getServers().isEmpty()) {
-            for (Server server : servers.getServers()) {
+        if (servers != null && !servers.isEmpty()) {
+            for (Server server : servers) {
                 ServerComboBoxItem contrastServer = new ServerComboBoxItem(server);
                 serversComboBox.addItem(contrastServer);
                 count++;
@@ -389,6 +391,7 @@ public class FiltersDialog extends JDialog {
                 updateApplicationsComboBox(serverComboBoxItem.getServer());
             }
         });
+
 
         applicationsComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -553,6 +556,7 @@ public class FiltersDialog extends JDialog {
         Date toDate = getDateFromLocalDateTime(lastDetectedToDateTimePicker.getDateTimePermissive());
 
         ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
+
         ServerComboBoxItem serverComboBoxItem = (ServerComboBoxItem) serversComboBox.getSelectedItem();
 
         Long serverId = Constants.ALL_SERVERS;
@@ -680,4 +684,6 @@ public class FiltersDialog extends JDialog {
         }
         return filterResource;
     }
+
+
 }

@@ -42,6 +42,7 @@ import java.util.*;
 public class ContrastUtil {
 
     public static final int PAGE_LIMIT = 20;
+    public static final int SERVER_REQUEST_LIMIT = 100;
 
     public ContrastUtil() {
     }
@@ -216,12 +217,21 @@ public class ContrastUtil {
         return numOfPages;
     }
 
-    public static Servers retrieveServers(ExtendedContrastSDK extendedContrastSDK, String orgUuid) {
-        Servers servers = null;
+    public static List<Server> retrieveServers(ExtendedContrastSDK extendedContrastSDK, String orgUuid) {
+        List<Server> servers = new LinkedList<>();
+        List<Server> serverSubList;
+
+        ServerFilterForm serverFilter = new ServerFilterForm();
+        serverFilter.setLimit(SERVER_REQUEST_LIMIT);
+        serverFilter.setExpand(EnumSet.of(ServerFilterForm.ServerExpandValue.APPLICATIONS));
+
         try {
-            ServerFilterForm serverFilterForm = new ServerFilterForm();
-            serverFilterForm.setExpand(EnumSet.of(ServerFilterForm.ServerExpandValue.APPLICATIONS));
-            servers = extendedContrastSDK.getServers(orgUuid, serverFilterForm);
+            do{
+                serverSubList = extendedContrastSDK.getServersWithFilter(orgUuid, serverFilter).getServers();
+                servers.addAll(serverSubList);
+                serverFilter.setOffset(serverFilter.getOffset() + SERVER_REQUEST_LIMIT);
+                Thread.sleep((long) .05);
+            } while(serverSubList.size() == SERVER_REQUEST_LIMIT);
 
         } catch (Exception e) {
             e.printStackTrace();

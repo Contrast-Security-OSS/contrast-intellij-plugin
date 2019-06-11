@@ -23,11 +23,9 @@ import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
-import com.contrastsecurity.models.Application;
-import com.contrastsecurity.models.Servers;
-import com.contrastsecurity.models.Trace;
-import com.contrastsecurity.models.Traces;
+import com.contrastsecurity.models.*;
 import com.contrastsecurity.ui.settings.ContrastSearchableConfigurable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
@@ -72,9 +70,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
@@ -118,7 +114,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private TagsResource orgTagsResource;
     private TraceFilterForm traceFilterForm;
     private int numOfPages = 1;
-    private Servers servers;
+    private List<Server> servers;
     private List<Application> applications;
     private ContrastCache contrastCache;
 
@@ -498,7 +494,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         if (organizationConfig != null) {
             new Thread(() -> {
                 refreshTraces(false);
-                servers = ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid());
+                servers = new LinkedList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
                 applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
             }).start();
 

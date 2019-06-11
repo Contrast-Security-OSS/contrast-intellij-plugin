@@ -221,4 +221,5 @@ public final class Constants {
 
     public static final String NO_VULNERABILITIES_ERROR = "Could not connect to the server. Please check your connection settings.";
     public static final String NO_VULNERABILITIES_NO_ORGS = "Click the gear icon to add details about your Contrast organization.";
+
 }
