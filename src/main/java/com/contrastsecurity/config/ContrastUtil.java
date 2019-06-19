@@ -21,6 +21,8 @@ import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.FilterForm;
+import com.contrastsecurity.http.FilterForm.ApplicationExpandValues;
 import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
@@ -30,6 +32,7 @@ import com.intellij.util.net.HttpConfigurable;
 import com.intellij.util.proxy.CommonProxy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.bouncycastle.LICENSE;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +46,7 @@ public class ContrastUtil {
 
     public static final int PAGE_LIMIT = 20;
     public static final int SERVER_REQUEST_LIMIT = 100;
+    public static final int APP_REQUEST_LIMIT = 100;
 
     public ContrastUtil() {
     }
@@ -223,6 +227,7 @@ public class ContrastUtil {
 
         ServerFilterForm serverFilter = new ServerFilterForm();
         serverFilter.setLimit(SERVER_REQUEST_LIMIT);
+        serverFilter.setOffset(0);
         serverFilter.setExpand(EnumSet.of(ServerFilterForm.ServerExpandValue.APPLICATIONS));
 
         try {
@@ -230,7 +235,7 @@ public class ContrastUtil {
                 serverSubList = extendedContrastSDK.getServersWithFilter(orgUuid, serverFilter).getServers();
                 servers.addAll(serverSubList);
                 serverFilter.setOffset(serverFilter.getOffset() + SERVER_REQUEST_LIMIT);
-                Thread.sleep((long) .05);
+                Thread.sleep(100);
             } while(serverSubList.size() == SERVER_REQUEST_LIMIT);
 
         } catch (Exception e) {
@@ -240,13 +245,9 @@ public class ContrastUtil {
     }
 
     public static List<Application> retrieveApplications(ExtendedContrastSDK extendedContrastSDK, String orgUuid) {
-        List<Application> applications = null;
-
+        List<Application> applications = new ArrayList<>();
         try {
-            Applications apps = extendedContrastSDK.getApplications(orgUuid);
-            if (apps != null) {
-                applications = apps.getApplications();
-            }
+           applications.addAll(extendedContrastSDK.getApplicationsNames(orgUuid).getApplications());
         } catch (Exception e) {
             e.printStackTrace();
         }
