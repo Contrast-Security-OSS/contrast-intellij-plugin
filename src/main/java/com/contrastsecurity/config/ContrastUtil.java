@@ -32,7 +32,6 @@ import com.intellij.util.net.HttpConfigurable;
 import com.intellij.util.proxy.CommonProxy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.bouncycastle.LICENSE;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -235,7 +234,7 @@ public class ContrastUtil {
                 serverSubList = extendedContrastSDK.getServersWithFilter(orgUuid, serverFilter).getServers();
                 servers.addAll(serverSubList);
                 serverFilter.setOffset(serverFilter.getOffset() + SERVER_REQUEST_LIMIT);
-                Thread.sleep(100);
+                Thread.sleep(50);
             } while(serverSubList.size() == SERVER_REQUEST_LIMIT);
 
         } catch (Exception e) {
