@@ -17,6 +17,7 @@ package com.contrastsecurity.core.extended;
 import com.contrastsecurity.core.UrlConstants;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.HttpMethod;
+import com.contrastsecurity.models.Applications;
 import com.contrastsecurity.sdk.ContrastSDK;
 import com.google.gson.*;
 import org.apache.commons.io.IOUtils;
@@ -267,6 +268,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
             IOUtils.closeQuietly(reader);
         }
     }
+
 
     // ------------------------ Utilities -----------------------------------------------
     private InputStream makeRequest(HttpMethod method, String path, Object body) throws IOException, UnauthorizedException {
