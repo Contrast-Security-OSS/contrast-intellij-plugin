@@ -117,7 +117,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private List<Server> servers;
     private List<Application> applications;
     private ContrastCache contrastCache;
-    private boolean filtersAreSet;
+    private boolean filtersAreSet = false;
     private ActionListener pagesComboBoxActionListener;
     private int selectedTraceRow;
 
@@ -503,8 +503,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
                applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-               noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_NO_ORGS);
-               cardLayout.show(cardPanel, "Click the gear icon to add details about your Contrast organization.");
+               noVulnerabilitiesLabel.setText("Click the gear icon to add details about your Contrast organization.");
+               cardLayout.show(cardPanel, "noVulnerabilitiesCard");
            }
         } else {
             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
