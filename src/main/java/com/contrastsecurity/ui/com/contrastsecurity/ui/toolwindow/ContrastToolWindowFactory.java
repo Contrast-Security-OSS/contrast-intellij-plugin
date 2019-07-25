@@ -503,7 +503,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
                applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-               noVulnerabilitiesLabel.setText("Click the gear icon to add details about your Contrast organization.");
+               noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
            }
         } else {
