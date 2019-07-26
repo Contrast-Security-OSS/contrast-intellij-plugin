@@ -454,7 +454,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void afterAction() {
                 if (selectedOrganizationName != null && !selectedOrganizationName.equals(contrastFilterPersistentStateComponent.getSelectedOrganizationName())) {
-
+                    noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
                     ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
                             = ContrastFilterPersistentStateComponent.getInstance(project);
                     contrastFilterPersistentStateComponent.setAppVersionTag(null);
@@ -465,7 +465,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     contrastFilterPersistentStateComponent.setSelectedServerUuid(null);
                     servers = null;
                     applications = null;
-
                     refresh();
                 }
             }
@@ -490,7 +489,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         extendedContrastSDK = ContrastUtil.getContrastSDK(project);
         organizationConfig = ContrastUtil.getSelectedOrganizationConfig(project);
         traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
-
         if (organizationConfig != null) {
            if(filtersAreSet) {
                new Thread(() -> {
