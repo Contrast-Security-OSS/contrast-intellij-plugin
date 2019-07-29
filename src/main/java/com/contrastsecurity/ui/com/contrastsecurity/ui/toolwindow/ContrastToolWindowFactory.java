@@ -454,7 +454,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void afterAction() {
                 if (selectedOrganizationName != null && !selectedOrganizationName.equals(contrastFilterPersistentStateComponent.getSelectedOrganizationName())) {
-                    //noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
+                    noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
                     ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
                             = ContrastFilterPersistentStateComponent.getInstance(project);
                     contrastFilterPersistentStateComponent.setAppVersionTag(null);
