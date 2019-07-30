@@ -21,16 +21,12 @@ import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.core.extended.Filter;
 import com.contrastsecurity.core.extended.FilterResource;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
-import com.contrastsecurity.http.FilterForm;
 import com.contrastsecurity.http.RuleSeverity;
-import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.Application;
 import com.contrastsecurity.models.Server;
-import com.contrastsecurity.models.Servers;
 import com.github.lgooddatepicker.components.DateTimePicker;
 import com.intellij.openapi.project.Project;
-import com.sun.scenario.effect.Offset;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 import javax.swing.*;

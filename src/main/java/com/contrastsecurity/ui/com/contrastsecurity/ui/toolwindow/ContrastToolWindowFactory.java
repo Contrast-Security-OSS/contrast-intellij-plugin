@@ -117,7 +117,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private List<Server> servers;
     private List<Application> applications;
     private ContrastCache contrastCache;
-
+    private boolean filtersAreSet = false;
     private ActionListener pagesComboBoxActionListener;
     private int selectedTraceRow;
 
@@ -454,7 +454,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void afterAction() {
                 if (selectedOrganizationName != null && !selectedOrganizationName.equals(contrastFilterPersistentStateComponent.getSelectedOrganizationName())) {
-
+                    noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
                     ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
                             = ContrastFilterPersistentStateComponent.getInstance(project);
                     contrastFilterPersistentStateComponent.setAppVersionTag(null);
@@ -465,7 +465,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     contrastFilterPersistentStateComponent.setSelectedServerUuid(null);
                     servers = null;
                     applications = null;
-
                     refresh();
                 }
             }
@@ -490,14 +489,21 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         extendedContrastSDK = ContrastUtil.getContrastSDK(project);
         organizationConfig = ContrastUtil.getSelectedOrganizationConfig(project);
         traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
-
         if (organizationConfig != null) {
-            new Thread(() -> {
-                refreshTraces(false);
-                servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
-                applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
-            }).start();
-
+           if(filtersAreSet) {
+               new Thread(() -> {
+                   refreshTraces(false);
+                   servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
+                   applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
+               }).start();
+           }
+           else{
+               servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
+               applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
+               CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+               noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
+               cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+           }
         } else {
             CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
             noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_NO_ORGS);
@@ -1132,6 +1138,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         traceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
                         contrastFilterPersistentStateComponent.setPage(1);
                         contrastFilterPersistentStateComponent.setCurrentOffset(0);
+                        filtersAreSet = true;
                         refreshTraces(false);
                     }
                 }

@@ -45,7 +45,6 @@ public class ContrastUtil {
 
     public static final int PAGE_LIMIT = 20;
     public static final int SERVER_REQUEST_LIMIT = 100;
-    public static final int APP_REQUEST_LIMIT = 100;
 
     public ContrastUtil() {
     }
