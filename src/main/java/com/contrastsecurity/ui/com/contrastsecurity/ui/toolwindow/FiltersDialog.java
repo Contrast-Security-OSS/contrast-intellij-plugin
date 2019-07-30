@@ -75,6 +75,7 @@ public class FiltersDialog extends JDialog {
     FiltersDialog(List<Server> servers, List<Application> applications, ExtendedContrastSDK extendedContrastSDK, OrganizationConfig organizationConfig, Project project) {
         setContentPane(contentPane);
         setModal(true);
+        setResizable(true);
         getRootPane().setDefaultButton(buttonOK);
 
         buttonOK.addActionListener(e -> onOK());
@@ -92,7 +93,7 @@ public class FiltersDialog extends JDialog {
         // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        setSize(850, 400);
+
 
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         final Dimension screenSize = toolkit.getScreenSize();
@@ -110,6 +111,8 @@ public class FiltersDialog extends JDialog {
 
         setupCheckBoxes();
         setupComboBoxes();
+
+        setSize(850, 400);
 
         lastDetectedFromDateTimePicker.addDateTimeChangeListener(event -> {
             if (lastDetectedFromDateTimePicker.getDateTimePermissive() != null && lastDetectedToDateTimePicker.getDateTimePermissive() != null) {
@@ -171,11 +174,14 @@ public class FiltersDialog extends JDialog {
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         setSize(700, 400);
+
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         final Dimension screenSize = toolkit.getScreenSize();
         final int x = (screenSize.width - getWidth()) / 2;
         final int y = (screenSize.height - getHeight()) / 2;
+        setSize(screenSize.width, screenSize.height);
         setLocation(x, y);
+
         setTitle("Set Filters");
     }
 
