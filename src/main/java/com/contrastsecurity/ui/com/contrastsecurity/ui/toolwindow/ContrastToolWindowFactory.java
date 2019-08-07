@@ -465,6 +465,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                     contrastFilterPersistentStateComponent.setSelectedServerUuid(null);
                     servers = null;
                     applications = null;
+                    //Resetting the filters to not persist with different orgs
+                    filtersAreSet = false;
                     refresh();
                 }
             }
@@ -567,6 +569,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 cardLayout.show(cardPanel, "noVulnerabilitiesCard");
             }
         }
+
         contrastTableModel.setData(traces);
         contrastTableModel.fireTableDataChanged();
 
@@ -1126,8 +1129,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             public void actionPerformed(AnActionEvent e) {
                 if (servers != null && applications != null) {
                     final FiltersDialog filtersDialog = new FiltersDialog(servers, applications, extendedContrastSDK, organizationConfig, project);
+                    filtersDialog.pack();
                     filtersDialog.setVisible(true);
-
                     TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();
                     if (dialogTraceFilterForm != null) {
                         ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
