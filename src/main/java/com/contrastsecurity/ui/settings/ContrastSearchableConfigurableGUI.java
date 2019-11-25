@@ -70,7 +70,7 @@ public class ContrastSearchableConfigurableGUI {
 
         populateFieldsWithValuesFromContrastPersistentStateComponent();
 
-        addButton.addActionListener(e -> new Thread(() -> {
+        addButton.addActionListener(e -> {
             final String url = getTeamServerUrl();
             final String username = usernameTextField.getText().trim();
             final String serviceKey = serviceKeyTextField.getText().trim();
@@ -129,7 +129,7 @@ public class ContrastSearchableConfigurableGUI {
             } catch (Exception e1) {
                 testConnectionLabel.setText("Connection failed! Check Team Server URL.");
             }
-        }).start());
+        });
 
         deleteButton.addActionListener(e -> {
             String selectedOrganization = getSelectedTableValue(organizationTable);
