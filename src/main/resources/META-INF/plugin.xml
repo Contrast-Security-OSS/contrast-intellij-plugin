@@ -1,14 +1,14 @@
 <idea-plugin>
     <id>com.contrastsecurity.contrast-intellij-plugin</id>
     <name>Contrast</name>
-    <version>1.0</version>
+    <version>2.7.2</version>
     <vendor email="support@contrastsecurity.com" url="https://www.contrastsecurity.com">Contrast Security</vendor>
 
     <description><![CDATA[
       <p>Instrument your applications with Contrast Security to gain real-time visibility to vulnerabilities in your application, and to defend them against attacks.</p>
       <p>Contrast integrates with your existing SDLC processes to provide an easy way to view and fix vulnerabilities in your code, and protect your applications.</p>
       <p>The Contrast for IntelliJ plugin lists the vulnerabilities from your application directly in your IntelliJ environment enabling developers to resolve issues faster.</p>
-      <p>Please note that you will need the Contrast TeamServer in order to use this feature.</p>
+      <p>Please note that you will need an account in the Contrast UI in order to use this feature.</p>
       <p>You can learn more about Contrast Security's latest products by visiting our website at <a href="https://www.contrastsecurity.com">www.contrastsecurity.com</a>.</p>
       <p>To schedule a demo, contact us at <a href="https://www.contrastsecurity.com/demo">www.contrastsecurity.com/demo</a> or by calling 1-888-371-1333.</p>
       <p>Welcome to the Era of Self-Protecting Software.</p>
