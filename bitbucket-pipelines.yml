@@ -1,10 +1,7 @@
-
-image: openjdk:8
+image: qlik/gradle
 
 pipelines:
   default:
     - step:
-        caches:
-          - gradle
         script: 
-          - bash ./gradlew build
+          - gradle test
