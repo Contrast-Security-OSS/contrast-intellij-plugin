@@ -1,4 +1,4 @@
-image: qlik/gradle
+image: gradle:6.3.0-jdk8
 
 pipelines:
   default:
