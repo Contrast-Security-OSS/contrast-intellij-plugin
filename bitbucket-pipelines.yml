@@ -1,4 +1,4 @@
-image: gradle:6.3.0-jdk8
+image: gradle:6.0.1-jre8
 
 pipelines:
   default:
