@@ -1,7 +1,0 @@
-image: gradle:6.0.1-jre8
-
-pipelines:
-  default:
-    - step:
-        script: 
-          - gradle test
