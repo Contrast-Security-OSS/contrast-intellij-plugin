@@ -57,6 +57,7 @@ import javax.swing.border.Border;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -938,6 +939,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             JPanel compoundPanel = new JPanel();
             JPanel headerPanel = new JPanel();
             headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+
             JPanel linksPanel = new JPanel();
             linksPanel.setLayout(new BoxLayout(linksPanel, BoxLayout.Y_AXIS));
 
@@ -952,7 +954,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
 
             JTextPane cweHeaderLabel = getBaseTextPane("CWE:");
-
             JTextPane cweLabel = getBaseTextPane(recommendationResource.getCwe());
 
             headerPanel.add(cweHeaderLabel);
@@ -978,12 +979,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 linksPanel.add(referencesLabel);
             }
             CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
-            if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
-                String customRuleReferencesText = ContrastUtil.parseMustache(customRuleReferences.getText());
+            if (StringUtils.isNotEmpty(customRuleReferences.getFormattedText())) {
 
-                JTextPane customReferencesLabel = getBaseTextPane(customRuleReferencesText);
+                JTextPane customReferencesLabel = getBaseTextPane(customRuleReferences.getFormattedText());
+                parseHtmlLinksAddToPanel(customReferencesLabel, linksPanel);
 
-                headerPanel.add(customReferencesLabel);
             }
 
             compoundPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -991,6 +991,58 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             compoundPanel.add(linksPanel);
 
             recommendationPanel.add(compoundPanel);
+        }
+    }
+
+    public void parseHtmlLinksAddToPanel(JTextPane text, JPanel panel) {
+        String linkStartKey = "https://";
+        String linkEndKey = "{{{nl}}}";
+
+        String labelText = text.getText().replaceAll("<br>", "").replaceAll("<b>", "").replaceAll("</b>", "").
+                replaceAll("</br>", "");
+
+        while(labelText.contains(linkStartKey)) {
+            int linkStart = labelText.indexOf(linkStartKey);
+            int linkEnd = labelText.indexOf(linkEndKey);
+
+            if (linkStart >= 0 && linkEnd >= 0){
+                JTextPane referencesLabel = new JTextPane();
+                referencesLabel.setText(labelText.substring(0, linkStart));
+
+                JTextPane linkLabel = new JTextPane();
+                linkLabel.setText(labelText.substring(linkStart, linkEnd));
+                linkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+                StyleConstants.setUnderline(attributeSet, true);
+                StyleConstants.setForeground(attributeSet, Constants.LINK_COLOR);
+                linkLabel.getStyledDocument().setCharacterAttributes(0, text.getText().length(), attributeSet, false);
+
+                MouseListener linkClickedListener = new MouseAdapter() {
+                    public void mouseClicked(MouseEvent e) {
+                        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+                        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                            try {
+                                desktop.browse(URI.create(linkLabel.getText()));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+
+                };
+
+                linkLabel.addMouseListener(linkClickedListener);
+
+
+                panel.add(referencesLabel);
+                panel.add(linkLabel);
+
+                labelText = (String) labelText.subSequence(linkEnd+linkEndKey.length(), labelText.length());
+            } else{
+                JTextPane allText = getBaseTextPane(ContrastUtil.parseMustache(text.getText()));
+                panel.add(allText);
+                labelText = null;
+            }
         }
     }
 
