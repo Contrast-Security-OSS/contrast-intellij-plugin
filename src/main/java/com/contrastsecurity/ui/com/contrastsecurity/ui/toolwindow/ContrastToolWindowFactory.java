@@ -23,7 +23,6 @@ import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.contrastsecurity.ui.settings.ContrastSearchableConfigurable;
@@ -939,7 +938,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             JPanel compoundPanel = new JPanel();
             JPanel headerPanel = new JPanel();
             headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-
             JPanel linksPanel = new JPanel();
             linksPanel.setLayout(new BoxLayout(linksPanel, BoxLayout.Y_AXIS));
 
@@ -954,6 +952,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             }
 
             JTextPane cweHeaderLabel = getBaseTextPane("CWE:");
+
             JTextPane cweLabel = getBaseTextPane(recommendationResource.getCwe());
 
             headerPanel.add(cweHeaderLabel);
