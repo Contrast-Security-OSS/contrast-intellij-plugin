@@ -51,7 +51,17 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableColumn;
@@ -63,14 +73,26 @@ import javax.swing.text.StyleContext;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.net.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
@@ -993,11 +1015,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    public void parseHtmlLinksAddToPanel(JTextPane text, JPanel panel) {
+    private void parseHtmlLinksAddToPanel(JTextPane text, JPanel panel) {
         String linkStartKey = "https://";
         String linkEndKey = "{{{nl}}}";
 
-        String labelText = text.getText().replaceAll("<br>", "").replaceAll("<b>", "").replaceAll("</b>", "").
+        String labelText = text.getText().replaceAll("<br>", "\n").replaceAll("<b>", "\n").replaceAll("</b>", "").
                 replaceAll("</br>", "");
 
         while(labelText.contains(linkStartKey)) {
@@ -1031,7 +1053,6 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 };
 
                 linkLabel.addMouseListener(linkClickedListener);
-
 
                 panel.add(referencesLabel);
                 panel.add(linkLabel);
