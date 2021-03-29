@@ -21,8 +21,6 @@ import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.http.FilterForm;
-import com.contrastsecurity.http.FilterForm.ApplicationExpandValues;
 import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
@@ -39,7 +37,13 @@ import java.io.IOException;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 public class ContrastUtil {
 

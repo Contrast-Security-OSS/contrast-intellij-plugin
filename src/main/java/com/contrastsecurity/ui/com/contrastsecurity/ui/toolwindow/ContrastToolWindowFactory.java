@@ -23,7 +23,6 @@ import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.*;
 import com.contrastsecurity.ui.settings.ContrastSearchableConfigurable;
@@ -52,25 +51,48 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.net.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class ContrastToolWindowFactory implements ToolWindowFactory {
@@ -978,12 +1000,11 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 linksPanel.add(referencesLabel);
             }
             CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
-            if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
-                String customRuleReferencesText = ContrastUtil.parseMustache(customRuleReferences.getText());
+            if (StringUtils.isNotEmpty(customRuleReferences.getFormattedText())) {
 
-                JTextPane customReferencesLabel = getBaseTextPane(customRuleReferencesText);
+                JTextPane customReferencesLabel = getBaseTextPane(customRuleReferences.getFormattedText());
+                parseHtmlLinksAddToPanel(customReferencesLabel, linksPanel);
 
-                headerPanel.add(customReferencesLabel);
             }
 
             compoundPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -991,6 +1012,57 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             compoundPanel.add(linksPanel);
 
             recommendationPanel.add(compoundPanel);
+        }
+    }
+
+    private void parseHtmlLinksAddToPanel(JTextPane text, JPanel panel) {
+        String linkStartKey = "https://";
+        String linkEndKey = "{{{nl}}}";
+
+        String labelText = text.getText().replaceAll("<br>", "\n").replaceAll("<b>", "\n").replaceAll("</b>", "").
+                replaceAll("</br>", "");
+
+        while(labelText.contains(linkStartKey)) {
+            int linkStart = labelText.indexOf(linkStartKey);
+            int linkEnd = labelText.indexOf(linkEndKey);
+
+            if (linkStart >= 0 && linkEnd >= 0){
+                JTextPane referencesLabel = new JTextPane();
+                referencesLabel.setText(labelText.substring(0, linkStart));
+
+                JTextPane linkLabel = new JTextPane();
+                linkLabel.setText(labelText.substring(linkStart, linkEnd));
+                linkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+                StyleConstants.setUnderline(attributeSet, true);
+                StyleConstants.setForeground(attributeSet, Constants.LINK_COLOR);
+                linkLabel.getStyledDocument().setCharacterAttributes(0, text.getText().length(), attributeSet, false);
+
+                MouseListener linkClickedListener = new MouseAdapter() {
+                    public void mouseClicked(MouseEvent e) {
+                        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+                        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                            try {
+                                desktop.browse(URI.create(linkLabel.getText()));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+
+                };
+
+                linkLabel.addMouseListener(linkClickedListener);
+
+                panel.add(referencesLabel);
+                panel.add(linkLabel);
+
+                labelText = (String) labelText.subSequence(linkEnd+linkEndKey.length(), labelText.length());
+            } else{
+                JTextPane allText = getBaseTextPane(ContrastUtil.parseMustache(text.getText()));
+                panel.add(allText);
+                labelText = null;
+            }
         }
     }
 
