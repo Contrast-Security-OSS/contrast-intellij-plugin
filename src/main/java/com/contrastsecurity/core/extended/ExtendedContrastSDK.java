@@ -17,7 +17,7 @@ package com.contrastsecurity.core.extended;
 import com.contrastsecurity.core.UrlConstants;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.HttpMethod;
-import com.contrastsecurity.models.Applications;
+import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.sdk.ContrastSDK;
 import com.google.gson.*;
 import org.apache.commons.io.IOUtils;
@@ -37,12 +37,16 @@ public class ExtendedContrastSDK extends ContrastSDK {
     private static final int SERVER_ERROR = 500;
     private Gson gson;
     private String restApiURL;
+    private IntegrationName integrationName;
+    private String version;
 
     public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL)
             throws IllegalArgumentException {
         super(user, serviceKey, apiKey, restApiURL);
         this.restApiURL = restApiURL;
         this.gson = new Gson();
+        this.integrationName = IntegrationName.INTELLIJ_IDE;
+        this.version = "2.10.0-SNAPSHOT";
     }
 
     public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL, Proxy proxy)
@@ -50,6 +54,8 @@ public class ExtendedContrastSDK extends ContrastSDK {
         super(user, serviceKey, apiKey, restApiURL, proxy);
         this.restApiURL = restApiURL;
         this.gson = new Gson();
+        this.integrationName = IntegrationName.INTELLIJ_IDE;
+        this.version = "2.10.0-SNAPSHOT";
     }
 
     public EventSummaryResource getEventSummary(String orgUuid, String traceId) throws IOException, UnauthorizedException {
