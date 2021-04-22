@@ -19,10 +19,18 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.HttpMethod;
 import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.sdk.ContrastSDK;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -36,26 +44,18 @@ public class ExtendedContrastSDK extends ContrastSDK {
     private static final int BAD_REQUEST = 400;
     private static final int SERVER_ERROR = 500;
     private Gson gson;
-    private String restApiURL;
-    private IntegrationName integrationName;
-    private String version;
+    private ContrastSDK sdk;
 
     public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL)
             throws IllegalArgumentException {
-        super(user, serviceKey, apiKey, restApiURL);
-        this.restApiURL = restApiURL;
+        sdk = new Builder(user, serviceKey, apiKey).withApiUrl(restApiURL).withIntegrationName(String.valueOf(IntegrationName.INTELLIJ_IDE)).withVersion("2.10.0-SNAPSHOT").build();
         this.gson = new Gson();
-        this.integrationName = IntegrationName.INTELLIJ_IDE;
-        this.version = "2.10.0-SNAPSHOT";
     }
 
     public ExtendedContrastSDK(String user, String serviceKey, String apiKey, String restApiURL, Proxy proxy)
             throws IllegalArgumentException {
-        super(user, serviceKey, apiKey, restApiURL, proxy);
-        this.restApiURL = restApiURL;
+        sdk = new Builder(user, serviceKey, apiKey).withApiUrl(restApiURL).withProxy(proxy).withIntegrationName(String.valueOf(IntegrationName.INTELLIJ_IDE)).withVersion("2.10.0-SNAPSHOT").build();
         this.gson = new Gson();
-        this.integrationName = IntegrationName.INTELLIJ_IDE;
-        this.version = "2.10.0-SNAPSHOT";
     }
 
     public EventSummaryResource getEventSummary(String orgUuid, String traceId) throws IOException, UnauthorizedException {
@@ -264,6 +264,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
     public BaseResponse putStatus(String orgUuid, StatusRequest statusRequest) throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
+        System.out.print(sdk.getIntegrationName());
         try {
             String statusUrl = String.format(UrlConstants.STATUS, orgUuid);
             is = makeRequest(HttpMethod.PUT, statusUrl, statusRequest);
@@ -278,7 +279,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
 
     // ------------------------ Utilities -----------------------------------------------
     private InputStream makeRequest(HttpMethod method, String path, Object body) throws IOException, UnauthorizedException {
-        String url = restApiURL + path;
+        String url = sdk.getRestApiURL() + path;
         HttpURLConnection connection = makeConnection(url, method.toString(), body);
 
         InputStream is = connection.getInputStream();
