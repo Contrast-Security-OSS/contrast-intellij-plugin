@@ -264,7 +264,6 @@ public class ExtendedContrastSDK extends ContrastSDK {
     public BaseResponse putStatus(String orgUuid, StatusRequest statusRequest) throws IOException, UnauthorizedException {
         InputStream is = null;
         InputStreamReader reader = null;
-        System.out.print(sdk.getIntegrationName());
         try {
             String statusUrl = String.format(UrlConstants.STATUS, orgUuid);
             is = makeRequest(HttpMethod.PUT, statusUrl, statusRequest);
