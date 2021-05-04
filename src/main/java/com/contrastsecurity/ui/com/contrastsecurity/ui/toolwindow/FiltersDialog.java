@@ -17,24 +17,39 @@ package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
-import com.contrastsecurity.core.extended.ExtendedContrastSDK;
-import com.contrastsecurity.core.extended.Filter;
-import com.contrastsecurity.core.extended.FilterResource;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.TraceFilterForm;
+import com.contrastsecurity.http.TraceFilterType;
 import com.contrastsecurity.models.Application;
 import com.contrastsecurity.models.Server;
+import com.contrastsecurity.models.TraceFilter;
+import com.contrastsecurity.models.TraceListing;
+import com.contrastsecurity.sdk.ContrastSDK;
 import com.github.lgooddatepicker.components.DateTimePicker;
 import com.intellij.openapi.project.Project;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 public class FiltersDialog extends JDialog {
@@ -70,9 +85,9 @@ public class FiltersDialog extends JDialog {
     private List<Application> applications;
 
     private TraceFilterForm traceFilterForm;
-    private ExtendedContrastSDK extendedContrastSDK;
+    private ContrastSDK contrastSDK;
 
-    FiltersDialog(List<Server> servers, List<Application> applications, ExtendedContrastSDK extendedContrastSDK, OrganizationConfig organizationConfig, Project project) {
+    FiltersDialog(List<Server> servers, List<Application> applications, ContrastSDK cntrastSDK, OrganizationConfig organizationConfig, Project project) {
         setContentPane(contentPane);
         setModal(true);
         setResizable(true);
@@ -105,7 +120,7 @@ public class FiltersDialog extends JDialog {
 //        Filters related initialization
         this.servers = servers;
         this.applications = applications;
-        this.extendedContrastSDK = extendedContrastSDK;
+        this.contrastSDK = contrastSDK;
 
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
 
@@ -137,7 +152,7 @@ public class FiltersDialog extends JDialog {
             ApplicationComboBoxItem applicationComboBoxItem = (ApplicationComboBoxItem) applicationsComboBox.getSelectedItem();
             if (applicationComboBoxItem != null && applicationComboBoxItem.getApplication() != null) {
                 String appId = applicationComboBoxItem.getApplication().getId();
-                FilterResource filterResource = getApplicationTraceFiltersByType(organizationConfig.getUuid(), appId);
+                TraceListing filterResource = getApplicationTraceFiltersByType(organizationConfig.getUuid(), appId);
                 if (filterResource != null && filterResource.getFilters() != null) {
                     updateAppVersionTagsComboBox(filterResource.getFilters());
                 }
@@ -340,10 +355,10 @@ public class FiltersDialog extends JDialog {
         }
     }
 
-    private void updateAppVersionTagsComboBox(List<Filter> filters) {
+    private void updateAppVersionTagsComboBox(List<TraceFilter> filters) {
         appVersionTagsComboBox.removeAllItems();
         if (filters != null && !filters.isEmpty()) {
-            for (Filter filter : filters) {
+            for (TraceFilter filter : filters) {
                 appVersionTagsComboBox.addItem(filter);
             }
         }
@@ -677,10 +692,10 @@ public class FiltersDialog extends JDialog {
         return traceFilterForm;
     }
 
-    private FilterResource getApplicationTraceFiltersByType(String orgUuid, String appId) {
-        FilterResource filterResource = null;
+    private TraceListing getApplicationTraceFiltersByType(String orgUuid, String appId) {
+        TraceListing filterResource = null;
         try {
-            filterResource = extendedContrastSDK.getApplicationTraceFiltersByType(orgUuid, appId, Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS);
+            filterResource = contrastSDK.getTraceFiltersByType(orgUuid, appId, TraceFilterType.APP_VERSION_TAGS);
         } catch (Exception e) {
             e.printStackTrace();
         }

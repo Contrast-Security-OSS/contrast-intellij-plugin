@@ -41,7 +41,7 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
-    implementation 'com.contrastsecurity:contrast-sdk-java:2.9'
+    implementation files('/Users/aliaandersen/Desktop/Projects/contrast-sdk-java/target/contrast-sdk-java-2.23-SNAPSHOT.jar')
     // https://mvnrepository.com/artifact/com.github.lgooddatepicker/LGoodDatePicker
     implementation group: 'com.github.lgooddatepicker', name: 'LGoodDatePicker', version: '10.3.1'
     implementation 'org.unbescape:unbescape:1.1.5.RELEASE'

@@ -19,10 +19,10 @@ import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
-import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
+import com.contrastsecurity.sdk.ContrastSDK;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -98,11 +98,11 @@ public class ContrastSearchableConfigurableGUI {
             Proxy proxy = ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) != null
                     ? ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) : Proxy.NO_PROXY;
 
-            ExtendedContrastSDK extendedContrastSDK = new ExtendedContrastSDK(username, serviceKey,
-                    apiKey, url, proxy);
+            ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(url).withProxy(proxy).build();
+
 
             try {
-                Organizations orgs = extendedContrastSDK.getProfileOrganizations();
+                Organizations orgs = sdk.getProfileOrganizations();
 
                 if (orgs != null && orgs.getOrganizations() != null && !orgs.getOrganizations().isEmpty()) {
                     for (Organization organization : orgs.getOrganizations()) {

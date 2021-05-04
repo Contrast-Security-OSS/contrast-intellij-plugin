@@ -17,15 +17,19 @@ package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 import com.contrastsecurity.config.EventTypeIcon;
 import com.contrastsecurity.config.EventTypeIconRect;
 import com.contrastsecurity.core.Constants;
-import com.contrastsecurity.core.extended.EventItem;
 import com.contrastsecurity.core.extended.EventResource;
 import com.contrastsecurity.core.extended.Fragment;
 import com.contrastsecurity.core.extended.Line;
+import com.contrastsecurity.models.EventItem;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.text.BadLocationException;
@@ -35,7 +39,9 @@ import javax.swing.text.StyleContext;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.font.TextAttribute;
 import java.net.URLDecoder;
 import java.util.Map;
@@ -69,29 +75,29 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                 Border compoundBorder = new CompoundBorder(border, margin);
 
                 switch (eventItem.getType()) {
-                    case EventResource.RED:
+                    case com.contrastsecurity.models.EventResource.RED:
                         jLabel.setBorder(compoundBorder);
                         jLabel.setForeground(Constants.CREATION_COLOR);
                         break;
-                    case EventResource.CUSTOM_RED:
+                    case com.contrastsecurity.models.EventResource.CUSTOM_RED:
                         jLabel.setBorder(compoundBorder);
                         jLabel.setForeground(Constants.CREATION_COLOR);
                         jLabel.setFont(derivedFont);
                         break;
-                    case EventResource.CONTENT:
+                    case com.contrastsecurity.models.EventResource.CONTENT:
                         jLabel.setBorder(compoundBorder);
                         jLabel.setForeground(Constants.CONTENT_COLOR);
                         break;
-                    case EventResource.CODE:
+                    case com.contrastsecurity.models.EventResource.CODE:
                         jLabel.setBorder(compoundBorder);
                         jLabel.setForeground(Constants.CODE_COLOR);
                         break;
-                    case EventResource.CUSTOM_CODE:
+                    case com.contrastsecurity.models.EventResource.CUSTOM_CODE:
                         jLabel.setForeground(Constants.CODE_COLOR);
                         jLabel.setBorder(compoundBorder);
                         jLabel.setFont(derivedFont);
                         break;
-                    case EventResource.BOLD:
+                    case com.contrastsecurity.models.EventResource.BOLD:
                         jLabel.setFont(boldFont);
                         break;
                     default:
@@ -99,8 +105,8 @@ public class EventTreeCellRenderer implements TreeCellRenderer {
                 }
                 if (selected) jLabel.setForeground(JBColor.WHITE);
                 returnValue = jLabel;
-            } else if (userObject instanceof EventResource) {
-                EventResource eventResource = (EventResource) userObject;
+            } else if (userObject instanceof com.contrastsecurity.models.EventResource) {
+                com.contrastsecurity.models.EventResource eventResource = (com.contrastsecurity.models.EventResource) userObject;
                 EventTypeIcon eventTypeIcon = getIcon(eventResource.getType());
                 JLabel jLabel = new JLabel(eventResource.toString());
                 jLabel.setIcon(eventTypeIcon);
