@@ -20,6 +20,7 @@ import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
@@ -41,11 +42,13 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class ContrastSearchableConfigurableGUI {
 
@@ -98,8 +101,15 @@ public class ContrastSearchableConfigurableGUI {
             Proxy proxy = ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) != null
                     ? ContrastUtil.getIdeaDefinedProxy(getTeamServerUrl()) : Proxy.NO_PROXY;
 
-            ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(url).withProxy(proxy).build();
+            InputStream ins = ContrastUtil.class.getClassLoader().getResourceAsStream("contrast.properties");
+            Properties gradleProperty = new Properties();
+            try {
+                gradleProperty.load(ins);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
 
+            ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(url).withProxy(proxy).withIntegrationName(IntegrationName.INTELLIJ_IDE).withVersion(gradleProperty.getProperty("version")).build();
 
             try {
                 Organizations orgs = sdk.getProfileOrganizations();

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.contrastsecurity.contrast-intellij-plugin</id>
     <name>Contrast</name>
-    <version>2.9.0</version>
+    <version>${project.version}</version>
     <vendor email="support@contrastsecurity.com" url="https://www.contrastsecurity.com">Contrast Security</vendor>
 
     <description><![CDATA[

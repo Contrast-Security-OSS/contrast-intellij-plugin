@@ -1,23 +1,14 @@
-/*******************************************************************************
- * Copyright (c) 2017 Contrast Security.
- * All rights reserved. 
- *
- * This program and the accompanying materials are made available under 
- * the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License.
- *
- * The terms of the GNU GPL version 3 which accompanies this distribution
- * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * Contributors:
- *     Contrast Security - initial API and implementation
- *******************************************************************************/
 package com.contrastsecurity.core.extended;
+
+import com.contrastsecurity.models.Event;
+import com.contrastsecurity.models.EventItem;
+import com.contrastsecurity.models.Parameter;
+import com.contrastsecurity.models.Stacktrace;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventResource extends EventModel {
+public class EventResource extends com.contrastsecurity.models.EventResource {
     public static final String RED = "RED";
     public static final String CONTENT = "CONTENT";
     public static final String CODE = "CODE";
@@ -36,11 +27,11 @@ public class EventResource extends EventModel {
     private View probableStartLocationView;
     private View dataView;
 
-    private List<EventResource> collapsedEvents;
+    private List<com.contrastsecurity.models.EventResource> collapsedEvents;
 
     //Internal use
-    private Event event;
-    private EventItem[] items;
+    private com.contrastsecurity.models.Event event;
+    private com.contrastsecurity.models.EventItem[] items;
 
     public String getId() {
         return this.id;
@@ -90,11 +81,11 @@ public class EventResource extends EventModel {
         this.extraDetails = extraDetails;
     }
 
-    public List<EventResource> getCollapsedEvents() {
+    public List<com.contrastsecurity.models.EventResource> getCollapsedEvents() {
         return collapsedEvents;
     }
 
-    public void setCollapsedEvents(List<EventResource> collapsedEvents) {
+    public void setCollapsedEvents(List<com.contrastsecurity.models.EventResource> collapsedEvents) {
         this.collapsedEvents = collapsedEvents;
     }
 
@@ -138,13 +129,13 @@ public class EventResource extends EventModel {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        EventResource other = (EventResource) obj;
-        if (id != other.id)
+        com.contrastsecurity.models.EventResource other = (com.contrastsecurity.models.EventResource) obj;
+        if (id != other.getId())
             return false;
         return true;
     }
 
-    public Event getEvent() {
+    public com.contrastsecurity.models.Event getEvent() {
         return event;
     }
 
@@ -152,51 +143,51 @@ public class EventResource extends EventModel {
         this.event = event;
     }
 
-    public EventItem[] getItems() {
+    public com.contrastsecurity.models.EventItem[] getItems() {
         if (items == null) {
             if (event != null) {
-                List<EventItem> eventItems = new ArrayList<>();
+                List<com.contrastsecurity.models.EventItem> eventItems = new ArrayList<>();
                 //EventItem eventItem = new EventItem(this, "", "at " + probableStartLocation, false);
                 //eventItems.add(eventItem);
-                EventItem eventItem = new EventItem(this, BOLD, "Class.Method", false);
+                com.contrastsecurity.models.EventItem eventItem = new com.contrastsecurity.models.EventItem(this, BOLD, "Class.Method", false);
                 eventItems.add(eventItem);
-                eventItem = new EventItem(this, CONTENT, event.getClazz() + '.' + event.getMethod(), false);
+                eventItem = new com.contrastsecurity.models.EventItem(this, CONTENT, event.getClazz() + '.' + event.getMethod(), false);
                 eventItems.add(eventItem);
-                eventItem = new EventItem(this, BOLD, "Object", false);
+                eventItem = new com.contrastsecurity.models.EventItem(this, BOLD, "Object", false);
                 eventItems.add(eventItem);
-                eventItem = new EventItem(this, CONTENT, event.getfObject(), false);
+                eventItem = new com.contrastsecurity.models.EventItem(this, CONTENT, event.getfObject(), false);
                 eventItems.add(eventItem);
-                eventItem = new EventItem(this, BOLD, "Return", false);
+                eventItem = new com.contrastsecurity.models.EventItem(this, BOLD, "Return", false);
                 eventItems.add(eventItem);
-                eventItem = new EventItem(this, CONTENT, event.getfReturn(), false);
+                eventItem = new com.contrastsecurity.models.EventItem(this, CONTENT, event.getfReturn(), false);
                 eventItems.add(eventItem);
-                eventItem = new EventItem(this, BOLD, "Parameters", false);
+                eventItem = new com.contrastsecurity.models.EventItem(this, BOLD, "Parameters", false);
                 eventItems.add(eventItem);
                 if (event.getParameters() != null) {
                     for (Parameter paremeter : event.getParameters())
                         if (paremeter.getParameter() != null) {
-                            eventItem = new EventItem(this, CONTENT, paremeter.getParameter(), false);
+                            eventItem = new com.contrastsecurity.models.EventItem(this, CONTENT, paremeter.getParameter(), false);
                             eventItems.add(eventItem);
                         }
                 }
-                eventItem = new EventItem(this, BOLD, "Stack Trace", false);
+                eventItem = new com.contrastsecurity.models.EventItem(this, BOLD, "Stack Trace", false);
                 eventItems.add(eventItem);
                 if (event.getStacktraces() != null) {
                     boolean first = true;
                     for (Stacktrace stacktrace : event.getStacktraces()) {
                         if (first) {
                             if (stacktrace.getType().equals("custom")) {
-                                eventItem = new EventItem(this, CUSTOM_RED, stacktrace.getDescription(), true);
+                                eventItem = new com.contrastsecurity.models.EventItem(this, CUSTOM_RED, stacktrace.getDescription(), true);
                             } else {
-                                eventItem = new EventItem(this, RED, stacktrace.getDescription(), true);
+                                eventItem = new com.contrastsecurity.models.EventItem(this, RED, stacktrace.getDescription(), true);
                             }
                             eventItems.add(eventItem);
                             first = false;
                         } else {
                             if (stacktrace.getType().equals("custom")) {
-                                eventItem = new EventItem(this, CUSTOM_CODE, stacktrace.getDescription(), true);
+                                eventItem = new com.contrastsecurity.models.EventItem(this, CUSTOM_CODE, stacktrace.getDescription(), true);
                             } else {
-                                eventItem = new EventItem(this, CODE, stacktrace.getDescription(), true);
+                                eventItem = new com.contrastsecurity.models.EventItem(this, CODE, stacktrace.getDescription(), true);
                             }
                             eventItems.add(eventItem);
                             first = false;

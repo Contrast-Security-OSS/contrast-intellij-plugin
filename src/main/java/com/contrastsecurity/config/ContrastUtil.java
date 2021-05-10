@@ -20,6 +20,7 @@ import com.contrastsecurity.core.cache.ContrastCache;
 import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
@@ -42,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URI;
@@ -56,6 +58,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class ContrastUtil {
 
@@ -73,7 +76,15 @@ public class ContrastUtil {
             Proxy proxy = getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) != null
                     ? getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) : Proxy.NO_PROXY;
 
-            sdk = new ContrastSDK.Builder(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey()).withApiUrl(organizationConfig.getTeamServerUrl()).withProxy(proxy).build();
+            InputStream ins = ContrastUtil.class.getClassLoader().getResourceAsStream("contrast.properties");
+            Properties gradleProperty = new Properties();
+            try {
+                gradleProperty.load(ins);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            sdk = new ContrastSDK.Builder(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey()).withApiUrl(organizationConfig.getTeamServerUrl()).withProxy(proxy).withIntegrationName(IntegrationName.INTELLIJ_IDE).withVersion(gradleProperty.getProperty("version")).build();
             sdk.setReadTimeout(5000);
         }
         return sdk;

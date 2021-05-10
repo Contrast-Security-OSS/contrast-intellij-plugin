@@ -36,7 +36,7 @@ public class ContrastCache {
                     .initialCapacity(MAX_CACHE_SIZE / 2)
                     .maximumWeightedCapacity(MAX_CACHE_SIZE)
                     .build();
-    private ConcurrentLinkedHashMap<Key, StoryResponse> storyResources =
+    private ConcurrentLinkedHashMap<Key, StoryResponse> storyResponses =
             new ConcurrentLinkedHashMap.Builder<Key, StoryResponse>()
                     .initialCapacity(MAX_CACHE_SIZE / 2)
                     .maximumWeightedCapacity(MAX_CACHE_SIZE)
@@ -62,7 +62,7 @@ public class ContrastCache {
     }
 
     public ConcurrentLinkedHashMap<Key, StoryResponse> getStoryResources() {
-        return storyResources;
+        return storyResponses;
     }
 
     public ConcurrentLinkedHashMap<Key, HttpRequestResponse> getHttpRequestResources() {
@@ -75,7 +75,7 @@ public class ContrastCache {
 
     public void clear() {
         eventSummaryResources.clear();
-        storyResources.clear();
+        storyResponses.clear();
         httpRequestResources.clear();
         recommendationResources.clear();
         tagsResources.clear();
