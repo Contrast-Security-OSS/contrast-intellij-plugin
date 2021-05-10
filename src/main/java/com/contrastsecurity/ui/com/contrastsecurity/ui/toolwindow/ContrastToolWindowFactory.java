@@ -20,13 +20,38 @@ import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.cache.ContrastCache;
 import com.contrastsecurity.core.cache.Key;
-import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.TraceFilterForm;
-import com.contrastsecurity.models.*;
+import com.contrastsecurity.models.Application;
+import com.contrastsecurity.models.Chapter;
+import com.contrastsecurity.models.CustomRecommendation;
+import com.contrastsecurity.models.CustomRuleReferences;
+import com.contrastsecurity.models.EventItem;
+import com.contrastsecurity.models.EventResource;
+import com.contrastsecurity.models.EventSummaryResponse;
+import com.contrastsecurity.models.HttpRequestResponse;
+import com.contrastsecurity.models.PropertyResource;
+import com.contrastsecurity.models.RecommendationResponse;
+import com.contrastsecurity.models.Risk;
+import com.contrastsecurity.models.RuleReferences;
+import com.contrastsecurity.models.Server;
+import com.contrastsecurity.models.StatusRequest;
+import com.contrastsecurity.models.StoryResponse;
+import com.contrastsecurity.models.Tag;
+import com.contrastsecurity.models.Tags;
+import com.contrastsecurity.models.TagsResponse;
+import com.contrastsecurity.models.Trace;
+import com.contrastsecurity.models.Traces;
+import com.contrastsecurity.sdk.ContrastSDK;
 import com.contrastsecurity.ui.settings.ContrastSearchableConfigurable;
-import com.intellij.openapi.actionSystem.*;
+import com.google.gson.Gson;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -127,13 +152,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton markAsButton;
     private JTextPane traceTitleTextPane;
     private JLabel noVulnerabilitiesLabel;
-    private ExtendedContrastSDK extendedContrastSDK;
+    private ContrastSDK contrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
     private ContrastTableRowSorter contrastTableRowSorter = new ContrastTableRowSorter(contrastTableModel);
     private OrganizationConfig organizationConfig;
     private Trace viewDetailsTrace;
-    private TagsResource viewDetailsTraceTagsResource;
-    private TagsResource orgTagsResource;
+    private TagsResponse viewDetailsTraceTagsResource;
+    private TagsResponse orgTagsResource;
     private TraceFilterForm traceFilterForm;
     private int numOfPages = 1;
     private List<Server> servers;
@@ -308,18 +333,18 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             if (viewDetailsTraceTagsResource != null && orgTagsResource != null) {
                 TagDialog tagDialog = new TagDialog(viewDetailsTraceTagsResource, orgTagsResource);
                 tagDialog.setVisible(true);
-
-                List<String> newTraceTags = tagDialog.getNewTraceTags();
+                Tags newTraceTags = tagDialog.getNewTraceTags();
                 if (newTraceTags != null) {
                     Key key = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid());
                     Key keyForOrg = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), null);
                     boolean tagsChanged = false;
 //                        remove tags if necessary
-                    for (String tag : viewDetailsTraceTagsResource.getTags()) {
-                        if (!newTraceTags.contains(tag)) {
+                    for (Tag tag : new Tags(viewDetailsTraceTagsResource.getTags()).getTags()) {
+                        if (!newTraceTags.getTags().contains(tag)) {
                             try {
+                                Gson gson = new Gson();
                                 contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                extendedContrastSDK.deleteTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid(), tag);
+                                contrastSDK.deleteVulnerabilityTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid(), tag);
                                 if (!tagsChanged) {
                                     tagsChanged = true;
                                 }
@@ -331,19 +356,21 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         }
                     }
 //                        add tags if necessary
-                    List<String> tagsToAdd = new ArrayList<>();
-                    for (String tag : newTraceTags) {
+                    Tags tagsToAdd = new Tags();
+
+                    for (Tag tag : newTraceTags.getTags()) {
                         if (!viewDetailsTraceTagsResource.getTags().contains(tag)) {
-                            tagsToAdd.add((tag));
+                            tagsToAdd.addTag(tag);
                         }
                     }
-                    if (!tagsToAdd.isEmpty()) {
+                    if (!tagsToAdd.getTags().isEmpty()) {
                         List<String> tracesId = new ArrayList<>();
                         tracesId.add(viewDetailsTrace.getUuid());
-                        TagsServersResource tagsServersResource = new TagsServersResource(tagsToAdd, tracesId);
+                        tagsToAdd.setTracesId(tracesId);
                         try {
                             contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            extendedContrastSDK.putTags(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), tagsServersResource);
+
+                            contrastSDK.createTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), tagsToAdd);
                             if (!tagsChanged) {
                                 tagsChanged = true;
                             }
@@ -357,8 +384,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         contrastCache.getTagsResources().remove(key);
                         contrastCache.getTagsResources().remove(keyForOrg);
                         try {
-                            viewDetailsTraceTagsResource = ContrastUtil.getTags(extendedContrastSDK, contrastCache, key);
-                            orgTagsResource = ContrastUtil.getTags(extendedContrastSDK, contrastCache, keyForOrg);
+                            viewDetailsTraceTagsResource = ContrastUtil.getTags(contrastSDK, contrastCache, key);
+                            orgTagsResource = ContrastUtil.getTags(contrastSDK, contrastCache, keyForOrg);
                         } catch (IOException | UnauthorizedException e1) {
                             e1.printStackTrace();
                         }
@@ -397,7 +424,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 new Thread(() -> {
                     try {
-                        extendedContrastSDK.putStatus(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), statusRequest);
+                        Gson gson = new Gson();
+                        contrastSDK.setTraceStatus(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), gson.toJson(statusRequest));
                         refreshTraces(false);
                     } catch (IOException | UnauthorizedException e1) {
                         e1.printStackTrace();
@@ -510,20 +538,20 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     }
 
     private void refresh() {
-        extendedContrastSDK = ContrastUtil.getContrastSDK(project);
+        contrastSDK = ContrastUtil.getContrastSDK(project);
         organizationConfig = ContrastUtil.getSelectedOrganizationConfig(project);
         traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
         if (organizationConfig != null) {
            if(filtersAreSet) {
                new Thread(() -> {
                    refreshTraces(false);
-                   servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
-                   applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
+                   servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
+                   applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                }).start();
            }
            else{
-               servers = new ArrayList<>(ContrastUtil.retrieveServers(extendedContrastSDK, organizationConfig.getUuid()));
-               applications = ContrastUtil.retrieveApplications(extendedContrastSDK, organizationConfig.getUuid());
+               servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
+               applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
                noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
@@ -553,7 +581,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
 
         try {
-            Traces tracesObject = ContrastUtil.getTraces(extendedContrastSDK, organizationConfig.getUuid(), appId, traceFilterForm);
+            Traces tracesObject = ContrastUtil.getTraces(contrastSDK, organizationConfig.getUuid(), appId, traceFilterForm);
 
             if (tracesObject != null && tracesObject.getTraces() != null && !tracesObject.getTraces().isEmpty()) {
                 traces = tracesObject.getTraces().toArray(new Trace[0]);
@@ -731,13 +759,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
                 contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                StoryResource storyResource = ContrastUtil.getStory(extendedContrastSDK, contrastCache, key);
-                HttpRequestResource httpRequestResource = ContrastUtil.getHttpRequest(extendedContrastSDK, contrastCache, key);
-                EventSummaryResource eventSummaryResource = ContrastUtil.getEventSummary(extendedContrastSDK, contrastCache, key);
-                RecommendationResource recommendationResource = ContrastUtil.getRecommendationResource(extendedContrastSDK, contrastCache, key);
+                StoryResponse storyResource = ContrastUtil.getStory(contrastSDK, contrastCache, key);
+                HttpRequestResponse httpRequestResource = ContrastUtil.getHttpRequest(contrastSDK, contrastCache, key);
+                EventSummaryResponse eventSummaryResource = ContrastUtil.getEventSummary(contrastSDK, contrastCache, key);
+                RecommendationResponse recommendationResource = ContrastUtil.getRecommendationResource(contrastSDK, contrastCache, key);
 
-                viewDetailsTraceTagsResource = ContrastUtil.getTags(extendedContrastSDK, contrastCache, key);
-                orgTagsResource = ContrastUtil.getTags(extendedContrastSDK, contrastCache, keyForOrg);
+                viewDetailsTraceTagsResource = ContrastUtil.getTags(contrastSDK, contrastCache, key);
+                orgTagsResource = ContrastUtil.getTags(contrastSDK, contrastCache, keyForOrg);
 
                 populateVulnerabilityDetailsOverview(storyResource);
                 populateVulnerabilityDetailsEvents(eventSummaryResource);
@@ -777,7 +805,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void populateVulnerabilityDetailsOverview(StoryResource storyResource) {
+    private void populateVulnerabilityDetailsOverview(StoryResponse storyResource) {
         if (storyResource != null && storyResource.getStory() != null && storyResource.getStory().getChapters() != null
                 && !storyResource.getStory().getChapters().isEmpty()) {
 
@@ -789,9 +817,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 String text = chapter.getIntroText() == null ? Constants.BLANK : chapter.getIntroText();
                 String areaText = chapter.getBody() == null ? Constants.BLANK : chapter.getBody();
                 if (areaText.isEmpty()) {
-                    List<PropertyResource> properties = chapter.getPropertyResources();
+                    List<com.contrastsecurity.models.PropertyResource> properties = chapter.getPropertyResources();
                     if (properties != null && properties.size() > 0) {
-                        Iterator<PropertyResource> iter = properties.iterator();
+                        Iterator<com.contrastsecurity.models.PropertyResource> iter = properties.iterator();
                         StringBuilder areaTextBuilder = new StringBuilder(areaText);
                         while (iter.hasNext()) {
                             PropertyResource property = iter.next();
@@ -839,15 +867,18 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void populateVulnerabilityDetailsHttpRequest(HttpRequestResource httpRequestResource) {
+    private void populateVulnerabilityDetailsHttpRequest(HttpRequestResponse httpRequestResource) {
         httpRequestTextPane.setText(Constants.BLANK);
 
         if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
-                && httpRequestResource.getHttpRequest().getText() != null) {
-            httpRequestTextPane.setText(ContrastUtil.filterHeaders(httpRequestResource.getHttpRequest().getText(), "\n"));
+                && httpRequestResource.getHttpRequest().getQueryString() != null) {
+            httpRequestTextPane.setText(ContrastUtil.filterHeaders(httpRequestResource.getHttpRequest().getQueryString(), "\n"));
 
         } else if (httpRequestResource != null && httpRequestResource.getReason() != null) {
             httpRequestTextPane.setText(httpRequestResource.getReason());
+        } else if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
+                && httpRequestResource.getHttpRequest().getText() != null) {
+            httpRequestTextPane.setText(ContrastUtil.filterHeaders(httpRequestResource.getHttpRequest().getText(), "\n"));
         }
         String text = httpRequestTextPane.getText();
         text = HtmlEscape.unescapeHtml(text);
@@ -868,7 +899,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void populateVulnerabilityDetailsEvents(EventSummaryResource eventSummaryResource) {
+    private void populateVulnerabilityDetailsEvents(EventSummaryResponse eventSummaryResource) {
 
         DefaultTreeModel model = (DefaultTreeModel) eventsTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
@@ -903,7 +934,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void populateVulnerabilityDetailsRecommendation(RecommendationResource recommendationResource) {
+    private void populateVulnerabilityDetailsRecommendation(RecommendationResponse recommendationResource) {
         if (recommendationResource != null && recommendationResource.getRecommendation() != null && recommendationResource.getCustomRecommendation() != null
                 && recommendationResource.getRuleReferences() != null && recommendationResource.getCustomRuleReferences() != null) {
 
@@ -1200,7 +1231,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 if (servers != null && applications != null) {
-                    final FiltersDialog filtersDialog = new FiltersDialog(servers, applications, extendedContrastSDK, organizationConfig, project);
+                    final FiltersDialog filtersDialog = new FiltersDialog(servers, applications, contrastSDK, organizationConfig, project);
                     filtersDialog.pack();
                     filtersDialog.setVisible(true);
                     TraceFilterForm dialogTraceFilterForm = filtersDialog.getTraceFilterForm();

@@ -15,7 +15,6 @@
 package com.contrastsecurity.core;
 
 import com.contrastsecurity.config.ContrastUtil;
-import com.contrastsecurity.core.extended.ExtendedContrastSDK;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
