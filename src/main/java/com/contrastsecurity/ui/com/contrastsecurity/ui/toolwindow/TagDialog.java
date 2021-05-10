@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
+import com.contrastsecurity.models.Tags;
 import com.contrastsecurity.models.TagsResponse;
 import org.apache.commons.lang.ArrayUtils;
 
@@ -53,7 +54,7 @@ public class TagDialog extends JDialog {
     private TagsResponse orgTagsResource;
     private TagTableModel tagTableModel = new TagTableModel();
     private ActionListener tagsComboBoxActionListener;
-    private List<String> newTraceTags = null;
+    private Tags newTraceTags = null;
 
     public TagDialog() {
         setContentPane(contentPane);
@@ -229,7 +230,7 @@ public class TagDialog extends JDialog {
 
     private void onOK() {
         // add your code here
-        newTraceTags = Arrays.asList(tagTableModel.getData());
+        newTraceTags = new Tags(Arrays.asList(tagTableModel.getData()));
         dispose();
     }
 
@@ -245,7 +246,7 @@ public class TagDialog extends JDialog {
         System.exit(0);
     }
 
-    public List<String> getNewTraceTags() {
+    public Tags getNewTraceTags() {
         return newTraceTags;
     }
 }

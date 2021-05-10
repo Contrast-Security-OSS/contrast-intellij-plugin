@@ -38,6 +38,8 @@ import com.contrastsecurity.models.Risk;
 import com.contrastsecurity.models.RuleReferences;
 import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.StoryResponse;
+import com.contrastsecurity.models.Tag;
+import com.contrastsecurity.models.Tags;
 import com.contrastsecurity.models.TagsResponse;
 import com.contrastsecurity.models.Trace;
 import com.contrastsecurity.models.Traces;
@@ -331,19 +333,18 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             if (viewDetailsTraceTagsResource != null && orgTagsResource != null) {
                 TagDialog tagDialog = new TagDialog(viewDetailsTraceTagsResource, orgTagsResource);
                 tagDialog.setVisible(true);
-
-                List<String> newTraceTags = tagDialog.getNewTraceTags();
+                Tags newTraceTags = tagDialog.getNewTraceTags();
                 if (newTraceTags != null) {
                     Key key = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid());
                     Key keyForOrg = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), null);
                     boolean tagsChanged = false;
 //                        remove tags if necessary
-                    for (String tag : viewDetailsTraceTagsResource.getTags()) {
-                        if (!newTraceTags.contains(tag)) {
+                    for (Tag tag : new Tags(viewDetailsTraceTagsResource.getTags()).getTags()) {
+                        if (!newTraceTags.getTags().contains(tag)) {
                             try {
                                 Gson gson = new Gson();
                                 contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                contrastSDK.deleteTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid(), gson.toJson(tag));
+                                contrastSDK.deleteVulnerabilityTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid(), tag);
                                 if (!tagsChanged) {
                                     tagsChanged = true;
                                 }
@@ -355,18 +356,21 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         }
                     }
 //                        add tags if necessary
-                    List<String> tagsToAdd = new ArrayList<>();
-                    for (String tag : newTraceTags) {
+                    Tags tagsToAdd = new Tags();
+
+                    for (Tag tag : newTraceTags.getTags()) {
                         if (!viewDetailsTraceTagsResource.getTags().contains(tag)) {
-                            tagsToAdd.add((tag));
+                            tagsToAdd.addTag(tag);
                         }
                     }
-                    if (!tagsToAdd.isEmpty()) {
+                    if (!tagsToAdd.getTags().isEmpty()) {
                         List<String> tracesId = new ArrayList<>();
                         tracesId.add(viewDetailsTrace.getUuid());
+                        tagsToAdd.setTracesId(tracesId);
                         try {
                             contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            contrastSDK.setTags(ContrastUtil.getSelectedOrganizationConfig(project).getUuid());
+
+                            contrastSDK.createTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), tagsToAdd);
                             if (!tagsChanged) {
                                 tagsChanged = true;
                             }
@@ -872,6 +876,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         } else if (httpRequestResource != null && httpRequestResource.getReason() != null) {
             httpRequestTextPane.setText(httpRequestResource.getReason());
+        } else if (httpRequestResource != null && httpRequestResource.getHttpRequest() != null
+                && httpRequestResource.getHttpRequest().getText() != null) {
+            httpRequestTextPane.setText(ContrastUtil.filterHeaders(httpRequestResource.getHttpRequest().getText(), "\n"));
         }
         String text = httpRequestTextPane.getText();
         text = HtmlEscape.unescapeHtml(text);

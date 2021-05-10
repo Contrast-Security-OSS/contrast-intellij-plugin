@@ -15,7 +15,11 @@
 package com.contrastsecurity.core;
 
 import com.contrastsecurity.config.ContrastUtil;
+import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.sdk.ContrastSDK;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -38,5 +42,14 @@ public class ContrastUtilTest {
         String filtered = ContrastUtil.filterHeaders(data, separator);
         assertEquals(goodString1 + separator + goodString2 + separator + goodString3, filtered);
 
+    }
+
+    @Test
+    public void test() throws IOException, UnauthorizedException {
+        ContrastSDK sdk = new ContrastSDK.Builder("contrast_admin", "demo", "demo").withApiUrl("http://localhost:19080/Contrast").build();
+        //Tags tags = new Tags();
+        //Tag tag = new Tag("TEST");
+        //tags.addTag(tag);
+        //tags.setTracesId(new ArrayList(Collections.singleton("NTTM-GG2M-P7MB-MNV8")));
     }
 }

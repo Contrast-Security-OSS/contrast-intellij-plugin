@@ -426,7 +426,7 @@ public class ContrastUtil {
             if (key.getTraceId() != null) {
                 tagsResource = contrastSDK.getTagsByTrace(key.getOrgUuid(), key.getTraceId());
             } else {
-                tagsResource = contrastSDK.getTagsByOrganization(key.getOrgUuid());
+                tagsResource = contrastSDK.getTraceTagsByOrganization(key.getOrgUuid());
             }
             contrastCache.getTagsResources().put(key, tagsResource);
         }
