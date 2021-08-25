@@ -20,7 +20,7 @@ import com.contrastsecurity.core.cache.ContrastCache;
 import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.http.IntegrationName;
+import com.contrastsecurity.http.RequestConstants;
 import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
@@ -34,6 +34,7 @@ import com.contrastsecurity.models.TagsResponse;
 import com.contrastsecurity.models.Trace;
 import com.contrastsecurity.models.Traces;
 import com.contrastsecurity.sdk.ContrastSDK;
+import com.contrastsecurity.sdk.UserAgentProduct;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.net.HttpConfigurable;
 import com.intellij.util.proxy.CommonProxy;
@@ -83,8 +84,9 @@ public class ContrastUtil {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            
+            sdk = new ContrastSDK.Builder(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey()).withApiUrl(organizationConfig.getTeamServerUrl()).withProxy(proxy).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_NAME, "INTELLIJ_INTEGRATION")).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_VERSION, gradleProperty.getProperty("version"))).build();
 
-            sdk = new ContrastSDK.Builder(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey()).withApiUrl(organizationConfig.getTeamServerUrl()).withProxy(proxy).withIntegrationName(IntegrationName.INTELLIJ_IDE).withVersion(gradleProperty.getProperty("version")).build();
             sdk.setReadTimeout(5000);
         }
         return sdk;

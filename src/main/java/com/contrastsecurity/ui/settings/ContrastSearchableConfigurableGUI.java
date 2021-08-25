@@ -20,10 +20,11 @@ import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.http.IntegrationName;
+import com.contrastsecurity.http.RequestConstants;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
+import com.contrastsecurity.sdk.UserAgentProduct;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -109,7 +110,8 @@ public class ContrastSearchableConfigurableGUI {
                 ioException.printStackTrace();
             }
 
-            ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(url).withProxy(proxy).withIntegrationName(IntegrationName.INTELLIJ_IDE).withVersion(gradleProperty.getProperty("version")).build();
+
+            ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(url).withProxy(proxy).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_NAME, "INTELLIJ_INTEGRATION")).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_VERSION, gradleProperty.getProperty("version"))).build();
 
             try {
                 Organizations orgs = sdk.getProfileOrganizations();
