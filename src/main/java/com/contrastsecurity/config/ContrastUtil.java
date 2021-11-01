@@ -35,6 +35,7 @@ import com.contrastsecurity.models.Trace;
 import com.contrastsecurity.models.Traces;
 import com.contrastsecurity.sdk.ContrastSDK;
 import com.contrastsecurity.sdk.UserAgentProduct;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.net.HttpConfigurable;
 import com.intellij.util.proxy.CommonProxy;
@@ -85,7 +86,11 @@ public class ContrastUtil {
                 e.printStackTrace();
             }
             
-            sdk = new ContrastSDK.Builder(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey()).withApiUrl(organizationConfig.getTeamServerUrl()).withProxy(proxy).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_NAME, "INTELLIJ_INTEGRATION")).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_VERSION, gradleProperty.getProperty("version"))).build();
+            sdk = new ContrastSDK.Builder(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey())
+                    .withApiUrl(organizationConfig.getTeamServerUrl())
+                    .withProxy(proxy)
+                    .withUserAgentProduct(UserAgentProduct.of("INTELLIJ_INTEGRATION", gradleProperty.getProperty("version")))
+                    .build();
 
             sdk.setReadTimeout(5000);
         }

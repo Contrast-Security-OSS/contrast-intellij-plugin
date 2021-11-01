@@ -29,6 +29,7 @@ import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTa
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
@@ -111,7 +112,11 @@ public class ContrastSearchableConfigurableGUI {
             }
 
 
-            ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(url).withProxy(proxy).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_NAME, "INTELLIJ_INTEGRATION")).withUserAgentProduct(UserAgentProduct.of(RequestConstants.TELEMETRY_INTEGRATION_VERSION, gradleProperty.getProperty("version"))).build();
+            ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey)
+                    .withApiUrl(url)
+                    .withProxy(proxy)
+                    .withUserAgentProduct(UserAgentProduct.of("INTELLIJ_INTEGRATION", gradleProperty.getProperty("version")))
+                    .build();
 
             try {
                 Organizations orgs = sdk.getProfileOrganizations();
