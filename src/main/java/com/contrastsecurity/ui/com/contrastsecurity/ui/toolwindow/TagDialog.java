@@ -14,13 +14,29 @@
  *******************************************************************************/
 package com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow;
 
-import com.contrastsecurity.core.extended.TagsResource;
+import com.contrastsecurity.models.Tags;
+import com.contrastsecurity.models.TagsResponse;
 import org.apache.commons.lang.ArrayUtils;
 
-import javax.swing.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,11 +50,11 @@ public class TagDialog extends JDialog {
     private JButton applyNewLabelButton;
     private JTable tagTable;
 
-    private TagsResource viewDetailsTraceTagsResource;
-    private TagsResource orgTagsResource;
+    private TagsResponse viewDetailsTraceTagsResource;
+    private TagsResponse orgTagsResource;
     private TagTableModel tagTableModel = new TagTableModel();
     private ActionListener tagsComboBoxActionListener;
-    private List<String> newTraceTags = null;
+    private Tags newTraceTags = null;
 
     public TagDialog() {
         setContentPane(contentPane);
@@ -73,7 +89,7 @@ public class TagDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    public TagDialog(TagsResource viewDetailsTraceTagsResource, TagsResource orgTagsResource) {
+    public TagDialog(TagsResponse viewDetailsTraceTagsResource, TagsResponse orgTagsResource) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -172,7 +188,7 @@ public class TagDialog extends JDialog {
         tagTableModel.fireTableDataChanged();
     }
 
-    private void populateTagsComboBox(JComboBox jComboBox, TagsResource viewDetailsTraceTagsResource, TagsResource orgTagsResource) {
+    private void populateTagsComboBox(JComboBox jComboBox, TagsResponse viewDetailsTraceTagsResource, TagsResponse orgTagsResource) {
 
         List<String> orgTags = orgTagsResource.getTags();
         List<String> traceTags = viewDetailsTraceTagsResource.getTags();
@@ -214,7 +230,7 @@ public class TagDialog extends JDialog {
 
     private void onOK() {
         // add your code here
-        newTraceTags = Arrays.asList(tagTableModel.getData());
+        newTraceTags = new Tags(Arrays.asList(tagTableModel.getData()));
         dispose();
     }
 
@@ -230,7 +246,7 @@ public class TagDialog extends JDialog {
         System.exit(0);
     }
 
-    public List<String> getNewTraceTags() {
+    public Tags getNewTraceTags() {
         return newTraceTags;
     }
 }

@@ -18,13 +18,24 @@ import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.core.Util;
 import com.contrastsecurity.core.cache.ContrastCache;
 import com.contrastsecurity.core.cache.Key;
-import com.contrastsecurity.core.extended.*;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.RequestConstants;
 import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
-import com.contrastsecurity.models.*;
+import com.contrastsecurity.models.Application;
+import com.contrastsecurity.models.EventSummaryResponse;
+import com.contrastsecurity.models.HttpRequestResponse;
+import com.contrastsecurity.models.RecommendationResponse;
+import com.contrastsecurity.models.Server;
+import com.contrastsecurity.models.StoryResponse;
+import com.contrastsecurity.models.TagsResponse;
+import com.contrastsecurity.models.Trace;
+import com.contrastsecurity.models.Traces;
+import com.contrastsecurity.sdk.ContrastSDK;
+import com.contrastsecurity.sdk.UserAgentProduct;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.net.HttpConfigurable;
 import com.intellij.util.proxy.CommonProxy;
@@ -34,7 +45,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.net.*;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -44,8 +60,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-
-;
+import java.util.Properties;
 
 public class ContrastUtil {
 
@@ -55,15 +70,28 @@ public class ContrastUtil {
     public ContrastUtil() {
     }
 
-    public static ExtendedContrastSDK getContrastSDK(Project project) {
+    public static ContrastSDK getContrastSDK(Project project) {
 
-        ExtendedContrastSDK sdk = null;
+        ContrastSDK sdk = null;
         OrganizationConfig organizationConfig = getSelectedOrganizationConfig(project);
         if (organizationConfig != null) {
             Proxy proxy = getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) != null
                     ? getIdeaDefinedProxy(organizationConfig.getTeamServerUrl()) : Proxy.NO_PROXY;
 
-            sdk = new ExtendedContrastSDK(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey(), organizationConfig.getTeamServerUrl(), proxy);
+            InputStream ins = ContrastUtil.class.getClassLoader().getResourceAsStream("contrast.properties");
+            Properties gradleProperty = new Properties();
+            try {
+                gradleProperty.load(ins);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            sdk = new ContrastSDK.Builder(organizationConfig.getUsername(), organizationConfig.getServiceKey(), organizationConfig.getApiKey())
+                    .withApiUrl(organizationConfig.getTeamServerUrl())
+                    .withProxy(proxy)
+                    .withUserAgentProduct(UserAgentProduct.of("INTELLIJ_INTEGRATION", gradleProperty.getProperty("version")))
+                    .build();
+
             sdk.setReadTimeout(5000);
         }
         return sdk;
@@ -225,7 +253,7 @@ public class ContrastUtil {
         return numOfPages;
     }
 
-    public static List<Server> retrieveServers(ExtendedContrastSDK extendedContrastSDK, String orgUuid) {
+    public static List<Server> retrieveServers(ContrastSDK contrastSDK, String orgUuid) {
         List<Server> servers = new ArrayList<>();
         List<Server> serverSubList;
 
@@ -236,7 +264,7 @@ public class ContrastUtil {
 
         try {
             do{
-                serverSubList = extendedContrastSDK.getServersWithFilter(orgUuid, serverFilter).getServers();
+                serverSubList = contrastSDK.getServersWithFilter(orgUuid, serverFilter).getServers();
                 servers.addAll(serverSubList);
                 serverFilter.setOffset(serverFilter.getOffset() + SERVER_REQUEST_LIMIT);
                 Thread.sleep(50);
@@ -248,10 +276,10 @@ public class ContrastUtil {
         return servers;
     }
 
-    public static List<Application> retrieveApplications(ExtendedContrastSDK extendedContrastSDK, String orgUuid) {
+    public static List<Application> retrieveApplications(ContrastSDK contrastSDK, String orgUuid) {
         List<Application> applications = new ArrayList<>();
         try {
-           applications.addAll(extendedContrastSDK.getApplicationsNames(orgUuid).getApplications());
+           applications.addAll(contrastSDK.getApplicationsNames(orgUuid).getApplications());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -374,70 +402,70 @@ public class ContrastUtil {
         return null;
     }
 
-    public static Traces getTraces(ExtendedContrastSDK extendedContrastSDK, String orgUuid, String appId, TraceFilterForm form)
+    public static Traces getTraces(ContrastSDK contrastSDK, String orgUuid, String appId, TraceFilterForm form)
             throws IOException, UnauthorizedException {
 
         Traces traces = null;
-        if (extendedContrastSDK != null) {
+        if (contrastSDK != null) {
             if (Constants.ALL_APPLICATIONS.equals(appId)) {
-                traces = extendedContrastSDK.getTracesInOrg(orgUuid, form);
+                traces = contrastSDK.getTracesInOrg(orgUuid, form);
             } else if (!Constants.ALL_APPLICATIONS.equals(appId)) {
-                traces = extendedContrastSDK.getTraces(orgUuid, appId, form);
+                traces = contrastSDK.getTraces(orgUuid, appId, form);
             }
         }
         return traces;
     }
 
-    public static StoryResource getStory(ExtendedContrastSDK extendedContrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
-        StoryResource story = contrastCache.getStoryResources().get(key);
+    public static StoryResponse getStory(ContrastSDK contrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
+        StoryResponse story = contrastCache.getStoryResources().get(key);
 
         if (story == null) {
-            story = extendedContrastSDK.getStory(key.getOrgUuid(), key.getTraceId());
+            story = contrastSDK.getStory(key.getOrgUuid(), key.getTraceId());
             contrastCache.getStoryResources().put(key, story);
         }
 
         return story;
     }
 
-    public static EventSummaryResource getEventSummary(ExtendedContrastSDK extendedContrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
+    public static EventSummaryResponse getEventSummary(ContrastSDK contrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
 
-        EventSummaryResource eventSummaryResource = contrastCache.getEventSummaryResources().get(key);
+        EventSummaryResponse eventSummaryResource = contrastCache.getEventSummaryResources().get(key);
         if (eventSummaryResource == null) {
-            eventSummaryResource = extendedContrastSDK.getEventSummary(key.getOrgUuid(), key.getTraceId());
+            eventSummaryResource = contrastSDK.getEventSummary(key.getOrgUuid(), key.getTraceId());
             contrastCache.getEventSummaryResources().put(key, eventSummaryResource);
         }
         return eventSummaryResource;
     }
 
-    public static TagsResource getTags(ExtendedContrastSDK extendedContrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
-        TagsResource tagsResource = contrastCache.getTagsResources().get(key);
+    public static TagsResponse getTags(ContrastSDK contrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
+        TagsResponse tagsResource = contrastCache.getTagsResources().get(key);
 
         if (tagsResource == null) {
             if (key.getTraceId() != null) {
-                tagsResource = extendedContrastSDK.getTagsByTrace(key.getOrgUuid(), key.getTraceId());
+                tagsResource = contrastSDK.getTagsByTrace(key.getOrgUuid(), key.getTraceId());
             } else {
-                tagsResource = extendedContrastSDK.getTagsByOrg(key.getOrgUuid());
+                tagsResource = contrastSDK.getTraceTagsByOrganization(key.getOrgUuid());
             }
             contrastCache.getTagsResources().put(key, tagsResource);
         }
         return tagsResource;
     }
 
-    public static HttpRequestResource getHttpRequest(ExtendedContrastSDK extendedContrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
+    public static HttpRequestResponse getHttpRequest(ContrastSDK contrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
 
-        HttpRequestResource httpRequestResource = contrastCache.getHttpRequestResources().get(key);
+        HttpRequestResponse httpRequestResource = contrastCache.getHttpRequestResources().get(key);
         if (httpRequestResource == null) {
-            httpRequestResource = extendedContrastSDK.getHttpRequest(key.getOrgUuid(), key.getTraceId());
+            httpRequestResource = contrastSDK.getHttpRequest(key.getOrgUuid(), key.getTraceId());
             contrastCache.getHttpRequestResources().put(key, httpRequestResource);
         }
         return httpRequestResource;
     }
 
-    public static RecommendationResource getRecommendationResource(ExtendedContrastSDK extendedContrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
+    public static RecommendationResponse getRecommendationResource(ContrastSDK contrastSDK, ContrastCache contrastCache, Key key) throws IOException, UnauthorizedException {
 
-        RecommendationResource recommendationResource = contrastCache.getRecommendationResources().get(key);
+        RecommendationResponse recommendationResource = contrastCache.getRecommendationResources().get(key);
         if (recommendationResource == null) {
-            recommendationResource = extendedContrastSDK.getRecommendation(key.getOrgUuid(), key.getTraceId());
+            recommendationResource = contrastSDK.getRecommendation(key.getOrgUuid(), key.getTraceId());
             contrastCache.getRecommendationResources().put(key, recommendationResource);
         }
         return recommendationResource;

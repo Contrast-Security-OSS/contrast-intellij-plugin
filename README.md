@@ -25,7 +25,7 @@ More information on setting up development environment: http://www.jetbrains.org
 * To install the generated zip archive of the plugin go to File => Settings => Plugins => Install Plugin from disk.
 
 ### Run from the command line ###
-* Run ``` gradle runIdea ``` from the command line within the project root folder.
+* Run ``` gradle runIde ``` from the command line within the project root folder.
 * A separate instance of IntelliJ IDEA should be launched with the plugin installed.
 
 ### Run from the IDE ### 
