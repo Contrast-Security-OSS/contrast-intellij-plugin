@@ -6,4 +6,10 @@ updates:
     schedule:
       interval: "daily"
       time: "07:00"
+    labels:
+      - "dependencies"
     open-pull-requests-limit: 5
+    reviewers:
+          - "aliaandersen"
+          - "bryanateoan"
+          - "MiguelUrrutiaSoler"
