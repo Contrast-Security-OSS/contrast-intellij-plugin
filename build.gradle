@@ -46,7 +46,7 @@ dependencies {
     implementation group: 'com.github.lgooddatepicker', name: 'LGoodDatePicker', version: '10.3.1'
     implementation 'org.unbescape:unbescape:1.1.5.RELEASE'
     implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.0.1'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 }
 
 apply plugin: 'org.jetbrains.intellij'
