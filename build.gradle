@@ -23,7 +23,7 @@ buildscript {
 
     }
     dependencies {
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.7.2"
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.8.1"
         classpath 'net.researchgate:gradle-release:2.6.0' // https://github.com/researchgate/gradle-release
     }
 }
