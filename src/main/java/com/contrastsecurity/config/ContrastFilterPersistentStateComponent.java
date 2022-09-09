@@ -46,6 +46,24 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
     public int currentOffset = 0;
     public String appVersionTag;
 
+    public boolean isBeingTracked() {
+        return isBeingTracked;
+    }
+
+    public void setBeingTracked(boolean beingTracked) {
+        isBeingTracked = beingTracked;
+    }
+
+    public boolean isUntracked() {
+        return isUntracked;
+    }
+
+    public void setUntracked(boolean untracked) {
+        isUntracked = untracked;
+    }
+
+    public boolean isBeingTracked;
+    public boolean isUntracked;
     public String selectedOrganizationName = "";
 
     @Nullable

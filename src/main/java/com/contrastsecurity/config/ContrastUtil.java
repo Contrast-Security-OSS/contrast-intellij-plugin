@@ -189,6 +189,10 @@ public class ContrastUtil {
         if (contrastFilterPersistentStateComponent.getStatuses() != null && !contrastFilterPersistentStateComponent.getStatuses().isEmpty()) {
             traceFilterForm.setStatus(contrastFilterPersistentStateComponent.getStatuses());
         }
+
+        traceFilterForm.setTracked(contrastFilterPersistentStateComponent.isBeingTracked());
+        traceFilterForm.setUntracked(contrastFilterPersistentStateComponent.isUntracked());
+
         if (contrastFilterPersistentStateComponent.getCurrentOffset() != 0) {
             traceFilterForm.setOffset(contrastFilterPersistentStateComponent.getCurrentOffset());
         }

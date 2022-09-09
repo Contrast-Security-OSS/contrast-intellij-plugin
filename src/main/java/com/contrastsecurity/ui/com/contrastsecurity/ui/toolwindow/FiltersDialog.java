@@ -249,6 +249,13 @@ public class FiltersDialog extends JDialog {
         if (contrastFilterPersistentStateComponent.getAppVersionTag() != null && !contrastFilterPersistentStateComponent.getAppVersionTag().isEmpty()) {
             appVersionTagsComboBox.addItem(contrastFilterPersistentStateComponent.getAppVersionTag());
         }
+        if (contrastFilterPersistentStateComponent.isBeingTracked()) {
+            statusBeingTrackedCheckBox.setSelected(true);
+        }
+        if (contrastFilterPersistentStateComponent.isUntracked()) {
+            statusUntrackedCheckBox.setSelected(true);
+        }
+
     }
 
     private void selectServerByUuid(Long serverUuid) {
@@ -324,12 +331,6 @@ public class FiltersDialog extends JDialog {
             if (status.equals(Constants.VULNERABILITY_STATUS_FIXED)) {
                 statusFixedCheckBox.setSelected(true);
             }
-            if (status.equals(Constants.VULNERABILITY_STATUS_BEING_TRACKED)) {
-                statusBeingTrackedCheckBox.setSelected(true);
-            }
-            if (status.equals(Constants.VULNERABILITY_STATUS_UNTRACKED)) {
-                statusUntrackedCheckBox.setSelected(true);
-            }
         }
     }
 
@@ -394,10 +395,10 @@ public class FiltersDialog extends JDialog {
             statusRemediatedCheckBox.setSelected(false);
             statusReportedCheckBox.setSelected(false);
             statusFixedCheckBox.setSelected(false);
-            statusBeingTrackedCheckBox.setSelected(false);
-            statusUntrackedCheckBox.setSelected(false);
-
         }
+
+        statusBeingTrackedCheckBox.setSelected(contrastFilterPersistentStateComponent.isBeingTracked());
+        statusUntrackedCheckBox.setSelected(contrastFilterPersistentStateComponent.isUntracked());
     }
 
     private void setupComboBoxes() {
@@ -557,6 +558,14 @@ public class FiltersDialog extends JDialog {
         return statuses;
     }
 
+    private Boolean getBeingTrackedFilter() {
+        return statusBeingTrackedCheckBox.isSelected();
+    }
+
+    private Boolean getUntrackedFilter() {
+        return statusUntrackedCheckBox.isSelected();
+    }
+
     private Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
         if (localDateTime != null) {
             return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -604,6 +613,9 @@ public class FiltersDialog extends JDialog {
         }
 
         form.setSeverities(severities);
+        form.setTracked(getBeingTrackedFilter());
+        form.setUntracked(getUntrackedFilter());
+
         if (!statuses.isEmpty()) {
             form.setStatus(statuses);
         } else {
@@ -666,6 +678,9 @@ public class FiltersDialog extends JDialog {
         } else {
             contrastFilterPersistentStateComponent.setAppVersionTag(null);
         }
+        
+        contrastFilterPersistentStateComponent.setBeingTracked(statusBeingTrackedCheckBox.isSelected());
+        contrastFilterPersistentStateComponent.setUntracked(statusUntrackedCheckBox.isSelected());
     }
 
     private List<String> getSelectedSeveritiesAsList() {
