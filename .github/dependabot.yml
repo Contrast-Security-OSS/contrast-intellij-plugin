@@ -10,6 +10,4 @@ updates:
       - "dependencies"
     open-pull-requests-limit: 5
     reviewers:
-          - "aliaandersen"
           - "bryanateoan"
-          - "MiguelUrrutiaSoler"
