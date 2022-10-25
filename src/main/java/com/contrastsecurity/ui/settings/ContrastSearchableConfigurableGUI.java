@@ -20,19 +20,19 @@ import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.http.RequestConstants;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
 import com.contrastsecurity.sdk.UserAgentProduct;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
 import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -69,10 +69,14 @@ public class ContrastSearchableConfigurableGUI {
     private Map<String, String> organizations = new HashMap<>();
     private OrganizationTableModel organizationTableModel = new OrganizationTableModel();
 
-    public ContrastSearchableConfigurableGUI() {
+    public ContrastSearchableConfigurableGUI() throws ExecutionException, TimeoutException {
 
-        DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResult();
-        Project project = DataKeys.PROJECT.getData(dataContext);
+        DataContext dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(200);
+
+        assert dataContext != null;
+        Project project = CommonDataKeys.PROJECT.getData(dataContext);
+
+        assert project != null;
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
         contrastPersistentStateComponent = ContrastPersistentStateComponent.getInstance();
 

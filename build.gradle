@@ -23,7 +23,7 @@ buildscript {
 
     }
     dependencies {
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.7.2"
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.9.0"
         classpath 'net.researchgate:gradle-release:2.6.0' // https://github.com/researchgate/gradle-release
     }
 }
@@ -33,7 +33,7 @@ version project.properties['version']
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 17
 
 repositories {
     mavenCentral()
@@ -47,6 +47,7 @@ dependencies {
     implementation 'org.unbescape:unbescape:1.1.6.RELEASE'
     implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    implementation 'org.apache.commons:commons-text:1.10.0'
 }
 
 apply plugin: 'org.jetbrains.intellij'
@@ -55,8 +56,8 @@ apply plugin: 'java'
 apply plugin: 'net.researchgate.release'
 
 intellij {
-    version 'IC-172.4343.14' //IntelliJ IDEA IC-172.4343.14 dependency; for a full list of IntelliJ IDEA releases please see https://www.jetbrains.com/intellij-repository/releases
-    intellij.updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
+    version.set('IC-222.4345.14') //The lastest version of intellji. For older version of intellji use version 2.10 of the plugin
+    plugins = ['java']
 }
 
 release {
@@ -68,3 +69,4 @@ release {
 }
 
 beforeReleaseBuild.dependsOn buildPlugin
+targetCompatibility = JavaVersion.VERSION_17

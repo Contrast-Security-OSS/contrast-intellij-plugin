@@ -72,7 +72,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.messages.MessageBus;
 import icons.ContrastPluginIcons;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
@@ -229,7 +229,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                     if (typeName.contains(delimiter)) {
                                         String filePath = ContrastUtil.getFilePath(project.getName(), typeName, delimiter);
                                         if (filePath != null) {
-                                            VirtualFile virtualFile = project.getBaseDir().findFileByRelativePath(filePath);
+                                            VirtualFile virtualFile = project.getProjectFile().findFileByRelativePath(filePath);
                                             if (virtualFile != null) {
                                                 fileFound = true;
                                                 if (lineNumber != null) {
@@ -240,7 +240,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                             }
                                         }
                                     } else {
-                                        PsiFile[] psiFiles = FilenameIndex.getFilesByName(project, typeName, globalSearchScope);
+                                        PsiFile[] psiFiles = FilenameIndex.getVirtualFilesByName(typeName, globalSearchScope).toArray(PsiFile[]::new);
                                         if (psiFiles.length > 0) {
                                             fileFound = true;
                                             for (PsiFile psiFile : psiFiles) {
@@ -486,7 +486,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     public void process(ToolWindow toolWindow) {
 
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = ContentFactory.getInstance();
         Content content = contentFactory.createContent(contrastToolWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
 

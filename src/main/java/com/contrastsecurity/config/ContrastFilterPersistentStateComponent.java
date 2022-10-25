@@ -20,6 +20,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,7 +80,7 @@ public class ContrastFilterPersistentStateComponent implements PersistentStateCo
 
     @Nullable
     public static ContrastFilterPersistentStateComponent getInstance(Project project) {
-        return ServiceManager.getService(project, ContrastFilterPersistentStateComponent.class);
+        return project.getService(ContrastFilterPersistentStateComponent.class);
     }
 
     public String getSelectedApplicationName() {
