@@ -24,7 +24,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.9.0"
-        classpath 'net.researchgate:gradle-release:2.6.0' // https://github.com/researchgate/gradle-release
+        classpath 'net.researchgate:gradle-release:3.0.2' // https://github.com/researchgate/gradle-release
     }
 }
 
@@ -64,7 +64,7 @@ release {
     failOnCommitNeeded = false
     failOnUnversionedFiles = false
     git {
-         requireBranch = ''
+         requireBranch.set('')
     }
 }
 
