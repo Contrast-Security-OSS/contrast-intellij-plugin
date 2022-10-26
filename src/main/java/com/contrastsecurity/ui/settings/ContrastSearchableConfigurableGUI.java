@@ -26,6 +26,8 @@ import com.contrastsecurity.sdk.ContrastSDK;
 import com.contrastsecurity.sdk.UserAgentProduct;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
 import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
@@ -74,7 +76,7 @@ public class ContrastSearchableConfigurableGUI {
         DataContext dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(200);
 
         assert dataContext != null;
-        Project project = CommonDataKeys.PROJECT.getData(dataContext);
+        Project project = dataContext.getData(CommonDataKeys.PROJECT);
 
         assert project != null;
         contrastFilterPersistentStateComponent = ContrastFilterPersistentStateComponent.getInstance(project);
