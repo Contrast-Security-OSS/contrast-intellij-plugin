@@ -17,6 +17,8 @@ package com.contrastsecurity.ui.settings;
 import com.contrastsecurity.config.ContrastPersistentStateComponent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +47,13 @@ public class ContrastSearchableConfigurable implements SearchableConfigurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        contrastSearchableConfigurableGUI = new ContrastSearchableConfigurableGUI();
+        try {
+            contrastSearchableConfigurableGUI = new ContrastSearchableConfigurableGUI();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
         return contrastSearchableConfigurableGUI.getContrastSettingsPanel();
     }
 

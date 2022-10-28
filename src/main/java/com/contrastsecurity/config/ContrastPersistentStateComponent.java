@@ -15,11 +15,14 @@
 package com.contrastsecurity.config;
 
 import com.contrastsecurity.core.Constants;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.apache.tools.ant.Project;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -75,7 +78,7 @@ public class ContrastPersistentStateComponent implements PersistentStateComponen
 
     @Nullable
     public static ContrastPersistentStateComponent getInstance() {
-        return ServiceManager.getService(ContrastPersistentStateComponent.class);
+        return ApplicationManager.getApplication().getService(ContrastPersistentStateComponent.class);
     }
 
     public String getSelectedOrganizationName() {

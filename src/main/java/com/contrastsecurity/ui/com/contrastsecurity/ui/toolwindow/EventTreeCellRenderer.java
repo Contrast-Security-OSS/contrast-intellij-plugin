@@ -23,7 +23,7 @@ import com.contrastsecurity.core.extended.Line;
 import com.contrastsecurity.models.EventItem;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
