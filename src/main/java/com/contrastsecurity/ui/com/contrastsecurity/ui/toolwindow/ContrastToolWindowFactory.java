@@ -218,7 +218,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                                             }
                                         }
                                     } else {
-                                        MessageDialog messageDialog = new MessageDialog("Not found", "Source not found for " + typeName);
+                                        MessageDialog messageDialog = new MessageDialog("Not found 1", "Source not found for " + typeName);
                                         messageDialog.setVisible(true);
 
                                     }
@@ -541,15 +541,22 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastSDK = ContrastUtil.getContrastSDK(project);
         organizationConfig = ContrastUtil.getSelectedOrganizationConfig(project);
         traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
+
+        final ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                = ContrastFilterPersistentStateComponent.getInstance(project);
+
+        final String selectedAppName =  contrastFilterPersistentStateComponent.getSelectedApplicationName();
         if (organizationConfig != null) {
-           if(filtersAreSet) {
+           if (filtersAreSet) {
                new Thread(() -> {
                    refreshTraces(false);
                    servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
                    applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                }).start();
+           } else if (selectedAppName != null && !selectedAppName.isEmpty()) {
+               refreshTraces(false);
            }
-           else{
+           else {
                servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
                applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
@@ -908,7 +915,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             root.removeAllChildren();
             model.nodeStructureChanged(root);
         }
-//
+
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
