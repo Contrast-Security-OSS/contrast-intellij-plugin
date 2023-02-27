@@ -53,8 +53,8 @@ public class Util {
 
         if (StringUtils.isNotBlank(organization)) {
             String[] org = StringUtils.split(organization, delimiter);
-            if (org.length == 5) {
-                organizationConfig = new OrganizationConfig(org[0], org[1], org[2], org[3], org[4]);
+            if (org.length == 6) {
+                organizationConfig = new OrganizationConfig(org[0], org[1], org[2], org[3], org[4], org[5]);
             }
         }
         return organizationConfig;
