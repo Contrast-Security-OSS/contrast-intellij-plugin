@@ -1218,7 +1218,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         AnAction settingsAction = new AnAction(ContrastPluginIcons.SETTINGS_ICON) {
             @Override
             public void actionPerformed(AnActionEvent e) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(null, ContrastSearchableConfigurable.class);
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, ContrastSearchableConfigurable.class);
             }
         };
         AnAction refreshAction = new AnAction(ContrastPluginIcons.REFRESH_ICON) {
