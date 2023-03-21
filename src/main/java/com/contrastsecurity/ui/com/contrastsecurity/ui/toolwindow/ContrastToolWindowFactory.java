@@ -542,22 +542,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         organizationConfig = ContrastUtil.getSelectedOrganizationConfig(project);
         traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
 
-        final ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
-                = ContrastFilterPersistentStateComponent.getInstance(project);
-
-        final String selectedAppName =  contrastFilterPersistentStateComponent.getSelectedApplicationName();
-
         if (organizationConfig != null) {
-           if (filtersAreSet) {
+           if (filtersAreSet || appAlreadySelected()) {
                new Thread(() -> {
                    refreshTraces(false);
                    servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
                    applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                }).start();
-           } else if (selectedAppName != null && !selectedAppName.isEmpty()) {
-               refreshTraces(false);
-           }
-           else {
+           } else {
                servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
                applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
@@ -570,6 +562,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             cardLayout.show(cardPanel, "noVulnerabilitiesCard");
         }
         contrastCache = new ContrastCache();
+    }
+
+    private boolean appAlreadySelected() {
+        final ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                = ContrastFilterPersistentStateComponent.getInstance(project);
+
+        final String selectedAppName =  contrastFilterPersistentStateComponent.getSelectedApplicationName();
+        return selectedAppName != null && !selectedAppName.isEmpty();
     }
 
     private void refreshTraces(final boolean userUpdatedPagesComboBoxSelection) {
@@ -1262,7 +1262,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         actions.add(settingsAction);
         actions.add(refreshAction);
         actions.add(filterAction);
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, false);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actions, false);
         jComponent = toolbar.getComponent();
+        toolbar.setTargetComponent(jComponent);
     }
 }
