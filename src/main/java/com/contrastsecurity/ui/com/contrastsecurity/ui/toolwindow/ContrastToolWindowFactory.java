@@ -541,15 +541,15 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         contrastSDK = ContrastUtil.getContrastSDK(project);
         organizationConfig = ContrastUtil.getSelectedOrganizationConfig(project);
         traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
+
         if (organizationConfig != null) {
-           if(filtersAreSet) {
+           if (filtersAreSet || appAlreadySelected()) {
                new Thread(() -> {
                    refreshTraces(false);
                    servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
                    applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                }).start();
-           }
-           else{
+           } else {
                servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
                applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
@@ -562,6 +562,14 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             cardLayout.show(cardPanel, "noVulnerabilitiesCard");
         }
         contrastCache = new ContrastCache();
+    }
+
+    private boolean appAlreadySelected() {
+        final ContrastFilterPersistentStateComponent contrastFilterPersistentStateComponent
+                = ContrastFilterPersistentStateComponent.getInstance(project);
+
+        final String selectedAppName =  contrastFilterPersistentStateComponent.getSelectedApplicationName();
+        return selectedAppName != null && !selectedAppName.isEmpty();
     }
 
     private void refreshTraces(final boolean userUpdatedPagesComboBoxSelection) {
@@ -908,7 +916,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             root.removeAllChildren();
             model.nodeStructureChanged(root);
         }
-//
+
         if (!eventSummaryResource.getEvents().isEmpty()) {
 
             for (EventResource eventResource : eventSummaryResource.getEvents()) {
@@ -1218,7 +1226,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         AnAction settingsAction = new AnAction(ContrastPluginIcons.SETTINGS_ICON) {
             @Override
             public void actionPerformed(AnActionEvent e) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(null, ContrastSearchableConfigurable.class);
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, ContrastSearchableConfigurable.class);
             }
         };
         AnAction refreshAction = new AnAction(ContrastPluginIcons.REFRESH_ICON) {
@@ -1254,7 +1262,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         actions.add(settingsAction);
         actions.add(refreshAction);
         actions.add(filterAction);
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, false);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actions, false);
         jComponent = toolbar.getComponent();
+        toolbar.setTargetComponent(jComponent);
     }
 }
