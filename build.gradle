@@ -23,7 +23,7 @@ buildscript {
 
     }
     dependencies {
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.13.2"
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.13.3"
         classpath 'net.researchgate:gradle-release:3.0.2' // https://github.com/researchgate/gradle-release
     }
 }
@@ -62,8 +62,13 @@ apply plugin: 'java'
 apply plugin: 'net.researchgate.release'
 
 intellij {
-    version.set('IC-223.8836.41') //The lastest version of intellji. For older version of intellji use version 2.10 of the plugin
+    version.set('IC-231.8770.65')
     plugins = ['java']
+}
+
+patchPluginXml {
+    sinceBuild.set('223')
+    untilBuild.set('231.*')
 }
 
 release {
