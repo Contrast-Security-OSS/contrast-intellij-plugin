@@ -19,10 +19,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.apache.tools.ant.Project;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

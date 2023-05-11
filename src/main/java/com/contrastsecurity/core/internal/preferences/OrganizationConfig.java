@@ -21,13 +21,15 @@ public class OrganizationConfig {
     private String serviceKey;
     private String apiKey;
     private String uuid;
+    private String authHeader;
 
-    public OrganizationConfig(String teamServerUrl, String username, String serviceKey, String apiKey, String uuid) {
+    public OrganizationConfig(String teamServerUrl, String username, String serviceKey, String apiKey, String uuid, String authHeader) {
         this.teamServerUrl = teamServerUrl;
         this.username = username;
         this.serviceKey = serviceKey;
         this.apiKey = apiKey;
         this.uuid = uuid;
+        this.authHeader = authHeader;
     }
 
     public String getTeamServerUrl() {
@@ -68,5 +70,13 @@ public class OrganizationConfig {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getAuthHeader() {
+        return authHeader;
+    }
+
+    public void setAuthHeader(String authHeader) {
+        this.authHeader = authHeader;
     }
 }

@@ -26,8 +26,6 @@ import com.contrastsecurity.sdk.ContrastSDK;
 import com.contrastsecurity.sdk.UserAgentProduct;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
@@ -68,6 +66,7 @@ public class ContrastSearchableConfigurableGUI {
     private JTextField uuidTextField;
     private JLabel testConnectionLabel;
     private JTable organizationTable;
+    private JPasswordField authHeaderTextField;
     private Map<String, String> organizations = new HashMap<>();
     private OrganizationTableModel organizationTableModel = new OrganizationTableModel();
 
@@ -93,6 +92,7 @@ public class ContrastSearchableConfigurableGUI {
             final String serviceKey = serviceKeyTextField.getText().trim();
             final String apiKey = new String(apiKeyTextField.getPassword()).trim();
             final String uuid = uuidTextField.getText().trim();
+            final String authHeader = new String(authHeaderTextField.getPassword()).trim();
 
             URL u;
             try {
@@ -133,7 +133,7 @@ public class ContrastSearchableConfigurableGUI {
 
                             organizations.putIfAbsent(organization.getName(), url + Constants.DELIMITER + username +
                                     Constants.DELIMITER + serviceKey + Constants.DELIMITER + apiKey +
-                                    Constants.DELIMITER + uuid);
+                                    Constants.DELIMITER + uuid + Constants.DELIMITER + authHeader);
 
                             String[] orgsArray = organizations.keySet().toArray(new String[organizations.keySet().size()]);
                             organizationTableModel.setData(orgsArray);

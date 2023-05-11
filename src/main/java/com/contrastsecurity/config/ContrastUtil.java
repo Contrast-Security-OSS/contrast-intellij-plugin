@@ -328,12 +328,12 @@ public class ContrastUtil {
                 String organizationString = entry.getValue();
 
                 String[] org = StringUtils.split(organizationString, Constants.DELIMITER);
-                if (org.length == 2) {
+                if (org.length == 3) {
                     String teamServerUrl = contrastPersistentStateComponent.getTeamServerUrl();
                     String username = contrastPersistentStateComponent.getUsername();
                     String serviceKey = contrastPersistentStateComponent.getServiceKey();
 
-                    OrganizationConfig organizationConfig = new OrganizationConfig(teamServerUrl, username, serviceKey, org[0], org[1]);
+                    OrganizationConfig organizationConfig = new OrganizationConfig(teamServerUrl, username, serviceKey, org[0], org[1], org[2]);
                     String newOrganizationString = Util.getStringFromOrganizationConfig(organizationConfig, Constants.DELIMITER);
 
                     entry.setValue(newOrganizationString);
