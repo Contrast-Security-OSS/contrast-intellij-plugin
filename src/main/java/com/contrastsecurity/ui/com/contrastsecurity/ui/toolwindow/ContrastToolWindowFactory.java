@@ -100,9 +100,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -150,6 +148,10 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton scaButton;
     private JPanel scaCard;
     private JLabel scaOutputLabel;
+    private JTabbedPane tabbedPane2;
+    private JPanel scaPanel;
+    private JPanel assessPanel;
+    private JProgressBar progressBar1;
     private ContrastSDK contrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
     private ContrastTableRowSorter contrastTableRowSorter = new ContrastTableRowSorter(contrastTableModel);
@@ -272,8 +274,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         backToResultsButton.addActionListener(e -> {
             viewDetailsTrace = null;
 
-            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-            cardLayout.show(cardPanel, "mainCard");
+            CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
+            assessLayout.show(assessPanel, "mainCard");
         });
 
 
@@ -478,42 +480,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         ContrastUtil.updateOrganizationConfig();
 
         scaButton.addActionListener(event -> {
-            final Process contrastAuditProcess = ScaUtil.downloadAndRunContrastCli(getSelectedOrganizationConfig(project), project.getBasePath());
-
-            // for testing/debugging purposes, will remove
-            try {
-                BufferedReader inStream = new BufferedReader(new InputStreamReader(contrastAuditProcess.getInputStream()));
-                String line;
-                while((line = inStream.readLine()) != null) {
-                    System.out.println(line);
-                }
-            } catch (IOException e) {
-                System.out.println(e);
-            }
-
-            // logic to display results once cli is finished
-            contrastAuditProcess.onExit().thenRun(() -> System.out.println("SCA IS FINISHED!!!!!"));
-
-            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-            cardLayout.show(cardPanel, "scaCard");
-
-//            try {
-//                final ScaOutputDto scaOutput = new ObjectMapper().readValue(new File("SCA-JSON-output.json"), ScaOutputDto.class);
-//
-//                final DependencyDto dependencyDto = scaOutput.getReportArray().get(0);
-//
-//                final Map<Boolean, List<ScaVulnerabilityDto>> partitions = dependencyDto.getVulnerabilities().stream()
-//                        .filter(vulnerability -> vulnerability.getSeverity().equals("HIGH") || vulnerability.getSeverity().equals("CRITICAL"))
-//                        .collect(Collectors.partitioningBy(vulnerability -> vulnerability.getSeverity().equals("HIGH")));
-//
-//                final int numberOfHigh = partitions.get(true).size();
-//                final int numberOfCritical = partitions.get(false).size();
-//
-//                scaOutputLabel.setText(dependencyDto.getArtifactName() + ": has " + numberOfHigh + " high and " + numberOfCritical + " critical vulnerabilities. The closest stable version is " + dependencyDto.getRemediationAdvice().getClosestStableVersion());
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-
+            scaOutputLabel.setText("Running SCA Audit...");
+            progressBar1.setIndeterminate(true);
+            ScaUtil.initiateAndManageScaAudit(getSelectedOrganizationConfig(project), project.getBasePath(), scaOutputLabel);
         });
     }
 
@@ -589,14 +558,16 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             } else {
                 servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
                 applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
-                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+
+
+                CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
                 noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
-                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+                assessLayout.show(assessPanel, "noVulnerabilitiesCard");
             }
         } else {
-            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+            CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
             noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_NO_ORGS);
-            cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+            assessLayout.show(assessPanel, "noVulnerabilitiesCard");
         }
         contrastCache = new ContrastCache();
     }
@@ -633,8 +604,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 numOfPages = ContrastUtil.getNumOfPages(tracesObject.getCount());
             }
             if (!mainCard.isVisible() && !vulnerabilityDetailsPanel.isVisible()) {
-                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                cardLayout.show(cardPanel, "mainCard");
+                CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
+                assessLayout.show(assessPanel, "mainCard");
             }
             if (contrastFilterPersistentStateComponent.getPage() != null) {
                 pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
@@ -659,9 +630,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         } catch (IOException | UnauthorizedException exception) {
             exception.printStackTrace();
             if (!noVulnerabilitiesPanel.isVisible()) {
-                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
                 noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_ERROR);
-                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+                assessLayout.show(assessPanel, "noVulnerabilitiesCard");
             }
         }
 
@@ -739,8 +710,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         if (ContrastUtil.isTraceLicensed(traceClicked)) {
                             selectedTraceRow = row;
                             viewDetailsTrace = traceClicked;
-                            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                            cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
+                            CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
+                            assessLayout.show(assessPanel, "vulnerabilityDetailsCard");
                             populateVulnerabilityDetailsPanel();
                             tabbedPane1.setSelectedIndex(2);
                         } else {
