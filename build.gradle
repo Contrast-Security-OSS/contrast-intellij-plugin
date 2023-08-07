@@ -68,7 +68,7 @@ intellij {
 
 patchPluginXml {
     sinceBuild.set('223')
-    untilBuild.set('*')
+    untilBuild.set('232.*')
 }
 
 release {
