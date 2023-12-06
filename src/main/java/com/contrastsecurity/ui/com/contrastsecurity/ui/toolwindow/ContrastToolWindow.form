@@ -2,326 +2,417 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.ContrastToolWindowFactory">
   <grid id="27dc6" binding="contrastToolWindowContent" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="14" y="67" width="848" height="429"/>
+      <xy x="14" y="67" width="989" height="429"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
       <grid id="795dc" binding="cardPanel" layout-manager="CardLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="1.0" weighty="1.0"/>
         </constraints>
         <properties/>
         <border type="etched"/>
         <children>
-          <grid id="7c027" binding="mainCard" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
+          <tabbedpane id="367c1" binding="tabbedPane2" default-binding="true">
             <constraints>
-              <card name="mainCard"/>
+              <card name="Card1"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <scrollpane id="5663">
+              <grid id="2456c" binding="assessPanel" layout-manager="CardLayout" hgap="0" vgap="0">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <tabbedpane title="Assess"/>
                 </constraints>
                 <properties/>
-                <border type="empty"/>
+                <border type="none"/>
                 <children>
-                  <component id="d6234" class="javax.swing.JTable" binding="vulnerabilitiesTable">
-                    <constraints/>
-                    <properties>
-                      <fillsViewportHeight value="true"/>
-                      <opaque value="false"/>
-                    </properties>
-                  </component>
-                </children>
-              </scrollpane>
-              <grid id="85715" layout-manager="FlowLayout" hgap="5" vgap="0" flow-align="1">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="empty"/>
-                <children>
-                  <component id="c1353" class="javax.swing.JLabel">
-                    <constraints/>
-                    <properties>
-                      <labelFor value="43ed7"/>
-                      <text value="Page:"/>
-                    </properties>
-                  </component>
-                  <component id="43ed7" class="javax.swing.JComboBox" binding="pagesComboBox">
-                    <constraints/>
+                  <grid id="7c027" binding="mainCard" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <card name="mainCard"/>
+                    </constraints>
                     <properties/>
-                  </component>
-                  <component id="ba64a" class="javax.swing.JButton" binding="firstPageButton">
-                    <constraints/>
+                    <border type="none"/>
+                    <children>
+                      <scrollpane id="5663">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="empty"/>
+                        <children>
+                          <component id="d6234" class="javax.swing.JTable" binding="vulnerabilitiesTable">
+                            <constraints/>
+                            <properties>
+                              <fillsViewportHeight value="true"/>
+                              <opaque value="false"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </scrollpane>
+                      <grid id="85715" layout-manager="FlowLayout" hgap="5" vgap="0" flow-align="1">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="empty"/>
+                        <children>
+                          <component id="c1353" class="javax.swing.JLabel">
+                            <constraints/>
+                            <properties>
+                              <labelFor value="43ed7"/>
+                              <text value="Page:"/>
+                            </properties>
+                          </component>
+                          <component id="43ed7" class="javax.swing.JComboBox" binding="pagesComboBox">
+                            <constraints/>
+                            <properties/>
+                          </component>
+                          <component id="ba64a" class="javax.swing.JButton" binding="firstPageButton">
+                            <constraints/>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="d2489" class="javax.swing.JButton" binding="previousPageButton">
+                            <constraints/>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="a914a" class="javax.swing.JLabel" binding="pageLabel">
+                            <constraints/>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="9317f" class="javax.swing.JLabel" binding="numOfPagesLabel">
+                            <constraints/>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="78c5b" class="javax.swing.JButton" binding="nextPageButton">
+                            <constraints/>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="65009" class="javax.swing.JButton" binding="lastPageButton">
+                            <constraints/>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                  <grid id="6a9dc" binding="noVulnerabilitiesPanel" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <card name="noVulnerabilitiesCard"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="d039e" class="javax.swing.JLabel" binding="noVulnerabilitiesLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="Could not connect to the server. Please check your connection settings."/>
+                        </properties>
+                      </component>
+                      <hspacer id="f8c82">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </hspacer>
+                      <vspacer id="1ac">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </vspacer>
+                    </children>
+                  </grid>
+                  <grid id="d47ed" binding="vulnerabilityDetailsPanel" layout-manager="GridLayoutManager" row-count="2" column-count="11" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <card name="vulnerabilityDetailsCard"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="78060" class="javax.swing.JLabel" binding="traceSeverityLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value=""/>
+                        </properties>
+                      </component>
+                      <component id="2a4b0" class="javax.swing.JButton" binding="externalLinkButton">
+                        <constraints>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <iconTextGap value="0"/>
+                          <margin top="0" left="0" bottom="0" right="0"/>
+                          <text value=""/>
+                          <toolTipText value="Open in Teamserver"/>
+                        </properties>
+                      </component>
+                      <component id="a08fb" class="javax.swing.JButton" binding="backToResultsButton">
+                        <constraints>
+                          <grid row="0" column="10" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="Back To Results"/>
+                        </properties>
+                      </component>
+                      <tabbedpane id="df3df" binding="tabbedPane1" default-binding="true">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="11" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                            <preferred-size width="200" height="200"/>
+                          </grid>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <scrollpane id="2e01e">
+                            <constraints>
+                              <tabbedpane title="Overview"/>
+                            </constraints>
+                            <properties/>
+                            <border type="empty"/>
+                            <children>
+                              <grid id="54876" binding="overviewPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                                <margin top="0" left="0" bottom="0" right="0"/>
+                                <constraints/>
+                                <properties/>
+                                <border type="empty">
+                                  <size top="0" left="10" bottom="0" right="10"/>
+                                </border>
+                                <children/>
+                              </grid>
+                            </children>
+                          </scrollpane>
+                          <scrollpane id="29aba">
+                            <constraints>
+                              <tabbedpane title="How to Fix"/>
+                            </constraints>
+                            <properties>
+                              <opaque value="true"/>
+                              <verticalScrollBarPolicy value="20"/>
+                            </properties>
+                            <border type="empty"/>
+                            <children>
+                              <grid id="6f4e9" binding="recommendationPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                                <margin top="0" left="0" bottom="0" right="0"/>
+                                <constraints/>
+                                <properties/>
+                                <border type="empty">
+                                  <size top="0" left="10" bottom="0" right="10"/>
+                                </border>
+                                <children/>
+                              </grid>
+                            </children>
+                          </scrollpane>
+                          <scrollpane id="8f2cb">
+                            <constraints>
+                              <tabbedpane title="Events">
+                                <tooltip value=""/>
+                              </tabbedpane>
+                            </constraints>
+                            <properties/>
+                            <border type="empty"/>
+                            <children>
+                              <component id="ce4ff" class="javax.swing.JTree" binding="eventsTree">
+                                <constraints/>
+                                <properties>
+                                  <largeModel value="false"/>
+                                  <opaque value="false"/>
+                                  <rootVisible value="false"/>
+                                  <showsRootHandles value="true"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </scrollpane>
+                          <scrollpane id="9f00e">
+                            <constraints>
+                              <tabbedpane title="HTTP Request"/>
+                            </constraints>
+                            <properties/>
+                            <border type="empty"/>
+                            <children>
+                              <component id="46be9" class="javax.swing.JTextPane" binding="httpRequestTextPane">
+                                <constraints/>
+                                <properties>
+                                  <editable value="false"/>
+                                  <margin top="3" left="10" bottom="3" right="10"/>
+                                  <opaque value="false"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </scrollpane>
+                          <grid id="db0ab" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
+                            <constraints>
+                              <tabbedpane title="Test Tab"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children/>
+                          </grid>
+                        </children>
+                      </tabbedpane>
+                      <component id="4c7af" class="javax.swing.JButton" binding="nextTraceButton">
+                        <constraints>
+                          <grid row="0" column="9" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value=""/>
+                        </properties>
+                      </component>
+                      <component id="1666e" class="javax.swing.JButton" binding="previousTraceButton">
+                        <constraints>
+                          <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value=""/>
+                        </properties>
+                      </component>
+                      <component id="64fa4" class="javax.swing.JLabel" binding="currentTraceDetailsLabel">
+                        <constraints>
+                          <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value=""/>
+                        </properties>
+                      </component>
+                      <component id="2b665" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="of"/>
+                        </properties>
+                      </component>
+                      <component id="f092" class="javax.swing.JLabel" binding="tracesCountLabel">
+                        <constraints>
+                          <grid row="0" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value=""/>
+                        </properties>
+                      </component>
+                      <component id="f5ae7" class="javax.swing.JButton" binding="tagButton">
+                        <constraints>
+                          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value=""/>
+                          <toolTipText value="Tag Vulnerability"/>
+                        </properties>
+                      </component>
+                      <component id="dc65f" class="javax.swing.JButton" binding="markAsButton" default-binding="true">
+                        <constraints>
+                          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="Mark as"/>
+                        </properties>
+                      </component>
+                      <component id="79c9a" class="javax.swing.JTextPane" binding="traceTitleTextPane">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="15"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <opaque value="false"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <grid id="fc95c" binding="scaPanel" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <tabbedpane title="SCA"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <grid id="df7f0" binding="scaCard" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <hspacer id="ee4ae">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </hspacer>
+                      <vspacer id="52bf1">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </vspacer>
+                      <component id="c03f4" class="javax.swing.JButton" binding="scaButton">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="Run SCA Audit"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <hspacer id="7b30c">
+                    <constraints>
+                      <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                  </hspacer>
+                  <vspacer id="94b51">
+                    <constraints>
+                      <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                  </vspacer>
+                  <component id="5428a" class="javax.swing.JLabel" binding="scaOutputLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
                     <properties>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="d2489" class="javax.swing.JButton" binding="previousPageButton">
-                    <constraints/>
+                  <component id="e0e09" class="javax.swing.JProgressBar" binding="progressBar1" default-binding="true">
+                    <constraints>
+                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
                     <properties>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="a914a" class="javax.swing.JLabel" binding="pageLabel">
-                    <constraints/>
-                    <properties>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="9317f" class="javax.swing.JLabel" binding="numOfPagesLabel">
-                    <constraints/>
-                    <properties>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="78c5b" class="javax.swing.JButton" binding="nextPageButton">
-                    <constraints/>
-                    <properties>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="65009" class="javax.swing.JButton" binding="lastPageButton">
-                    <constraints/>
-                    <properties>
-                      <text value=""/>
+                      <string value="string here"/>
                     </properties>
                   </component>
                 </children>
               </grid>
             </children>
-          </grid>
-          <grid id="6a9dc" binding="noVulnerabilitiesPanel" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <card name="noVulnerabilitiesCard"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="d039e" class="javax.swing.JLabel" binding="noVulnerabilitiesLabel">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Could not connect to the server. Please check your connection settings."/>
-                </properties>
-              </component>
-              <hspacer id="f8c82">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </hspacer>
-              <vspacer id="1ac">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </vspacer>
-            </children>
-          </grid>
-          <grid id="d47ed" binding="vulnerabilityDetailsPanel" layout-manager="GridLayoutManager" row-count="2" column-count="11" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <card name="vulnerabilityDetailsCard"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="78060" class="javax.swing.JLabel" binding="traceSeverityLabel">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="2a4b0" class="javax.swing.JButton" binding="externalLinkButton">
-                <constraints>
-                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <iconTextGap value="0"/>
-                  <margin top="0" left="0" bottom="0" right="0"/>
-                  <text value=""/>
-                  <toolTipText value="Open in Teamserver"/>
-                </properties>
-              </component>
-              <component id="a08fb" class="javax.swing.JButton" binding="backToResultsButton">
-                <constraints>
-                  <grid row="0" column="10" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Back To Results"/>
-                </properties>
-              </component>
-              <tabbedpane id="df3df" binding="tabbedPane1" default-binding="true">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="11" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <preferred-size width="200" height="200"/>
-                  </grid>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <scrollpane id="2e01e">
-                    <constraints>
-                      <tabbedpane title="Overview"/>
-                    </constraints>
-                    <properties/>
-                    <border type="empty"/>
-                    <children>
-                      <grid id="54876" binding="overviewPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints/>
-                        <properties/>
-                        <border type="empty">
-                          <size top="0" left="10" bottom="0" right="10"/>
-                        </border>
-                        <children/>
-                      </grid>
-                    </children>
-                  </scrollpane>
-                  <scrollpane id="29aba">
-                    <constraints>
-                      <tabbedpane title="How to Fix"/>
-                    </constraints>
-                    <properties>
-                      <opaque value="true"/>
-                      <verticalScrollBarPolicy value="20"/>
-                    </properties>
-                    <border type="empty"/>
-                    <children>
-                      <grid id="6f4e9" binding="recommendationPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints/>
-                        <properties/>
-                        <border type="empty">
-                          <size top="0" left="10" bottom="0" right="10"/>
-                        </border>
-                        <children/>
-                      </grid>
-                    </children>
-                  </scrollpane>
-                  <scrollpane id="8f2cb">
-                    <constraints>
-                      <tabbedpane title="Events">
-                        <tooltip value=""/>
-                      </tabbedpane>
-                    </constraints>
-                    <properties/>
-                    <border type="empty"/>
-                    <children>
-                      <component id="ce4ff" class="javax.swing.JTree" binding="eventsTree">
-                        <constraints/>
-                        <properties>
-                          <largeModel value="false"/>
-                          <opaque value="false"/>
-                          <rootVisible value="false"/>
-                          <showsRootHandles value="true"/>
-                        </properties>
-                      </component>
-                    </children>
-                  </scrollpane>
-                  <scrollpane id="9f00e">
-                    <constraints>
-                      <tabbedpane title="HTTP Request"/>
-                    </constraints>
-                    <properties/>
-                    <border type="empty"/>
-                    <children>
-                      <component id="46be9" class="javax.swing.JTextPane" binding="httpRequestTextPane">
-                        <constraints/>
-                        <properties>
-                          <editable value="false"/>
-                          <margin top="3" left="10" bottom="3" right="10"/>
-                          <opaque value="false"/>
-                        </properties>
-                      </component>
-                    </children>
-                  </scrollpane>
-                </children>
-              </tabbedpane>
-              <component id="4c7af" class="javax.swing.JButton" binding="nextTraceButton">
-                <constraints>
-                  <grid row="0" column="9" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="1666e" class="javax.swing.JButton" binding="previousTraceButton">
-                <constraints>
-                  <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="64fa4" class="javax.swing.JLabel" binding="currentTraceDetailsLabel">
-                <constraints>
-                  <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="2b665" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="0" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="of"/>
-                </properties>
-              </component>
-              <component id="f092" class="javax.swing.JLabel" binding="tracesCountLabel">
-                <constraints>
-                  <grid row="0" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="f5ae7" class="javax.swing.JButton" binding="tagButton">
-                <constraints>
-                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                  <toolTipText value="Tag Vulnerability"/>
-                </properties>
-              </component>
-              <component id="dc65f" class="javax.swing.JButton" binding="markAsButton" default-binding="true">
-                <constraints>
-                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Mark as"/>
-                </properties>
-              </component>
-              <component id="79c9a" class="javax.swing.JTextPane" binding="traceTitleTextPane">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="15"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <opaque value="false"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
+          </tabbedpane>
         </children>
       </grid>
       <component id="5d2e4" class="javax.swing.JLabel">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
           <gridbag weightx="1.0" weighty="0.0" ipadx="5" ipady="5"/>
         </constraints>
         <properties>

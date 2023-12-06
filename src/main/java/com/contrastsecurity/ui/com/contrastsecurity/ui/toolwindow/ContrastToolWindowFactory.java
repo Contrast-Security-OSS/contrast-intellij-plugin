@@ -18,6 +18,7 @@ import com.contrastsecurity.config.ChangeActionNotifier;
 import com.contrastsecurity.config.ContrastFilterPersistentStateComponent;
 import com.contrastsecurity.config.ContrastUtil;
 import com.contrastsecurity.core.Constants;
+import com.contrastsecurity.core.ScaUtil;
 import com.contrastsecurity.core.cache.ContrastCache;
 import com.contrastsecurity.core.cache.Key;
 import com.contrastsecurity.core.internal.preferences.OrganizationConfig;
@@ -76,17 +77,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.unbescape.html.HtmlEscape;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableColumn;
@@ -120,6 +111,8 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.contrastsecurity.config.ContrastUtil.getSelectedOrganizationConfig;
+
 public class ContrastToolWindowFactory implements ToolWindowFactory {
 
     private JPanel contrastToolWindowContent;
@@ -152,6 +145,13 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
     private JButton markAsButton;
     private JTextPane traceTitleTextPane;
     private JLabel noVulnerabilitiesLabel;
+    private JButton scaButton;
+    private JPanel scaCard;
+    private JLabel scaOutputLabel;
+    private JTabbedPane tabbedPane2;
+    private JPanel scaPanel;
+    private JPanel assessPanel;
+    private JProgressBar progressBar1;
     private ContrastSDK contrastSDK;
     private ContrastTableModel contrastTableModel = new ContrastTableModel();
     private ContrastTableRowSorter contrastTableRowSorter = new ContrastTableRowSorter(contrastTableModel);
@@ -274,8 +274,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         backToResultsButton.addActionListener(e -> {
             viewDetailsTrace = null;
 
-            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-            cardLayout.show(cardPanel, "mainCard");
+            CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
+            assessLayout.show(assessPanel, "mainCard");
         });
 
 
@@ -335,8 +335,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 tagDialog.setVisible(true);
                 Tags newTraceTags = tagDialog.getNewTraceTags();
                 if (newTraceTags != null) {
-                    Key key = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid());
-                    Key keyForOrg = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), null);
+                    Key key = new Key(getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid());
+                    Key keyForOrg = new Key(getSelectedOrganizationConfig(project).getUuid(), null);
                     boolean tagsChanged = false;
 //                        remove tags if necessary
                     for (Tag tag : new Tags(viewDetailsTraceTagsResource.getTags()).getTags()) {
@@ -344,7 +344,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                             try {
                                 Gson gson = new Gson();
                                 contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                contrastSDK.deleteVulnerabilityTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid(), tag);
+                                contrastSDK.deleteVulnerabilityTag(getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid(), tag);
                                 if (!tagsChanged) {
                                     tagsChanged = true;
                                 }
@@ -370,7 +370,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         try {
                             contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                            contrastSDK.createTag(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), tagsToAdd);
+                            contrastSDK.createTag(getSelectedOrganizationConfig(project).getUuid(), tagsToAdd);
                             if (!tagsChanged) {
                                 tagsChanged = true;
                             }
@@ -425,7 +425,7 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 new Thread(() -> {
                     try {
                         Gson gson = new Gson();
-                        contrastSDK.setTraceStatus(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), gson.toJson(statusRequest));
+                        contrastSDK.setTraceStatus(getSelectedOrganizationConfig(project).getUuid(), gson.toJson(statusRequest));
                         refreshTraces(false);
                     } catch (IOException | UnauthorizedException e1) {
                         e1.printStackTrace();
@@ -478,6 +478,12 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
 
         setupTable();
         ContrastUtil.updateOrganizationConfig();
+
+        scaButton.addActionListener(event -> {
+            scaOutputLabel.setText("Running SCA Audit...");
+            progressBar1.setIndeterminate(true);
+            ScaUtil.initiateAndManageScaAudit(getSelectedOrganizationConfig(project), project.getBasePath(), scaOutputLabel);
+        });
     }
 
     public void setProject(Project project) {
@@ -543,23 +549,25 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         traceFilterForm = ContrastUtil.getTraceFilterFormFromContrastFilterPersistentStateComponent(project);
 
         if (organizationConfig != null) {
-           if (filtersAreSet || appAlreadySelected()) {
-               new Thread(() -> {
-                   refreshTraces(false);
-                   servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
-                   applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
-               }).start();
-           } else {
-               servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
-               applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
-               CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-               noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
-               cardLayout.show(cardPanel, "noVulnerabilitiesCard");
-           }
+            if (filtersAreSet || appAlreadySelected()) {
+                new Thread(() -> {
+                    refreshTraces(false);
+                    servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
+                    applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
+                }).start();
+            } else {
+                servers = new ArrayList<>(ContrastUtil.retrieveServers(contrastSDK, organizationConfig.getUuid()));
+                applications = ContrastUtil.retrieveApplications(contrastSDK, organizationConfig.getUuid());
+
+
+                CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
+                noVulnerabilitiesLabel.setText("Use the filter icon to select a filter for your vulnerabilities.");
+                assessLayout.show(assessPanel, "noVulnerabilitiesCard");
+            }
         } else {
-            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+            CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
             noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_NO_ORGS);
-            cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+            assessLayout.show(assessPanel, "noVulnerabilitiesCard");
         }
         contrastCache = new ContrastCache();
     }
@@ -596,8 +604,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                 numOfPages = ContrastUtil.getNumOfPages(tracesObject.getCount());
             }
             if (!mainCard.isVisible() && !vulnerabilityDetailsPanel.isVisible()) {
-                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                cardLayout.show(cardPanel, "mainCard");
+                CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
+                assessLayout.show(assessPanel, "mainCard");
             }
             if (contrastFilterPersistentStateComponent.getPage() != null) {
                 pageLabel.setText(String.valueOf(contrastFilterPersistentStateComponent.getPage()));
@@ -622,9 +630,9 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
         } catch (IOException | UnauthorizedException exception) {
             exception.printStackTrace();
             if (!noVulnerabilitiesPanel.isVisible()) {
-                CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
+                CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
                 noVulnerabilitiesLabel.setText(Constants.NO_VULNERABILITIES_ERROR);
-                cardLayout.show(cardPanel, "noVulnerabilitiesCard");
+                assessLayout.show(assessPanel, "noVulnerabilitiesCard");
             }
         }
 
@@ -702,8 +710,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
                         if (ContrastUtil.isTraceLicensed(traceClicked)) {
                             selectedTraceRow = row;
                             viewDetailsTrace = traceClicked;
-                            CardLayout cardLayout = (CardLayout) cardPanel.getLayout();
-                            cardLayout.show(cardPanel, "vulnerabilityDetailsCard");
+                            CardLayout assessLayout = (CardLayout) assessPanel.getLayout();
+                            assessLayout.show(assessPanel, "vulnerabilityDetailsCard");
                             populateVulnerabilityDetailsPanel();
                             tabbedPane1.setSelectedIndex(2);
                         } else {
@@ -762,8 +770,8 @@ public class ContrastToolWindowFactory implements ToolWindowFactory {
             traceTitleTextPane.setText(title);
 
             try {
-                Key key = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid());
-                Key keyForOrg = new Key(ContrastUtil.getSelectedOrganizationConfig(project).getUuid(), null);
+                Key key = new Key(getSelectedOrganizationConfig(project).getUuid(), viewDetailsTrace.getUuid());
+                Key keyForOrg = new Key(getSelectedOrganizationConfig(project).getUuid(), null);
 
                 contrastToolWindowContent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 

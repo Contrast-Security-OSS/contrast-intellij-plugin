@@ -26,8 +26,6 @@ import com.contrastsecurity.sdk.ContrastSDK;
 import com.contrastsecurity.sdk.UserAgentProduct;
 import com.contrastsecurity.ui.com.contrastsecurity.ui.toolwindow.OrganizationTableModel;
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
